@@ -7,7 +7,7 @@
   Derived from the Open Design mobile-app template (Apache-2.0).
 -->
 <html lang="en" data-theme="dark">
-<head>
+<head><script type="application/json" data-od-external-dependencies>["https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"]</script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dio Lens — network inspector prototype</title>
@@ -604,9 +604,9 @@
     .dl-copy-btn:hover { color: var(--dl-text); }
 
     .dl-json-raw { font-family: var(--dl-font-mono); font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; color: var(--dl-text); }
-    .dl-json-tree { font-family: var(--dl-font-mono); font-size:12.5px; line-height:1.7; }
+    .dl-json-tree { font-family: var(--dl-font-mono); font-size:12.5px; line-height:1.7; overflow-x:auto; -webkit-overflow-scrolling:touch; }
     .dl-json-tree .jt-node { margin-left: 14px; }
-    .dl-json-tree .jt-row { display:flex; align-items:flex-start; gap:4px; }
+    .dl-json-tree .jt-row { display:flex; align-items:flex-start; gap:4px; white-space:nowrap; }
     .dl-json-tree .jt-toggle { flex:none; width:16px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; color: var(--dl-text-faint); cursor:pointer; padding:0; }
     .dl-json-tree .jt-toggle .dl-icon { --od-icon-size:12px; transition: transform .15s ease; }
     .dl-json-tree .jt-toggle[aria-expanded="true"] .dl-icon { transform: rotate(90deg); }
@@ -616,6 +616,10 @@
     .dl-json-tree .jt-bool, .dl-json-tree .jt-null { color: #b084f5; }
     .dl-json-tree .jt-punct { color: var(--dl-text-faint); }
     .dl-json-tree .jt-count { color: var(--dl-text-faint); font-size:11px; margin-left:2px; }
+    .dl-json-tree .jt-img { display:inline-flex; align-items:center; gap:4px; border:none; background:transparent; padding:0; margin:0; cursor:pointer; font:inherit; }
+    .dl-json-tree .jt-img .dl-icon { --od-icon-size:12px; color: var(--dl-accent); flex:none; }
+    .dl-json-tree .jt-img .jt-str { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--dl-accent) 55%, transparent); text-underline-offset:2px; }
+    .dl-json-tree .jt-img:hover .jt-str { color: var(--dl-accent); }
 
     .dl-image-preview { border:1px solid var(--dl-border); border-radius: var(--dl-r-md); overflow:hidden; background: var(--dl-surface); }
     .dl-image-ph {
@@ -770,6 +774,25 @@
     @keyframes dl-toast-in { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:translateY(0); } }
     @keyframes dl-toast-out { to { opacity:0; transform: translateY(-4px); } }
 
+    /* ---- Image preview dialog (centered, for image-looking JSON string values) ---- */
+    #dl-image-dialog {
+      position:absolute; inset:0; margin:0; padding:0; border:none; background:transparent; max-width:none; max-height:none; width:100%; height:100%;
+      display:none; pointer-events:auto;
+    }
+    #dl-image-dialog[open] { display:flex; align-items:center; justify-content:center; padding:24px; }
+    #dl-image-dialog[open] .dl-scrim { opacity:1; }
+    .dl-image-dialog-panel {
+      position:relative; width:100%; max-height:80%; display:flex; flex-direction:column; background: var(--dl-surface);
+      border-radius: var(--dl-r-lg); border:1px solid var(--dl-border); color: var(--dl-text); font-family: var(--dl-font-sans);
+      box-shadow: var(--dl-shadow); transform: scale(.94); opacity:0; transition: transform .16s ease-out, opacity .16s ease-out;
+    }
+    #dl-image-dialog[open] .dl-image-dialog-panel { transform: scale(1); opacity:1; }
+    .dl-image-dialog-head { display:flex; align-items:center; padding: 10px 8px 10px 16px; border-bottom:1px solid var(--dl-border); flex:none; }
+    .dl-image-dialog-head h2 { font-size:14px; font-weight:750; }
+    .dl-image-dialog-head .dl-btn-icon { margin-left:auto; }
+    .dl-image-dialog-body { overflow-y:auto; padding:16px; }
+    .dl-image-dialog-caption { margin-top:10px; font-family: var(--dl-font-mono); font-size:11.5px; color: var(--dl-text-faint); word-break:break-all; text-align:center; }
+
     /* ---- In-app request-finished notification banner ---- */
     #dl-notif-root {
       position:absolute; left:0; right:0; top: var(--phone-safe-top, 50px); z-index: 55;
@@ -841,6 +864,16 @@
             <div class="dl-sheet-body" id="dl-settings-body"></div>
           </div>
         </dialog>
+        <dialog id="dl-image-dialog" aria-labelledby="dl-image-dialog-title">
+          <div class="dl-scrim" data-action="close-image-preview"></div>
+          <div class="dl-image-dialog-panel" role="document">
+            <div class="dl-image-dialog-head">
+              <h2 id="dl-image-dialog-title">Image preview</h2>
+              <button type="button" class="dl-btn-icon" data-action="close-image-preview" aria-label="Close image preview"></button>
+            </div>
+            <div class="dl-image-dialog-body" id="dl-image-dialog-body"></div>
+          </div>
+        </dialog>
         <div id="dl-toast-root" aria-live="polite"></div>
       </div>
     </section>
@@ -895,7 +928,7 @@
         reqHeaders:{ 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig', 'Accept-Encoding':'gzip' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Content-Length':'2140', 'Cache-Control':'no-store', 'X-Request-Id':'req_4a1c9f' },
         reqQuery:{}, reqBody:null,
-        resBody:{ data:[ { id:1, name:'Ava Thompson', email:'ava.thompson@example.com', role:'admin' }, { id:2, name:'Liam Chen', email:'liam.chen@example.com', role:'member' }, { id:3, name:'Noor Haddad', email:'noor.haddad@example.com', role:'member' } ], meta:{ page:1, totalPages:5, totalItems:98 } },
+        resBody:{ data:[ { id:1, name:'Ava Thompson', email:'ava.thompson@example.com', role:'admin', avatar:'https://cdn.example.com/avatars/ava-thompson.jpg' }, { id:2, name:'Liam Chen', email:'liam.chen@example.com', role:'member', avatar:'https://cdn.example.com/avatars/liam-chen.jpg' }, { id:3, name:'Noor Haddad', email:'noor.haddad@example.com', role:'member', avatar:'https://cdn.example.com/avatars/noor-haddad.jpg' } ], meta:{ page:1, totalPages:5, totalItems:98 } },
         timing:{ dns:4, connect:18, tls:22, send:2, wait:118, receive:18 } },
 
       { id:'r2', method:'POST', host:'api.example.com', path:'/v1/auth/login', query:null, status:200, statusClass:'2xx',
@@ -904,7 +937,7 @@
         reqHeaders:{ 'Content-Type':'application/json', 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Set-Cookie':'session=REDACTED; HttpOnly', 'X-Request-Id':'req_9b2e11' },
         reqQuery:{}, reqBody:{ email:'ava.thompson@example.com', password:'SuperSecret!23' },
-        resBody:{ accessToken:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0', refreshToken:'8f14e45fceea167a5a36dedd4bea2543', expiresIn:3600, user:{ id:1, name:'Ava Thompson', role:'admin' } },
+        resBody:{ accessToken:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0', refreshToken:'8f14e45fceea167a5a36dedd4bea2543', expiresIn:3600, user:{ id:1, name:'Ava Thompson', role:'admin', avatar:'https://cdn.example.com/avatars/ava-thompson.jpg' } },
         timing:{ dns:6, connect:24, tls:30, send:3, wait:260, receive:18 } },
 
       { id:'r3', method:'GET', host:'api.example.com', path:'/v1/orders', query:'page=2&limit=20', status:200, statusClass:'2xx',
@@ -1227,10 +1260,22 @@
           (isOpen ? '<div class="jt-node">' + rowsO + '</div><span class="jt-punct">}</span>' : '<span class="jt-punct">…}</span>') +
           '</div>';
       }
-      var rendered = typeof value === 'string' ? '<span class="jt-str">"' + esc(value) + '"</span>' :
-        typeof value === 'number' ? '<span class="jt-num">' + value + '</span>' :
-        typeof value === 'boolean' ? '<span class="jt-bool">' + value + '</span>' : '<span class="jt-null">null</span>';
+      var rendered;
+      if (typeof value === 'string' && looksLikeImageUrl(value)) {
+        rendered = '<button type="button" class="jt-img" data-action="open-json-image" data-src="' + esc(value) + '">' + icon('image') + '<span class="jt-str">"' + esc(value) + '"</span></button>';
+      } else if (typeof value === 'string') {
+        rendered = '<span class="jt-str">"' + esc(value) + '"</span>';
+      } else if (typeof value === 'number') {
+        rendered = '<span class="jt-num">' + value + '</span>';
+      } else if (typeof value === 'boolean') {
+        rendered = '<span class="jt-bool">' + value + '</span>';
+      } else {
+        rendered = '<span class="jt-null">null</span>';
+      }
       return '<div class="jt-row"><span class="jt-toggle" aria-hidden="true"></span>' + keyHtml + rendered + '</div>';
+    }
+    function looksLikeImageUrl(v) {
+      return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(v) || /^data:image\//i.test(v);
     }
 
     /* ---------------------------------------------------------------- render: host */
@@ -1798,6 +1843,31 @@
       if (e.key === 'Escape' && settingsDialog.hasAttribute('open')) closeSettings();
     });
 
+    /* ---------------------------------------------------------------- image preview dialog open/close */
+    var imageDialog = document.getElementById('dl-image-dialog');
+    var imageDialogBody = document.getElementById('dl-image-dialog-body');
+    var imageDialogOpener = null;
+    function openImagePreview(src, opener) {
+      imageDialogOpener = opener || null;
+      var filename = src.split('/').pop().split('?')[0] || src;
+      imageDialogBody.innerHTML =
+        '<div class="dl-image-ph" style="border-radius:14px;">' + icon('image') + '<span>Preview placeholder — image not fetched in this prototype</span></div>' +
+        '<div class="dl-image-dialog-caption">' + esc(filename) + '</div>';
+      if (typeof imageDialog.show === 'function') imageDialog.show();
+      else imageDialog.setAttribute('open', '');
+      var closeBtn = imageDialog.querySelector('[data-action="close-image-preview"].dl-btn-icon');
+      if (closeBtn) closeBtn.focus();
+    }
+    function closeImagePreview() {
+      imageDialog.close ? imageDialog.close() : imageDialog.removeAttribute('open');
+      if (imageDialogOpener && document.contains(imageDialogOpener)) imageDialogOpener.focus();
+      imageDialogOpener = null;
+    }
+    imageDialog.addEventListener('cancel', function (e) { e.preventDefault(); closeImagePreview(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && imageDialog.hasAttribute('open')) closeImagePreview();
+    });
+
     /* ---------------------------------------------------------------- event delegation
        Delegated on document (not #dl-app) because the settings sheet and
        toasts mount in #dl-overlay-root, a sibling of #dl-app's ancestor. */
@@ -1888,6 +1958,10 @@
           break;
         case 'close-settings':
           closeSettings(); break;
+        case 'open-json-image':
+          openImagePreview(btn.dataset.src, btn); break;
+        case 'close-image-preview':
+          closeImagePreview(); break;
         case 'set-theme':
           state.settings.theme = btn.dataset.theme; renderSettings(); render(); break;
         case 'quick-theme-toggle':
