@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Playground",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "playground",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "Playground (profile)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "playground",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    }
+  ]
+}
