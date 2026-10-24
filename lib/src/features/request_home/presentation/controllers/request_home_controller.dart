@@ -86,6 +86,12 @@ class RequestHomeController extends ChangeNotifier {
     await _deleteRequest(id);
   }
 
+  /// Re-reads the list; completes once fresh data has arrived.
+  Future<void> refresh() {
+    _started = true;
+    return _subscribe();
+  }
+
   Future<void> clearAll() async {
     await _clearAllRequests(unit);
   }
@@ -97,13 +103,25 @@ class RequestHomeController extends ChangeNotifier {
     if (_started) _subscribe();
   }
 
-  void _subscribe() {
+  /// (Re)subscribes for the current params; the future completes on the
+  /// first result.
+  Future<void> _subscribe() {
     _subscription?.cancel();
-    _subscription = _watchRequests(_params).listen((requests) {
-      _requests = requests;
-      _loading = false;
-      notifyListeners();
-    });
+    final firstResult = Completer<void>();
+    _subscription = _watchRequests(_params).listen(
+      (requests) {
+        _requests = requests;
+        _loading = false;
+        notifyListeners();
+        if (!firstResult.isCompleted) firstResult.complete();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!firstResult.isCompleted) {
+          firstResult.completeError(error, stackTrace);
+        }
+      },
+    );
+    return firstResult.future;
   }
 
   @override

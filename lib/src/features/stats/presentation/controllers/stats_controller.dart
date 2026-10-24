@@ -27,11 +27,30 @@ class StatsController extends ChangeNotifier {
   @override
   void addListener(VoidCallback listener) {
     super.addListener(listener);
-    _subscription ??= _watchStats(unit).listen((stats) {
-      _stats = stats;
-      _loading = false;
-      notifyListeners();
-    });
+    if (_subscription == null) _subscribe();
+  }
+
+  /// Recomputes the stats; completes once fresh data has arrived.
+  Future<void> refresh() => _subscribe();
+
+  /// (Re)subscribes; the future completes on the first result.
+  Future<void> _subscribe() {
+    _subscription?.cancel();
+    final firstResult = Completer<void>();
+    _subscription = _watchStats(unit).listen(
+      (stats) {
+        _stats = stats;
+        _loading = false;
+        notifyListeners();
+        if (!firstResult.isCompleted) firstResult.complete();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!firstResult.isCompleted) {
+          firstResult.completeError(error, stackTrace);
+        }
+      },
+    );
+    return firstResult.future;
   }
 
   @override

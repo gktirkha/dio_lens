@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/enums/export_format.dart';
 import '../../../../core/utils/format_utils.dart';
+import '../../../../core/widgets/dio_lens_refresh_indicator.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../controllers/stats_controller.dart';
@@ -62,9 +63,12 @@ class StatsPage extends StatelessWidget {
                 builder: (context, _) {
                   if (controller.isLoading) return const SizedBox.shrink();
                   final stats = controller.stats;
-                  return stats.isEmpty
-                      ? const _EmptyStats()
-                      : _StatsBody(stats: stats);
+                  return DioLensRefreshIndicator(
+                    onRefresh: controller.refresh,
+                    child: stats.isEmpty
+                        ? const _EmptyStats()
+                        : _StatsBody(stats: stats),
+                  );
                 },
               ),
             ),
@@ -86,6 +90,7 @@ class _StatsBody extends StatelessWidget {
     final successRate = stats.successRate;
 
     return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 18),
       children: [
         StatCardGrid(
@@ -188,6 +193,7 @@ class _EmptyStats extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsetsDirectional.fromSTEB(36, 70, 36, 40),
       child: Column(
         children: [

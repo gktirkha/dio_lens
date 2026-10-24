@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import '../../../../core/enums/export_format.dart';
+import '../../../../core/widgets/dio_lens_refresh_indicator.dart';
 import '../controllers/request_home_controller.dart';
 import '../widgets/request_empty_state.dart';
 import '../widgets/request_group_header.dart';
@@ -150,20 +151,27 @@ class _RequestHomePageState extends State<RequestHomePage> {
             Expanded(
               child: _controller.isLoading
                   ? const SizedBox.shrink()
-                  : visible.isEmpty
-                  ? SingleChildScrollView(
-                      child: RequestEmptyState(filtered: !params.isEmpty),
-                    )
-                  : CustomScrollView(
-                      slivers: [
-                        if (recent.isNotEmpty)
-                          _group(context, 'Just now', recent),
-                        if (earlier.isNotEmpty)
-                          _group(context, 'Earlier', earlier),
-                        const SliverPadding(
-                          padding: EdgeInsets.only(bottom: 18),
-                        ),
-                      ],
+                  : DioLensRefreshIndicator(
+                      onRefresh: _controller.refresh,
+                      child: visible.isEmpty
+                          ? SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              child: RequestEmptyState(
+                                filtered: !params.isEmpty,
+                              ),
+                            )
+                          : CustomScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              slivers: [
+                                if (recent.isNotEmpty)
+                                  _group(context, 'Just now', recent),
+                                if (earlier.isNotEmpty)
+                                  _group(context, 'Earlier', earlier),
+                                const SliverPadding(
+                                  padding: EdgeInsets.only(bottom: 18),
+                                ),
+                              ],
+                            ),
                     ),
             ),
           ],
