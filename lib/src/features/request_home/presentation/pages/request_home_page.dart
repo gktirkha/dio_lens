@@ -171,9 +171,9 @@ class _RequestHomePageState extends State<RequestHomePage> {
                   : CustomScrollView(
                       slivers: [
                         if (recent.isNotEmpty)
-                          ..._group(context, 'Just now', recent),
+                          _group(context, 'Just now', recent),
                         if (earlier.isNotEmpty)
-                          ..._group(context, 'Earlier', earlier),
+                          _group(context, 'Earlier', earlier),
                         const SliverPadding(
                           padding: EdgeInsets.only(bottom: 18),
                         ),
@@ -186,31 +186,35 @@ class _RequestHomePageState extends State<RequestHomePage> {
     );
   }
 
-  List<Widget> _group(
+  /// One section of the list. The header stays pinned to the top while its
+  /// group scrolls, and the next group's header pushes it out.
+  Widget _group(
     BuildContext context,
     String label,
     List<RequestListItemEntity> items,
   ) {
     final theme = DioLensTheme.of(context);
-    return [
-      SliverToBoxAdapter(child: RequestGroupHeader(label: label)),
-      SliverList.separated(
-        itemCount: items.length,
-        separatorBuilder: (_, _) => Divider(height: 1, color: theme.border),
-        itemBuilder: (context, i) {
-          final item = items[i];
-          return RequestListTile(
-            key: ValueKey(item.id),
-            item: item,
-            onTap: widget.onRequestTap == null
-                ? null
-                : () => widget.onRequestTap!(item),
-            onDelete: widget.onRequestDelete == null
-                ? null
-                : () => widget.onRequestDelete!(item),
-          );
-        },
-      ),
-    ];
+    return SliverMainAxisGroup(
+      slivers: [
+        PinnedHeaderSliver(child: RequestGroupHeader(label: label)),
+        SliverList.separated(
+          itemCount: items.length,
+          separatorBuilder: (_, _) => Divider(height: 1, color: theme.border),
+          itemBuilder: (context, i) {
+            final item = items[i];
+            return RequestListTile(
+              key: ValueKey(item.id),
+              item: item,
+              onTap: widget.onRequestTap == null
+                  ? null
+                  : () => widget.onRequestTap!(item),
+              onDelete: widget.onRequestDelete == null
+                  ? null
+                  : () => widget.onRequestDelete!(item),
+            );
+          },
+        ),
+      ],
+    );
   }
 }

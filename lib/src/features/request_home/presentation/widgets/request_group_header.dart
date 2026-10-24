@@ -11,15 +11,19 @@ class RequestGroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 6),
-      child: Text(
-        label.toUpperCase(),
-        style: TextStyle(
-          fontSize: 11.5,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.46,
-          color: theme.textFaint,
+    // Opaque so rows don't show through while the header is pinned.
+    return ColoredBox(
+      color: theme.background,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 16, 6),
+        child: Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.46,
+            color: theme.textFaint,
+          ),
         ),
       ),
     );
