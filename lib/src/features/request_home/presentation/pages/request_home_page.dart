@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_list_item_entity.dart';
-import '../models/request_status_filter.dart';
+import '../controllers/request_home_controller.dart';
 import '../widgets/request_empty_state.dart';
 import '../widgets/request_group_header.dart';
 import '../widgets/request_home_header.dart';
@@ -12,29 +12,23 @@ import '../widgets/status_filter_bar.dart';
 /// The inspector's home screen: every captured request, newest first, with
 /// status/method filters and search.
 ///
-/// Filtering and search are local UI state for now; data and actions come
-/// from the caller.
+/// Data, filters and delete/clear go through [controller]; navigation-style
+/// actions are reported through the callbacks.
 class RequestHomePage extends StatefulWidget {
   const RequestHomePage({
     super.key,
-    required this.requests,
+    required this.controller,
     this.onRequestTap,
-    this.onRequestDelete,
-    this.onClearAll,
     this.onToggleTheme,
     this.onOpenSettings,
     this.onExport,
     this.onMinimize,
   });
 
-  /// Captured requests, newest first.
-  final List<RequestListItemEntity> requests;
+  /// Owned by the caller, which also disposes it.
+  final RequestHomeController controller;
 
   final ValueChanged<RequestListItemEntity>? onRequestTap;
-  final ValueChanged<RequestListItemEntity>? onRequestDelete;
-
-  /// Called after the user confirms "Clear all requests".
-  final VoidCallback? onClearAll;
   final VoidCallback? onToggleTheme;
   final VoidCallback? onOpenSettings;
   final ValueChanged<RequestExportFormat>? onExport;
@@ -48,16 +42,12 @@ class RequestHomePage extends StatefulWidget {
 }
 
 class _RequestHomePageState extends State<RequestHomePage> {
-  final _searchController = TextEditingController();
-  RequestStatusFilter _statusFilter = RequestStatusFilter.all;
-  final Set<String> _methods = {};
+  late final _searchController = TextEditingController(
+    text: widget.controller.params.search,
+  )..addListener(_onSearchChanged);
   bool _searchOpen = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() => setState(() {}));
-  }
+  RequestHomeController get _controller => widget.controller;
 
   @override
   void dispose() {
@@ -65,31 +55,22 @@ class _RequestHomePageState extends State<RequestHomePage> {
     super.dispose();
   }
 
-  bool _matchesMethodAndSearch(RequestListItemEntity r) {
-    if (_methods.isNotEmpty && !_methods.contains(r.method.toUpperCase())) {
-      return false;
-    }
-    final query = _searchController.text.trim().toLowerCase();
-    if (query.isEmpty) return true;
-    final haystack = '${r.method} ${r.host} ${r.path} ${r.query ?? ''}'
-        .toLowerCase();
-    return haystack.contains(query);
-  }
+  void _onSearchChanged() => _controller.setSearch(_searchController.text);
 
   void _closeSearch() {
     _searchController.clear();
+    _controller.setSearch('', immediate: true);
     setState(() => _searchOpen = false);
   }
 
   Future<void> _confirmClearAll() async {
     final theme = DioLensTheme.of(context);
-    final count = widget.requests.length;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear all requests?'),
         content: Text(
-          'Clear all $count captured requests? This cannot be undone.',
+          'Clear all captured requests? This cannot be undone.',
           style: TextStyle(color: theme.textMuted, fontSize: 13.5),
         ),
         actions: [
@@ -109,20 +90,21 @@ class _RequestHomePageState extends State<RequestHomePage> {
         ],
       ),
     );
-    if (confirmed ?? false) widget.onClearAll?.call();
+    if (confirmed ?? false) await _controller.clearAll();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = DioLensTheme.of(context);
+    return ListenableBuilder(
+      listenable: _controller,
+      builder: (context, _) => _buildPage(context),
+    );
+  }
 
-    final visible = widget.requests
-        .where(
-          (r) =>
-              _statusFilter.matches(r.statusClass) &&
-              _matchesMethodAndSearch(r),
-        )
-        .toList();
+  Widget _buildPage(BuildContext context) {
+    final theme = DioLensTheme.of(context);
+    final params = _controller.params;
+    final visible = _controller.requests;
 
     final now = DateTime.now();
     final recent = <RequestListItemEntity>[];
@@ -146,27 +128,27 @@ class _RequestHomePageState extends State<RequestHomePage> {
               searchController: _searchController,
               onSearchOpen: () => setState(() => _searchOpen = true),
               onSearchClose: _closeSearch,
-              selectedMethods: _methods,
-              onMethodToggled: (m) => setState(() {
-                if (!_methods.remove(m)) _methods.add(m);
-              }),
-              onMethodsCleared: () => setState(_methods.clear),
+              selectedMethods: params.methods,
+              onMethodToggled: _controller.toggleMethod,
+              onMethodsCleared: _controller.clearMethods,
               onToggleTheme: widget.onToggleTheme,
               onOpenSettings: widget.onOpenSettings,
               onExport: widget.onExport,
-              onClearAll: widget.requests.isEmpty ? null : _confirmClearAll,
+              onClearAll: visible.isEmpty && params.isEmpty
+                  ? null
+                  : _confirmClearAll,
               onMinimize: widget.onMinimize,
             ),
             StatusFilterBar(
-              selected: _statusFilter,
-              onSelected: (f) => setState(() => _statusFilter = f),
+              selected: params.status,
+              onSelected: _controller.setStatus,
             ),
             Expanded(
-              child: visible.isEmpty
+              child: _controller.isLoading
+                  ? const SizedBox.shrink()
+                  : visible.isEmpty
                   ? SingleChildScrollView(
-                      child: RequestEmptyState(
-                        filtered: widget.requests.isNotEmpty,
-                      ),
+                      child: RequestEmptyState(filtered: !params.isEmpty),
                     )
                   : CustomScrollView(
                       slivers: [
@@ -208,9 +190,7 @@ class _RequestHomePageState extends State<RequestHomePage> {
               onTap: widget.onRequestTap == null
                   ? null
                   : () => widget.onRequestTap!(item),
-              onDelete: widget.onRequestDelete == null
-                  ? null
-                  : () => widget.onRequestDelete!(item),
+              onDelete: () => _controller.deleteRequest(item.id),
             );
           },
         ),
