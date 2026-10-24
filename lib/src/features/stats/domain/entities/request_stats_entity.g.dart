@@ -19,11 +19,6 @@ _RequestStatsEntity _$RequestStatsEntityFromJson(Map<String, dynamic> json) =>
       p95Latency: json['p95_latency'] == null
           ? null
           : Duration(microseconds: (json['p95_latency'] as num).toInt()),
-      requestsOverTime:
-          (json['requests_over_time'] as List<dynamic>?)
-              ?.map((e) => TimeBucketEntity.fromJson(e as Map<String, dynamic>))
-              .toList() ??
-          const <TimeBucketEntity>[],
       statusDistribution:
           (json['status_distribution'] as List<dynamic>?)
               ?.map(
@@ -60,9 +55,6 @@ Map<String, dynamic> _$RequestStatsEntityToJson(_RequestStatsEntity instance) =>
       'total_bytes': instance.totalBytes,
       'average_latency': instance.averageLatency?.inMicroseconds,
       'p95_latency': instance.p95Latency?.inMicroseconds,
-      'requests_over_time': instance.requestsOverTime
-          .map((e) => e.toJson())
-          .toList(),
       'status_distribution': instance.statusDistribution
           .map((e) => e.toJson())
           .toList(),

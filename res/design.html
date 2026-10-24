@@ -664,10 +664,6 @@
     .dl-panel-head h2 { margin-bottom:0; }
     .dl-panel-head .chev { --od-icon-size:16px; margin-left:auto; color: var(--dl-text-faint); flex:none; }
     .dl-panel-head:hover .chev { color: var(--dl-text); }
-    .dl-chart-bars { display:flex; align-items:flex-end; gap:6px; height: 92px; }
-    .dl-chart-bars .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; }
-    .dl-chart-bars .bar { width:100%; max-width:16px; border-radius: 4px 4px 2px 2px; background: var(--dl-accent); }
-    .dl-chart-bars .bar-lbl { font-size:9px; color: var(--dl-text-faint); transform: rotate(0deg); }
 
     .dl-donut-row { display:flex; align-items:center; gap:18px; }
     .dl-donut-row svg { flex:none; }
@@ -1024,7 +1020,6 @@
 
     var STATS = {
       successRate: 72.0, avgLatency: 214, p95Latency: 680, totalData: '4.9 MB', errorCount: 68,
-      overTime: { labels:['09','10','11','12','13','14','15','16','17','18','19','20'], values:[6,9,14,22,31,27,19,24,35,29,18,10] },
       distribution: [
         { key:'2xx', label:'2xx success', pct:72, color:'var(--dl-success)' },
         { key:'3xx', label:'3xx redirect', pct:6, color:'var(--dl-redirect)' },
@@ -1628,14 +1623,6 @@
       return '<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Status code distribution donut chart">' + segs +
       '</svg>';
     }
-    function barsChart() {
-      var max = Math.max.apply(null, STATS.overTime.values);
-      return '<div class="dl-chart-bars" role="img" aria-label="Requests over time, hourly">' +
-        STATS.overTime.values.map(function (v, i) {
-          var h = Math.max(6, Math.round(v / max * 100));
-          return '<div class="bar-col"><div class="bar" style="height:' + h + '%"></div><div class="bar-lbl">' + STATS.overTime.labels[i] + '</div></div>';
-        }).join('') + '</div>';
-    }
     function rankList(items, valueKey, suffix, maxVal) {
       return '<div class="dl-rank-list">' + items.map(function (it) {
         var v = it[valueKey];
@@ -1663,7 +1650,6 @@
             '<div class="dl-stat-card"><div class="lbl">Data transferred</div><div class="val">' + STATS.totalData + '</div></div>' +
             '<div class="dl-stat-card"><div class="lbl">Error count</div><div class="val bad">' + STATS.errorCount + '</div></div>' +
           '</div>' +
-          '<div class="dl-panel"><h2>Requests over time</h2>' + barsChart() + '</div>' +
           '<div class="dl-panel"><h2>Status code distribution</h2><div class="dl-donut-row">' + donutSvg() +
             '<div class="dl-legend">' + STATS.distribution.map(function (d) {
               return '<div class="dl-legend-item"><span class="dl-legend-dot" style="background:' + d.color + '"></span><span class="name">' + d.label + '</span><span class="pct">' + d.pct + '%</span></div>';

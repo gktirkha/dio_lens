@@ -6,14 +6,13 @@ import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../controllers/stats_controller.dart';
 import '../widgets/ranked_list.dart';
-import '../widgets/requests_over_time_chart.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/stats_header.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/status_distribution.dart';
 
-/// Analytics dashboard: summary cards, traffic over time, status mix and
-/// ranked endpoints/hosts.
+/// Analytics dashboard: summary cards, status mix and ranked
+/// endpoints/hosts.
 class StatsPage extends StatelessWidget {
   const StatsPage({
     super.key,
@@ -114,11 +113,6 @@ class _StatsBody extends StatelessWidget {
               valueColor: theme.danger,
             ),
           ],
-        ),
-        const SizedBox(height: 16),
-        StatsPanel(
-          title: 'Requests over time',
-          child: RequestsOverTimeChart(buckets: stats.requestsOverTime),
         ),
         const SizedBox(height: 16),
         StatsPanel(

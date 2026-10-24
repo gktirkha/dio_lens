@@ -5,13 +5,9 @@ import '../../domain/entities/endpoint_latency_entity.dart';
 import '../../domain/entities/named_count_entity.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../../domain/entities/status_share_entity.dart';
-import '../../domain/entities/time_bucket_entity.dart';
 
 /// Turns captured requests into [RequestStatsEntity]. Pure and synchronous.
 abstract final class RequestStatsCalculator {
-  /// Hourly buckets shown in "Requests over time".
-  static const int hourBuckets = 12;
-
   /// Rows in each ranked list.
   static const int rankedLimit = 5;
 
@@ -26,10 +22,7 @@ abstract final class RequestStatsCalculator {
     RequestStatusClass.informational,
   ];
 
-  static RequestStatsEntity calculate(
-    List<RequestListItemEntity> requests, {
-    DateTime? now,
-  }) {
+  static RequestStatsEntity calculate(List<RequestListItemEntity> requests) {
     if (requests.isEmpty) return RequestStatsEntity.empty;
 
     final statusCounts = <RequestStatusClass, int>{};
@@ -77,7 +70,6 @@ abstract final class RequestStatsCalculator {
       p95Latency: latencies.isEmpty
           ? null
           : Duration(milliseconds: _percentile(latencies, 0.95)),
-      requestsOverTime: _hourly(requests, now ?? DateTime.now()),
       statusDistribution: [
         for (final c in distributionOrder)
           if (count(c) > 0) StatusShareEntity(statusClass: c, count: count(c)),
@@ -113,26 +105,6 @@ abstract final class RequestStatsCalculator {
   static int _percentile(List<int> sorted, double p) {
     final rank = (p * sorted.length).ceil().clamp(1, sorted.length);
     return sorted[rank - 1];
-  }
-
-  static List<TimeBucketEntity> _hourly(
-    List<RequestListItemEntity> requests,
-    DateTime now,
-  ) {
-    final currentHour = DateTime(now.year, now.month, now.day, now.hour);
-    final first = currentHour.subtract(const Duration(hours: hourBuckets - 1));
-    final counts = List<int>.filled(hourBuckets, 0);
-    for (final r in requests) {
-      final index = r.startedAt.difference(first).inHours;
-      if (!r.startedAt.isBefore(first) && index < hourBuckets) counts[index]++;
-    }
-    return [
-      for (var i = 0; i < hourBuckets; i++)
-        TimeBucketEntity(
-          start: first.add(Duration(hours: i)),
-          count: counts[i],
-        ),
-    ];
   }
 
   static List<T> _top<T>(Iterable<T> items, int Function(T) score) {

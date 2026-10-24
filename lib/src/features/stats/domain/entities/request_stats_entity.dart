@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'endpoint_latency_entity.dart';
 import 'named_count_entity.dart';
 import 'status_share_entity.dart';
-import 'time_bucket_entity.dart';
 
 part 'request_stats_entity.freezed.dart';
 part 'request_stats_entity.g.dart';
@@ -31,11 +30,6 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     /// Null when no request has finished yet.
     @JsonKey(name: 'average_latency') Duration? averageLatency,
     @JsonKey(name: 'p95_latency') Duration? p95Latency,
-
-    /// Oldest first.
-    @JsonKey(name: 'requests_over_time')
-    @Default(<TimeBucketEntity>[])
-    List<TimeBucketEntity> requestsOverTime,
 
     /// Only status classes that occur, in display order.
     @JsonKey(name: 'status_distribution')
