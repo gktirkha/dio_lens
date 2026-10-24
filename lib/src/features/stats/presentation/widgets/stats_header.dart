@@ -9,14 +9,18 @@ import '../../../../theme/dio_lens_theme.dart';
 class StatsHeader extends StatelessWidget {
   const StatsHeader({
     super.key,
-    this.onToggleTheme,
+    this.themeMode = ThemeMode.dark,
+    this.onThemeModeChanged,
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
     this.onMinimize,
   });
 
-  final VoidCallback? onToggleTheme;
+  final ThemeMode themeMode;
+
+  /// Shows the theme toggle when set.
+  final ValueChanged<ThemeMode>? onThemeModeChanged;
   final VoidCallback? onOpenSettings;
   final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onClearAll;
@@ -25,7 +29,7 @@ class StatsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
-    final onToggleTheme = this.onToggleTheme;
+    final onThemeModeChanged = this.onThemeModeChanged;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -49,8 +53,11 @@ class StatsHeader extends StatelessWidget {
                 ),
               ),
             ),
-            if (onToggleTheme != null)
-              DioLensThemeToggleButton(onPressed: onToggleTheme),
+            if (onThemeModeChanged != null)
+              DioLensThemeToggleButton(
+                mode: themeMode,
+                onChanged: onThemeModeChanged,
+              ),
             DioLensOverflowMenu(
               onOpenSettings: onOpenSettings,
               onExport: onExport,

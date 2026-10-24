@@ -46,19 +46,43 @@ class DioLensIconButton extends StatelessWidget {
   }
 }
 
-/// Moon/sun button that flips between the dark and light theme.
+/// Cycles the theme light → dark → system; the icon shows the current mode.
 class DioLensThemeToggleButton extends StatelessWidget {
-  const DioLensThemeToggleButton({super.key, required this.onPressed});
+  const DioLensThemeToggleButton({
+    super.key,
+    required this.mode,
+    required this.onChanged,
+  });
 
-  final VoidCallback onPressed;
+  final ThemeMode mode;
+
+  /// Called with the next mode in the cycle.
+  final ValueChanged<ThemeMode> onChanged;
+
+  /// Mode that follows [mode] when the button is pressed.
+  static ThemeMode next(ThemeMode mode) => switch (mode) {
+    ThemeMode.light => ThemeMode.dark,
+    ThemeMode.dark => ThemeMode.system,
+    ThemeMode.system => ThemeMode.light,
+  };
+
+  static String _label(ThemeMode mode) => switch (mode) {
+    ThemeMode.light => 'Light',
+    ThemeMode.dark => 'Dark',
+    ThemeMode.system => 'System',
+  };
 
   @override
   Widget build(BuildContext context) {
-    final isDark = DioLensTheme.of(context).brightness == Brightness.dark;
+    final next = DioLensThemeToggleButton.next(mode);
     return DioLensIconButton(
-      icon: isDark ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-      tooltip: 'Switch to ${isDark ? 'light' : 'dark'} theme',
-      onPressed: onPressed,
+      icon: switch (mode) {
+        ThemeMode.light => Icons.light_mode_outlined,
+        ThemeMode.dark => Icons.dark_mode_outlined,
+        ThemeMode.system => Icons.brightness_auto_outlined,
+      },
+      tooltip: 'Theme: ${_label(mode)}. Switch to ${_label(next)}',
+      onPressed: () => onChanged(next),
     );
   }
 }

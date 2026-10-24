@@ -1321,10 +1321,13 @@
     }
 
     /* ---------------------------------------------------------------- render: top bar + filters */
+    /* Theme toggle cycles light → dark → system; the icon shows the current mode. */
+    var THEME_CYCLE = { light: 'dark', dark: 'system', system: 'light' };
+    var THEME_META = { light: { label: 'Light', icon: 'sun' }, dark: { label: 'Dark', icon: 'moon' }, system: { label: 'System', icon: 'monitor' } };
     function quickThemeToggleBtn(extraStyle) {
-      var eff = effectiveTheme();
-      var nextLabel = eff === 'dark' ? 'light' : 'dark';
-      return '<button type="button" class="dl-btn-icon" data-action="quick-theme-toggle" aria-label="Preview ' + nextLabel + ' theme" title="Preview ' + nextLabel + ' theme"' + (extraStyle ? ' style="' + extraStyle + '"' : '') + '>' + icon(eff === 'dark' ? 'moon' : 'sun') + '</button>';
+      var cur = state.settings.theme;
+      var hint = 'Theme: ' + THEME_META[cur].label + '. Switch to ' + THEME_META[THEME_CYCLE[cur]].label;
+      return '<button type="button" class="dl-btn-icon" data-action="quick-theme-toggle" aria-label="' + hint + '" title="' + hint + '"' + (extraStyle ? ' style="' + extraStyle + '"' : '') + '>' + icon(THEME_META[cur].icon) + '</button>';
     }
     function topbar(title, opts) {
       opts = opts || {};
@@ -2008,7 +2011,7 @@
         case 'set-theme':
           state.settings.theme = btn.dataset.theme; renderSettings(); render(); break;
         case 'quick-theme-toggle':
-          state.settings.theme = effectiveTheme() === 'dark' ? 'light' : 'dark';
+          state.settings.theme = THEME_CYCLE[state.settings.theme];
           if (settingsDialog.hasAttribute('open')) renderSettings();
           render();
           break;

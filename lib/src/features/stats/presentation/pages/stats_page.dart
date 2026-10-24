@@ -17,7 +17,8 @@ class StatsPage extends StatelessWidget {
   const StatsPage({
     super.key,
     required this.controller,
-    this.onToggleTheme,
+    this.themeMode = ThemeMode.dark,
+    this.onThemeModeChanged,
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
@@ -27,7 +28,8 @@ class StatsPage extends StatelessWidget {
   /// Owned by the caller, which also disposes it.
   final StatsController controller;
 
-  final VoidCallback? onToggleTheme;
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode>? onThemeModeChanged;
   final VoidCallback? onOpenSettings;
   final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onClearAll;
@@ -47,7 +49,8 @@ class StatsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             StatsHeader(
-              onToggleTheme: onToggleTheme,
+              themeMode: themeMode,
+              onThemeModeChanged: onThemeModeChanged,
               onOpenSettings: onOpenSettings,
               onExport: onExport,
               onClearAll: onClearAll,
