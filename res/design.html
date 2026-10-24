@@ -658,6 +658,12 @@
 
     .dl-panel { margin: 10px 16px 16px; border:1px solid var(--dl-border); background: var(--dl-surface); border-radius: var(--dl-r-lg); padding: 15px; }
     .dl-panel h2 { font-size: 13px; font-weight:700; margin-bottom: 12px; }
+    .dl-panel-head {
+      width:100%; display:flex; align-items:center; gap:6px; border:none; background:transparent; padding:0; margin-bottom:12px; cursor:pointer; color: var(--dl-text);
+    }
+    .dl-panel-head h2 { margin-bottom:0; }
+    .dl-panel-head .chev { --od-icon-size:16px; margin-left:auto; color: var(--dl-text-faint); flex:none; }
+    .dl-panel-head:hover .chev { color: var(--dl-text); }
     .dl-chart-bars { display:flex; align-items:flex-end; gap:6px; height: 92px; }
     .dl-chart-bars .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; }
     .dl-chart-bars .bar { width:100%; max-width:16px; border-radius: 4px 4px 2px 2px; background: var(--dl-accent); }
@@ -1031,18 +1037,35 @@
         { path:'/v1/payments/intent', avg:742 }, { path:'/v1/sync', avg:612 }, { path:'/v1/reports/export', avg:398 },
         { path:'/v1/orders', avg:266 }, { path:'/v1/users', avg:184 }
       ],
+      slowestAll: [
+        { path:'/v1/payments/intent', avg:742 }, { path:'/v1/sync', avg:612 }, { path:'/v1/reports/export', avg:398 },
+        { path:'/v1/orders', avg:266 }, { path:'/v1/users', avg:184 }, { path:'/v1/search', avg:171 },
+        { path:'/v1/notifications', avg:158 }, { path:'/v1/cart', avg:142 }, { path:'/v1/profile', avg:129 },
+        { path:'/auth/login', avg:118 }, { path:'/v1/settings', avg:94 }, { path:'/v1/cart/items', avg:81 }
+      ],
       mostCalled: [
         { path:'/v1/users', count:142 }, { path:'/v1/orders', count:97 }, { path:'/auth/login', count:54 },
         { path:'/v1/notifications', count:41 }, { path:'/v1/cart', count:22 }
       ],
+      mostCalledAll: [
+        { path:'/v1/users', count:142 }, { path:'/v1/orders', count:97 }, { path:'/auth/login', count:54 },
+        { path:'/v1/notifications', count:41 }, { path:'/v1/cart', count:22 }, { path:'/v1/profile', count:19 },
+        { path:'/v1/payments/intent', count:14 }, { path:'/v1/search', count:11 }, { path:'/v1/settings', count:8 },
+        { path:'/v1/sync', count:6 }, { path:'/v1/reports/export', count:3 }, { path:'/v1/cart/items', count:2 }
+      ],
       topHosts: [
         { host:'api.example.com', count:278, pct:78 }, { host:'cdn.example.com', count:57, pct:16 }, { host:'auth.example.com', count:21, pct:6 }
+      ],
+      topHostsAll: [
+        { host:'api.example.com', count:278, pct:73 }, { host:'cdn.example.com', count:57, pct:15 }, { host:'auth.example.com', count:21, pct:5 },
+        { host:'analytics.example.com', count:14, pct:4 }, { host:'images.example.com', count:8, pct:2 }, { host:'payments.example.com', count:4, pct:1 }
       ]
     };
 
     /* ---------------------------------------------------------------- state */
     var state = {
-      view: 'host',               // host | list | detail | stats
+      view: 'host',               // host | list | detail | stats | rank-detail
+      rankKind: null,              // 'slowest' | 'mostCalled' | 'topHosts' (for rank-detail view)
       filter: 'all',              // all | 2xx | 3xx | 4xx | 5xx | errors
       methodFilter: new Set(),    // empty = all methods
       search: '',
@@ -1649,11 +1672,36 @@
             '<div class="dl-legend-item total"><span class="name">Total requests</span><span class="pct">' + requests.length + '</span></div>' +
             '</div>' +
           '</div></div>' +
-          '<div class="dl-panel"><h2>Slowest endpoints</h2>' + rankList(STATS.slowest, 'avg', ' ms', maxSlow) + '</div>' +
-          '<div class="dl-panel"><h2>Most-called endpoints</h2>' + rankList(STATS.mostCalled, 'count', '×', maxCalled) + '</div>' +
-          '<div class="dl-panel"><h2>Top hosts</h2>' + rankList(STATS.topHosts, 'count', '×', maxHost) + '</div>' +
+          '<div class="dl-panel">' +
+            '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="slowest"><h2>Slowest endpoints</h2>' + icon('chevronRight', 'chev') + '</button>' +
+            rankList(STATS.slowest, 'avg', ' ms', maxSlow) +
+          '</div>' +
+          '<div class="dl-panel">' +
+            '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="mostCalled"><h2>Most-called endpoints</h2>' + icon('chevronRight', 'chev') + '</button>' +
+            rankList(STATS.mostCalled, 'count', '×', maxCalled) +
+          '</div>' +
+          '<div class="dl-panel">' +
+            '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="topHosts"><h2>Top hosts</h2>' + icon('chevronRight', 'chev') + '</button>' +
+            rankList(STATS.topHosts, 'count', '×', maxHost) +
+          '</div>' +
         '</div>' +
         bottomNav('stats') +
+      '</div>';
+    }
+
+    var RANK_META = {
+      slowest: { title: 'Slowest endpoints', items: 'slowestAll', valueKey: 'avg', suffix: ' ms' },
+      mostCalled: { title: 'Most-called endpoints', items: 'mostCalledAll', valueKey: 'count', suffix: '×' },
+      topHosts: { title: 'Top hosts', items: 'topHostsAll', valueKey: 'count', suffix: '×' }
+    };
+    function renderRankDetail() {
+      var meta = RANK_META[state.rankKind];
+      if (!meta) { state.view = 'stats'; return renderStats(); }
+      var items = STATS[meta.items];
+      var maxVal = Math.max.apply(null, items.map(function (i) { return i[meta.valueKey]; }));
+      return '<div class="dl-screen od-screen">' +
+        topbar(meta.title, { back: 'back-to-stats' }) +
+        '<div class="od-scroll"><div class="dl-panel dl-enter" style="margin-top:12px;">' + rankList(items, meta.valueKey, meta.suffix, maxVal) + '</div></div>' +
       '</div>';
     }
 
@@ -1819,6 +1867,7 @@
       else if (state.view === 'list') app.innerHTML = renderList();
       else if (state.view === 'detail') app.innerHTML = renderDetail();
       else if (state.view === 'stats') app.innerHTML = renderStats();
+      else if (state.view === 'rank-detail') app.innerHTML = renderRankDetail();
       document.getElementById('dl-bubble-root').innerHTML = (state.view === 'host' && state.settings.bubble) ? renderBubble() : '';
       bindSwipe();
       if (focusId) {
@@ -1904,6 +1953,10 @@
           dismissNotification(); break;
         case 'nav':
           state.view = btn.dataset.view; state.popover = null; render(); break;
+        case 'open-rank-detail':
+          state.rankKind = btn.dataset.kind; state.view = 'rank-detail'; state.popover = null; render(); break;
+        case 'back-to-stats':
+          state.view = 'stats'; state.rankKind = null; render(); break;
         case 'open-detail':
           state.lastListFocusId = btn.dataset.id;
           state.view = 'detail'; state.activeId = btn.dataset.id; state.tab = 'overview'; state.popover = null;
