@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 /// Design tokens for the Dio Lens inspector UI.
 ///
 /// Mirrors the `--dl-*` / `--m-*` custom properties in `res/design.html`.
-/// Use [toFlutterTheme] to build a Material [ThemeData]; the resulting theme
-/// carries this object as an extension, so widgets can read the Dio Lens
-/// specific tokens with `Theme.of(context).extension<DioLensTheme>()`.
+///
+/// Internal to the package: the host app never applies this theme. Dio Lens
+/// screens wrap themselves in `DioLensThemeScope`, which installs
+/// [toFlutterTheme] for that subtree only. Inside it, read the tokens with
+/// [DioLensTheme.of].
 @immutable
 class DioLensTheme extends ThemeExtension<DioLensTheme> {
   const DioLensTheme({
@@ -48,8 +50,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     required this.jsonBoolNull,
     required this.jsonPunctuation,
     required this.shadow,
-    this.fontFamily = 'Inter',
-    this.monoFontFamily = 'JetBrains Mono',
     this.radiusSmall = 8,
     this.radiusMedium = 12,
     this.radiusLarge = 20,
@@ -108,19 +108,35 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
 
   final BoxShadow shadow;
 
-  // Typography
-  final String fontFamily;
-  final String monoFontFamily;
+  // Typography: device fonts only, nothing is bundled with the package.
+  // UI text uses the platform default (Roboto, San Francisco, Segoe UI…).
+  // Monospace: Android resolves 'monospace'; the fallbacks cover iOS/macOS,
+  // Windows and Linux.
+  static const String monoFontFamily = 'monospace';
+  static const List<String> monoFontFamilyFallback = [
+    'Menlo',
+    'SF Mono',
+    'Courier',
+    'Consolas',
+    'DejaVu Sans Mono',
+  ];
 
   // Radii
   final double radiusSmall;
   final double radiusMedium;
   final double radiusLarge;
 
+  /// The tokens of the nearest `DioLensThemeScope`.
+  static DioLensTheme of(BuildContext context) {
+    final theme = Theme.of(context).extension<DioLensTheme>();
+    assert(theme != null, 'No DioLensThemeScope found above this widget.');
+    return theme!;
+  }
+
   /// Text style for URLs, headers, bodies and other code-like content.
   TextStyle get monoTextStyle => TextStyle(
     fontFamily: monoFontFamily,
-    fontFamilyFallback: const ['SF Mono', 'Menlo', 'Roboto Mono', 'monospace'],
+    fontFamilyFallback: monoFontFamilyFallback,
     color: text,
   );
 
@@ -158,19 +174,15 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
         ? Typography.material2021().white
         : Typography.material2021().black;
     final textTheme = baseTextTheme
-        .apply(fontFamily: fontFamily, bodyColor: text, displayColor: text)
+        .apply(bodyColor: text, displayColor: text)
         .copyWith(
           titleLarge: baseTextTheme.titleLarge?.copyWith(
-            fontFamily: fontFamily,
             fontSize: 17,
             fontWeight: FontWeight.w700,
             letterSpacing: -0.17,
             color: text,
           ),
-          bodySmall: baseTextTheme.bodySmall?.copyWith(
-            fontFamily: fontFamily,
-            color: textMuted,
-          ),
+          bodySmall: baseTextTheme.bodySmall?.copyWith(color: textMuted),
         );
 
     final smallShape = RoundedRectangleBorder(
@@ -190,7 +202,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
       canvasColor: background,
-      fontFamily: fontFamily,
       textTheme: textTheme,
       dividerColor: border,
       extensions: [this],
@@ -439,8 +450,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     Color? jsonBoolNull,
     Color? jsonPunctuation,
     BoxShadow? shadow,
-    String? fontFamily,
-    String? monoFontFamily,
     double? radiusSmall,
     double? radiusMedium,
     double? radiusLarge,
@@ -487,8 +496,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       jsonBoolNull: jsonBoolNull ?? this.jsonBoolNull,
       jsonPunctuation: jsonPunctuation ?? this.jsonPunctuation,
       shadow: shadow ?? this.shadow,
-      fontFamily: fontFamily ?? this.fontFamily,
-      monoFontFamily: monoFontFamily ?? this.monoFontFamily,
       radiusSmall: radiusSmall ?? this.radiusSmall,
       radiusMedium: radiusMedium ?? this.radiusMedium,
       radiusLarge: radiusLarge ?? this.radiusLarge,
@@ -548,8 +555,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       jsonBoolNull: c(jsonBoolNull, other.jsonBoolNull),
       jsonPunctuation: c(jsonPunctuation, other.jsonPunctuation),
       shadow: BoxShadow.lerp(shadow, other.shadow, t)!,
-      fontFamily: pickOther ? other.fontFamily : fontFamily,
-      monoFontFamily: pickOther ? other.monoFontFamily : monoFontFamily,
       radiusSmall: d(radiusSmall, other.radiusSmall),
       radiusMedium: d(radiusMedium, other.radiusMedium),
       radiusLarge: d(radiusLarge, other.radiusLarge),
