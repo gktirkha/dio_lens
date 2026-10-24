@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/enums/request_state.dart';
 import '../../../../core/utils/format_utils.dart';
+import '../../../../core/utils/ltr_content.dart';
 import '../../../../core/widgets/method_chip.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
@@ -34,6 +35,7 @@ class RequestListTile extends StatelessWidget {
     final theme = DioLensTheme.of(context);
     final mono = theme.monoTextStyle;
     final query = item.query;
+    final ltrAlign = LtrContent.align(context);
 
     final content = Material(
       color: theme.background,
@@ -81,6 +83,8 @@ class RequestListTile extends StatelessWidget {
                       ),
                   ],
                 ),
+                textDirection: LtrContent.direction,
+                textAlign: ltrAlign,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: mono.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
@@ -88,6 +92,8 @@ class RequestListTile extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 item.host,
+                textDirection: LtrContent.direction,
+                textAlign: ltrAlign,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: mono.copyWith(fontSize: 12, color: theme.textMuted),
@@ -108,7 +114,7 @@ class RequestListTile extends StatelessWidget {
       onDismissed: (_) => onDelete!(),
       background: Container(
         color: theme.danger,
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: const Column(
           mainAxisSize: MainAxisSize.min,
@@ -167,6 +173,11 @@ class _Meta extends StatelessWidget {
         add(FormatUtils.bytes(item.responseSize));
     }
 
-    return Text.rich(TextSpan(children: parts), style: base);
+    return Text.rich(
+      TextSpan(children: parts),
+      style: base,
+      textDirection: LtrContent.direction,
+      textAlign: LtrContent.align(context),
+    );
   }
 }

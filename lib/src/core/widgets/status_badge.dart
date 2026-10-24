@@ -8,11 +8,7 @@ import 'dio_lens_tag.dart';
 /// Status code badge colored by status class; shows a spinner while pending
 /// and `ERR` when the request failed without a response.
 class StatusBadge extends StatelessWidget {
-  const StatusBadge({
-    super.key,
-    required this.statusClass,
-    this.statusCode,
-  });
+  const StatusBadge({super.key, required this.statusClass, this.statusCode});
 
   /// Badge for a request in [state] with an optional HTTP [statusCode].
   StatusBadge.fromState({
@@ -40,8 +36,7 @@ class StatusBadge extends StatelessWidget {
       ),
       RequestStatusClass.serverError ||
       RequestStatusClass.error => (theme.danger, theme.dangerBackground),
-      RequestStatusClass.pending ||
-      RequestStatusClass.informational => (
+      RequestStatusClass.pending || RequestStatusClass.informational => (
         theme.pending,
         theme.pendingBackground,
       ),

@@ -322,6 +322,7 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       dialogTheme: DialogThemeData(
         backgroundColor: surface,
         surfaceTintColor: Colors.transparent,
+        titleTextStyle: textTheme.titleLarge,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radiusLarge),
         ),
