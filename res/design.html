@@ -670,6 +670,9 @@
     .dl-legend-dot { width:9px; height:9px; border-radius:3px; flex:none; }
     .dl-legend-item .name { flex:1; color: var(--dl-text-muted); }
     .dl-legend-item .pct { font-weight:700; font-variant-numeric: tabular-nums; }
+    .dl-legend-sep { height:1px; background: var(--dl-border); }
+    .dl-legend-item.total { padding-inline-start: 17px; }
+    .dl-legend-item.total .name { color: var(--dl-text); font-weight:650; }
 
     .dl-rank-list { display:grid; gap:11px; }
     .dl-rank-row { display:grid; gap:4px; }
@@ -1600,8 +1603,6 @@
         offset += len;
       });
       return '<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Status code distribution donut chart">' + segs +
-        '<text x="60" y="56" text-anchor="middle" font-size="20" font-weight="800" fill="var(--dl-text)" font-family="var(--dl-font-sans)">' + requests.length + '</text>' +
-        '<text x="60" y="72" text-anchor="middle" font-size="10" fill="var(--dl-text-faint)" font-family="var(--dl-font-sans)">requests</text>' +
       '</svg>';
     }
     function barsChart() {
@@ -1643,7 +1644,10 @@
           '<div class="dl-panel"><h2>Status code distribution</h2><div class="dl-donut-row">' + donutSvg() +
             '<div class="dl-legend">' + STATS.distribution.map(function (d) {
               return '<div class="dl-legend-item"><span class="dl-legend-dot" style="background:' + d.color + '"></span><span class="name">' + d.label + '</span><span class="pct">' + d.pct + '%</span></div>';
-            }).join('') + '</div>' +
+            }).join('') +
+            '<div class="dl-legend-sep" role="separator"></div>' +
+            '<div class="dl-legend-item total"><span class="name">Total requests</span><span class="pct">' + requests.length + '</span></div>' +
+            '</div>' +
           '</div></div>' +
           '<div class="dl-panel"><h2>Slowest endpoints</h2>' + rankList(STATS.slowest, 'avg', ' ms', maxSlow) + '</div>' +
           '<div class="dl-panel"><h2>Most-called endpoints</h2>' + rankList(STATS.mostCalled, 'count', '×', maxCalled) + '</div>' +

@@ -7,17 +7,27 @@ import '../features/request_home/domain/use_cases/delete_request_use_case.dart';
 import '../features/request_home/domain/use_cases/get_requests_use_case.dart';
 import '../features/request_home/domain/use_cases/watch_requests_use_case.dart';
 import '../features/request_home/presentation/controllers/request_home_controller.dart';
+import '../features/stats/data/data_sources/stats_data_source.dart';
+import '../features/stats/data/data_sources/stats_mock_data_source.dart';
+import '../features/stats/data/repositories/stats_repository_impl.dart';
+import '../features/stats/domain/repositories/stats_repository.dart';
+import '../features/stats/domain/use_cases/watch_stats_use_case.dart';
+import '../features/stats/presentation/controllers/stats_controller.dart';
 
 /// Wires Dio Lens' layers together.
 ///
 /// Every dependency is lazy: nothing is created until first accessed, and
 /// each is created once per [DioLensDependencies] instance.
 class DioLensDependencies {
-  DioLensDependencies({RequestHomeDataSource Function()? requestHomeDataSource})
-    : _requestHomeDataSourceFactory =
-          requestHomeDataSource ?? RequestHomeMockDataSource.new;
+  DioLensDependencies({
+    RequestHomeDataSource Function()? requestHomeDataSource,
+    StatsDataSource Function()? statsDataSource,
+  }) : _requestHomeDataSourceFactory =
+           requestHomeDataSource ?? RequestHomeMockDataSource.new,
+       _statsDataSourceFactory = statsDataSource ?? StatsMockDataSource.new;
 
   final RequestHomeDataSource Function() _requestHomeDataSourceFactory;
+  final StatsDataSource Function() _statsDataSourceFactory;
 
   // ---- Request home ----
 
@@ -48,4 +58,20 @@ class DioLensDependencies {
     deleteRequest: deleteRequestUseCase,
     clearAllRequests: clearAllRequestsUseCase,
   );
+
+  // ---- Stats ----
+
+  late final StatsDataSource statsDataSource = _statsDataSourceFactory();
+
+  late final StatsRepository statsRepository = StatsRepositoryImpl(
+    statsDataSource,
+  );
+
+  late final WatchStatsUseCase watchStatsUseCase = WatchStatsUseCase(
+    statsRepository,
+  );
+
+  /// A new controller for one stats page; the caller disposes it.
+  StatsController createStatsController() =>
+      StatsController(watchStats: watchStatsUseCase);
 }

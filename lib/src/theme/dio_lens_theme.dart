@@ -34,6 +34,7 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     required this.dangerBackground,
     required this.pending,
     required this.pendingBackground,
+    required this.networkError,
     required this.methodGet,
     required this.methodGetBackground,
     required this.methodPost,
@@ -86,6 +87,9 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
   final Color dangerBackground;
   final Color pending;
   final Color pendingBackground;
+
+  /// Requests that failed without a response (charts).
+  final Color networkError;
 
   // HTTP method chips
   final Color methodGet;
@@ -435,6 +439,7 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     Color? dangerBackground,
     Color? pending,
     Color? pendingBackground,
+    Color? networkError,
     Color? methodGet,
     Color? methodGetBackground,
     Color? methodPost,
@@ -479,6 +484,7 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       dangerBackground: dangerBackground ?? this.dangerBackground,
       pending: pending ?? this.pending,
       pendingBackground: pendingBackground ?? this.pendingBackground,
+      networkError: networkError ?? this.networkError,
       methodGet: methodGet ?? this.methodGet,
       methodGetBackground: methodGetBackground ?? this.methodGetBackground,
       methodPost: methodPost ?? this.methodPost,
@@ -534,6 +540,7 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       dangerBackground: c(dangerBackground, other.dangerBackground),
       pending: c(pending, other.pending),
       pendingBackground: c(pendingBackground, other.pendingBackground),
+      networkError: c(networkError, other.networkError),
       methodGet: c(methodGet, other.methodGet),
       methodGetBackground: c(methodGetBackground, other.methodGetBackground),
       methodPost: c(methodPost, other.methodPost),

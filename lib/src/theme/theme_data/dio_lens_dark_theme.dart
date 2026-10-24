@@ -27,6 +27,7 @@ const DioLensTheme dioLensDarkTheme = DioLensTheme(
   dangerBackground: Color(0x26F35468),
   pending: Color(0xFF9099AD),
   pendingBackground: Color(0x249099AD),
+  networkError: Color(0xFFA83250),
   methodGet: Color(0xFF4DA3FF),
   methodGetBackground: Color(0x294DA3FF),
   methodPost: Color(0xFF36C976),

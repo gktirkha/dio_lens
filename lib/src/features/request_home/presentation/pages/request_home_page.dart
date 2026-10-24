@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_list_item_entity.dart';
+import '../../../../core/enums/export_format.dart';
 import '../controllers/request_home_controller.dart';
 import '../widgets/request_empty_state.dart';
 import '../widgets/request_group_header.dart';
@@ -31,7 +32,7 @@ class RequestHomePage extends StatefulWidget {
   final ValueChanged<RequestListItemEntity>? onRequestTap;
   final VoidCallback? onToggleTheme;
   final VoidCallback? onOpenSettings;
-  final ValueChanged<RequestExportFormat>? onExport;
+  final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onMinimize;
 
   /// Requests started within this window are grouped under "Just now".
