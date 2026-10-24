@@ -1,0 +1,1980 @@
+<!doctype html>
+<!--
+  Open Design · OD Next handheld shell — platform-neutral phone (restrained camera dot and symmetric side keys — use when the brief names no platform).
+  Presentation shell for a phone-app prototype: keep the handset markup and
+  CSS, put the product inside the APP CONTENT slot (`.phone-content`). The
+  shell sets no typography, palette, spacing, or navigation for the app.
+  Derived from the Open Design mobile-app template (Apache-2.0).
+-->
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dio Lens — network inspector prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Native hidden remains authoritative over component flex/grid styles. */
+    [hidden]:not([hidden="until-found" i]) { display: none !important; }
+
+    :root {
+      --phone-screen-width: 390px;
+      --phone-screen-height: 844px;
+      --phone-bezel: 10px;
+      --phone-outer-radius: 52px;
+      --phone-screen-radius: 42px;
+      --phone-safe-top: 50px;
+      --phone-safe-bottom: 29px;
+      --phone-system-fg: #eef0f4;
+      --phone-screen-bg: #0b0d12;
+      --phone-stage-bg: #191b20;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 32px;
+      background:
+        radial-gradient(circle at 50% 10%, rgba(255,255,255,.05), transparent 40%),
+        var(--phone-stage-bg, #191b20);
+      color: #e7e9ee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .phone-frame {
+      position: relative;
+      width: calc(var(--phone-screen-width, 390px) + var(--phone-bezel, 10px) * 2);
+      height: calc(var(--phone-screen-height, 844px) + var(--phone-bezel, 10px) * 2);
+      padding: var(--phone-bezel, 10px);
+      border-radius: var(--phone-outer-radius, 52px);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.2), transparent 17%),
+        linear-gradient(160deg, #3f4146 0%, #202227 48%, #0b0c0f 100%);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.13),
+        inset 0 0 0 2px rgba(0,0,0,.85),
+        0 32px 68px -20px rgba(10,12,16,.52),
+        0 10px 24px -10px rgba(10,12,16,.32);
+      isolation: isolate;
+    }
+
+    .phone-frame::before,
+    .phone-frame::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 96px;
+      bottom: 96px;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,.13) 16%, transparent 30%, transparent 72%, rgba(255,255,255,.07) 88%, transparent);
+    }
+    .phone-frame::before { left: 0; }
+    .phone-frame::after { right: 0; }
+
+    .hardware-button {
+      position: absolute;
+      width: 4px;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #08090b, #2a2d33 60%, #08090b);
+      box-shadow: inset 0 1px rgba(255,255,255,.08);
+    }
+    .hardware-button.volume { left: -3px; top: 222px; height: 86px; }
+    .hardware-button.power { right: -3px; top: 270px; height: 82px; }
+
+    .phone-screen {
+      position: relative;
+      width: var(--phone-screen-width, 390px);
+      height: var(--phone-screen-height, 844px);
+      overflow: hidden;
+      border-radius: var(--phone-screen-radius, 42px);
+      background: var(--phone-screen-bg, #0b0d12);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+    }
+
+    .phone-content {
+      position: absolute;
+      inset: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-top: var(--phone-safe-top, 50px);
+      padding-bottom: var(--phone-safe-bottom, 29px);
+      background: var(--phone-screen-bg, #0b0d12);
+    }
+    .phone-content::-webkit-scrollbar { display: none; }
+
+    .camera-dot {
+      position: absolute;
+      z-index: 20;
+      top: 13px;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 35%, #344154 0 12%, #0a0c10 34%, #000 76%);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06);
+      pointer-events: none;
+    }
+
+    .status-bar {
+      position: absolute;
+      z-index: 15;
+      inset: 0 0 auto;
+      height: var(--phone-safe-top, 50px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+      align-items: start;
+      padding: 14px 20px 0;
+      color: var(--phone-system-fg, #eef0f4);
+      opacity: .92;
+      pointer-events: none;
+    }
+    .status-time {
+      justify-self: start;
+      display: flex;
+      align-items: center;
+      height: 15px;
+      font-size: 14px;
+      font-weight: 560;
+      line-height: 1;
+      letter-spacing: .01em;
+    }
+    .status-cutout-zone { width: 56px; }
+    .status-icons {
+      justify-self: end;
+      display: inline-flex;
+      align-items: center;
+      height: 15px;
+      gap: 6px;
+    }
+    .status-icons svg {
+      display: block;
+      flex: none;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .status-icons .connectivity { width: 15px; height: 12px; }
+    .status-icons .wifi { width: 15px; height: 12px; }
+    .status-icons .battery { width: 19px; height: 11px; }
+
+    .gesture-indicator {
+      position: absolute;
+      z-index: 20;
+      left: 50%;
+      bottom: 8px;
+      width: 96px;
+      height: 4px;
+      transform: translateX(-50%);
+      border-radius: 99px;
+      background: var(--phone-system-fg, #eef0f4);
+      opacity: .7;
+      pointer-events: none;
+    }
+
+    /* Presentation scaling: keep the whole handset visible on short viewports. */
+    @media (max-height: 927px) { .phone-frame { zoom: 0.9; } }
+    @media (max-height: 840px) { .phone-frame { zoom: 0.82; } }
+    @media (max-height: 771px) { .phone-frame { zoom: 0.74; } }
+    @media (max-height: 702px) { .phone-frame { zoom: 0.66; } }
+    /* Narrow viewports: the handset chrome collapses and the screen fills the
+       viewport, so the app behaves like a real phone page instead of
+       scrolling sideways. */
+    @media (max-width: 480px) {
+      body { padding: 0; display: block; }
+      .phone-frame { width: 100%; height: 100dvh; padding: 0; border-radius: 0; background: none; box-shadow: none; zoom: 1; }
+      .phone-frame::before, .phone-frame::after, .hardware-button { display: none; }
+      .phone-screen { width: 100%; height: 100%; border-radius: 0; }
+    }
+
+    /* ===================================================================
+       OD-LAYOUT-PRIMITIVES v1 — structure only. Kept verbatim from
+       .od-frames/layout.css, @layer first so product CSS below wins. */
+    @layer od-layout {
+      [hidden]:not([hidden="until-found" i]) { display: none !important; }
+      dialog:not([open]) { display: none !important; }
+
+      :where(.od-stack,.od-row,.od-row-top,.od-cluster,.od-grid,.od-field,.od-stat,.od-cell,.od-tile) > :where(*) { min-width: 0; }
+
+      .od-stack   { display: flex; flex-direction: column; gap: var(--od-gap, 8px); }
+      .od-row     { display: flex; align-items: center; gap: var(--od-gap, 8px); }
+      .od-row-top { display: flex; align-items: flex-start; gap: var(--od-gap, 8px); }
+      .od-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--od-gap, 8px); }
+      .od-fill    { flex: 1 1 0; min-width: 0; }
+      .od-fixed   { flex: none; }
+      .od-grid    { display: grid; gap: var(--od-gap, 12px); grid-template-columns: repeat(var(--od-cols, 3), minmax(0, 1fr)); }
+
+      .od-stat, .od-field, .od-cell { display: grid; gap: var(--od-gap, 2px); }
+      :where(.od-stat,.od-field,.od-cell) > :where(*) { display: block; }
+      .od-tile { display: grid; grid-template-rows: auto 1fr; }
+      :where(.od-tile) > :where(*) { display: block; }
+
+      .od-media { display: block; width: 100%; height: auto; aspect-ratio: var(--od-ratio, auto); }
+      .od-media-cover { object-fit: cover; }
+
+      .od-icon { display: inline-block; inline-size: var(--od-icon-size, 1em); block-size: var(--od-icon-size, 1em); flex: none; }
+
+      .od-truncate { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .od-clamp-2, .od-clamp-3 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+      .od-clamp-2 { -webkit-line-clamp: 2; }
+      .od-clamp-3 { -webkit-line-clamp: 3; }
+      .od-lines-2 { min-height: calc(2 * 1.4em); }
+      .od-nowrap  { white-space: nowrap; }
+      .od-keep    { word-break: keep-all; overflow-wrap: anywhere; }
+
+      .od-screen { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+      .od-scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+
+      .od-rail { display: flex; gap: var(--od-gap, 8px); overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
+                 padding-inline: var(--od-rail-pad, 16px); scroll-padding-inline: var(--od-rail-pad, 16px); }
+      .od-rail::-webkit-scrollbar { display: none; }
+      :where(.od-rail) > :where(*) { flex: none; scroll-snap-align: start; }
+      :where(.od-rail) > :where(:last-child) { margin-inline-end: var(--od-rail-pad, 16px); }
+
+      .od-spacer { flex: none; visibility: hidden; pointer-events: none; }
+      .od-touch  { min-width: 44px; min-height: 44px; }
+    }
+    :root [hidden]:where(:not([hidden="until-found" i])) { display: none; }
+    /* /OD-LAYOUT-PRIMITIVES v1 */
+
+    /* ===================================================================
+       Dio Lens product tokens — kept in their own :root block, separate
+       from the --phone-* shell variables above. Dark is the primary theme;
+       light overrides live on .dl-app[data-theme="light"] so overlays that
+       mount outside .dl-app (dialogs, toasts) still see the active values
+       because every token is read from :root downward, never re-scoped. */
+    :root {
+      --dl-bg: #0b0d12;
+      --dl-surface: #12151c;
+      --dl-surface-2: #181c25;
+      --dl-surface-3: #1f2430;
+      --dl-border: #262b37;
+      --dl-border-strong: #333a4c;
+      --dl-text: #e7e9ee;
+      --dl-text-muted: #9099ad;
+      --dl-text-faint: #5b6273;
+      --dl-accent: #5b8cff;
+      --dl-accent-strong: #90b0ff;
+      --dl-on-accent: #0b1020;
+      --dl-success: #36c976;
+      --dl-success-bg: rgba(54,201,118,.15);
+      --dl-redirect: #4da3ff;
+      --dl-redirect-bg: rgba(77,163,255,.15);
+      --dl-warn: #f3ab35;
+      --dl-warn-bg: rgba(243,171,53,.16);
+      --dl-danger: #f35468;
+      --dl-danger-bg: rgba(243,84,104,.15);
+      --dl-pending: #9099ad;
+      --dl-pending-bg: rgba(144,153,173,.14);
+      --dl-shadow: 0 10px 28px rgba(0,0,0,.4);
+      --dl-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --dl-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+      --dl-r-sm: 8px;
+      --dl-r-md: 12px;
+      --dl-r-lg: 20px;
+      --m-get: #4da3ff; --m-get-bg: rgba(77,163,255,.16);
+      --m-post: #36c976; --m-post-bg: rgba(54,201,118,.16);
+      --m-put: #f3ab35; --m-put-bg: rgba(243,171,53,.18);
+      --m-patch: #b084f5; --m-patch-bg: rgba(176,132,245,.18);
+      --m-delete: #f35468; --m-delete-bg: rgba(243,84,104,.16);
+      --dl-jt-key: #8fb0ff;
+    }
+    /* Theme is toggled on the document root (not .dl-app) so overlays that
+       mount outside .dl-app — the settings sheet, toasts — still inherit
+       the active theme's custom properties. */
+    :root[data-theme="light"] {
+      --dl-bg: #f3f4f7;
+      --dl-surface: #ffffff;
+      --dl-surface-2: #f8f9fb;
+      --dl-surface-3: #eef0f4;
+      --dl-border: #e1e3ea;
+      --dl-border-strong: #c7cbd6;
+      --dl-text: #161a22;
+      --dl-text-muted: #5b6273;
+      --dl-text-faint: #8891a3;
+      --dl-accent: #2f63e0;
+      --dl-accent-strong: #1d49b8;
+      --dl-on-accent: #ffffff;
+      --dl-success: #178a4c;
+      --dl-success-bg: rgba(23,138,76,.12);
+      --dl-redirect: #1d6fe0;
+      --dl-redirect-bg: rgba(29,111,224,.1);
+      --dl-warn: #a86309;
+      --dl-warn-bg: rgba(168,99,9,.13);
+      --dl-danger: #c92e49;
+      --dl-danger-bg: rgba(201,46,73,.1);
+      --dl-pending: #5b6273;
+      --dl-pending-bg: rgba(91,98,115,.1);
+      --dl-shadow: 0 10px 24px rgba(30,34,45,.12);
+      --m-get: #1d6fe0; --m-get-bg: rgba(29,111,224,.1);
+      --m-post: #178a4c; --m-post-bg: rgba(23,138,76,.1);
+      --m-put: #a86309; --m-put-bg: rgba(168,99,9,.12);
+      --m-patch: #7c3aed; --m-patch-bg: rgba(124,58,237,.1);
+      --m-delete: #c92e49; --m-delete-bg: rgba(201,46,73,.1);
+      --dl-jt-key: #1d49b8;
+    }
+
+    /* Reduced motion: shorten everything, but keep the loading spinner
+       legible as a state signal rather than removing it outright. */
+    @media (prefers-reduced-motion: reduce) {
+      .dl-app *, .dl-app *::before, .dl-app *::after,
+      #dl-overlay-root *, #dl-overlay-root *::before, #dl-overlay-root *::after {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .dl-app .dl-spinner, #dl-overlay-root .dl-spinner { animation-duration: 1.6s !important; }
+    }
+
+    /* ===================================================================
+       Base + typography */
+    .dl-app {
+      position: relative;
+      height: 100%;
+      background: var(--dl-bg);
+      color: var(--dl-text);
+      font-family: var(--dl-font-sans);
+      font-size: 14px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+    .dl-app button { font-family: inherit; color: inherit; }
+    .dl-app h1, .dl-app h2, .dl-app h3, .dl-app p { margin: 0; }
+    .dl-mono { font-family: var(--dl-font-mono); }
+    .dl-screen { min-height: 100%; }
+
+    .dl-icon { display:inline-block; inline-size: var(--od-icon-size,1em); block-size: var(--od-icon-size,1em); flex:none;
+               fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+    .dl-icon.filled-dots circle[fill] { fill: currentColor; stroke: none; }
+
+    .dl-btn-icon {
+      --od-icon-size: 19px;
+      display: inline-flex; align-items:center; justify-content:center; flex:none;
+      width: 36px; height: 36px; border-radius: 10px; border: none;
+      background: transparent; color: var(--dl-text-muted); cursor: pointer;
+      transition: background .15s ease, color .15s ease;
+    }
+    .dl-btn-icon:hover { background: var(--dl-surface-3); color: var(--dl-text); }
+    .dl-btn-icon:focus-visible, .dl-app a:focus-visible, .dl-app button:focus-visible, .dl-app input:focus-visible,
+    .dl-app select:focus-visible, .dl-app [tabindex]:focus-visible {
+      outline: 2px solid var(--dl-accent); outline-offset: 2px;
+    }
+    .dl-btn-icon[disabled] { opacity: .4; cursor: default; pointer-events: none; }
+
+    @keyframes dl-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .dl-enter { animation: dl-fade-up .22s ease-out both; }
+
+    @keyframes dl-spin { to { transform: rotate(360deg); } }
+    .dl-spinner {
+      width: 16px; height: 16px; border-radius: 50%; flex: none;
+      border: 2px solid var(--dl-border-strong); border-top-color: var(--dl-accent);
+      animation: dl-spin .8s linear infinite;
+    }
+
+    /* ---- Host sample app (entry point背景) + floating bubble ---- */
+    .dl-host { min-height: 100%; padding: 22px 20px 40px; background:
+      linear-gradient(180deg, #121521 0%, #0c0e15 60%, #0a0b10 100%); color: #e7e9ee; }
+    .dl-host .host-eyebrow { margin:0 0 6px; color:#7a84a0; font-size:12px; font-weight:650; letter-spacing:.08em; text-transform:uppercase; }
+    .dl-host h1 { font-size: 26px; line-height:1.18; letter-spacing:-.02em; font-weight:800; }
+    .dl-host .host-sub { margin: 10px 0 24px; color:#9aa2b8; line-height:1.55; font-size: 13.5px; }
+    .host-card { padding: 16px; border: 1px solid #242837; border-radius: 16px; background: #161925; box-shadow: 0 8px 22px rgba(0,0,0,.28); }
+    .host-card + .host-card { margin-top: 12px; }
+    .host-card .host-row { display:flex; align-items:center; gap:12px; }
+    .host-card .host-chip { width:40px; height:40px; border-radius:11px; display:grid; place-items:center; background:#1f2538; color:#8fb0ff; flex:none; }
+    .host-card .host-chip.alt { background:#20291f; color:#7fd79e; }
+    .host-card .host-chip.warn { background:#2b2419; color:#e0ac55; }
+    .host-card .host-title { font-weight:650; font-size:14px; }
+    .host-card .host-meta { color:#8089a0; font-size:12.5px; margin-top:2px; }
+    .host-skeleton { height:12px; border-radius:6px; background:#20242f; margin-top:8px; }
+    .host-skeleton.w60 { width:60%; } .host-skeleton.w80{ width:80%; } .host-skeleton.w40{ width:40%; }
+    .host-sim-btn {
+      --od-icon-size:17px;
+      width:100%; margin-top:16px; display:flex; align-items:center; justify-content:center; gap:8px;
+      height:46px; border-radius:14px; border:1px dashed #3a4566; background:transparent; color:#9db2ff;
+      font-size:13.5px; font-weight:650; font-family:inherit; cursor:pointer;
+    }
+    .host-sim-btn:hover { background:#141a2c; border-color:#4d5c8c; }
+    .host-sim-btn:active { transform: scale(.98); }
+
+    #dl-bubble-root { position: absolute; inset: 0; pointer-events: none; }
+    .dl-bubble-wrap { position: absolute; z-index: 40; pointer-events: auto; }
+    .dl-bubble-wrap.pos-br { right: 16px; bottom: 112px; }
+    .dl-bubble-wrap.pos-bl { left: 16px; bottom: 112px; }
+    .dl-bubble-wrap.pos-tr { right: 16px; top: calc(var(--phone-safe-top, 50px) + 16px); }
+    .dl-bubble-wrap.pos-tl { left: 16px; top: calc(var(--phone-safe-top, 50px) + 16px); }
+    .dl-bubble {
+      --od-icon-size: 22px;
+      position: relative; width: 56px; height: 56px; border-radius: 50%;
+      display:grid; place-items:center; border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(155deg, #3c6dff 0%, #203bb8 100%);
+      color:#eef2ff; cursor:pointer; box-shadow: 0 10px 26px rgba(39,65,180,.55), 0 2px 0 rgba(255,255,255,.12) inset;
+      transition: transform .18s ease;
+    }
+    .dl-bubble:hover { transform: translateY(-2px) scale(1.03); }
+    .dl-bubble:active { transform: scale(.96); }
+
+    /* ---- Top bar ---- */
+    .dl-topbar {
+      position: sticky; top: 0; z-index: 5;
+      background: color-mix(in srgb, var(--dl-bg) 88%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--dl-border);
+      padding: 10px 10px 10px 16px;
+    }
+    .dl-topbar .tb-row { display:flex; align-items:center; gap:4px; flex-wrap:nowrap; }
+    .dl-topbar .tb-brand { display:flex; align-items:center; gap:9px; min-width:0; flex:1 1 auto; }
+    .dl-topbar .tb-mark {
+      --od-icon-size: 16px;
+      width: 28px; height: 28px; border-radius: 9px; display:grid; place-items:center;
+      background: linear-gradient(155deg, #3c6dff, #203bb8); color:#eef2ff; flex:none;
+    }
+    .dl-topbar h1 {
+      font-size: 17px; font-weight: 750; letter-spacing: -.01em; min-width:0;
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    }
+    .dl-topbar .tb-actions { margin-left:auto; display:flex; align-items:center; gap:2px; position: relative; flex:none; }
+    .dl-search-row { display:flex; align-items:center; gap:8px; padding: 2px 6px 10px; }
+    .dl-search-field {
+      flex:1; display:flex; align-items:center; gap:8px; height:38px; padding: 0 12px;
+      border-radius: var(--dl-r-md); background: var(--dl-surface-2); border: 1px solid var(--dl-border);
+    }
+    .dl-search-field input {
+      flex:1; min-width:0; border:none; background:transparent; color:var(--dl-text); font-size:14px; font-family:var(--dl-font-sans);
+    }
+    .dl-search-field input::placeholder { color: var(--dl-text-faint); }
+    .dl-search-field input:focus { outline:none; }
+    .dl-search-field .dl-icon { color: var(--dl-text-faint); --od-icon-size:17px; }
+
+    /* segmented filters */
+    .dl-segmented { display:flex; gap:6px; padding: 10px 16px 12px; overflow-x:auto; scrollbar-width:none; }
+    .dl-segmented::-webkit-scrollbar { display:none; }
+    .dl-seg-btn {
+      flex:none; height:30px; padding:0 13px; border-radius:999px; border:1px solid var(--dl-border);
+      background: var(--dl-surface-2); color: var(--dl-text-muted); font-size:12.5px; font-weight:600; cursor:pointer;
+      display:inline-flex; align-items:center; gap:6px; transition: background .15s, color .15s, border-color .15s;
+    }
+    .dl-seg-btn[aria-selected="true"] { background: var(--dl-accent); border-color: var(--dl-accent); color: var(--dl-on-accent); }
+    .dl-seg-btn[aria-selected="true"] .count { opacity:.85; }
+
+    /* ---- Popovers (method filter / overflow menu / confirm) ---- */
+    .dl-popover {
+      position:absolute; top: 46px; right: 0; z-index: 30; min-width: 198px;
+      background: var(--dl-surface-2); border:1px solid var(--dl-border); border-radius: var(--dl-r-md);
+      box-shadow: var(--dl-shadow); padding: 6px; animation: dl-fade-up .16s ease-out both;
+    }
+    .dl-popover.wide { min-width: 232px; }
+    .dl-pop-item {
+      width:100%; display:flex; align-items:center; gap:10px; padding: 9px 10px; border-radius:8px;
+      background:transparent; border:none; color:var(--dl-text); font-size:13.5px; text-align:left; cursor:pointer;
+    }
+    .dl-pop-item:hover { background: var(--dl-surface-3); }
+    .dl-pop-item .dl-icon { --od-icon-size:16px; color: var(--dl-text-muted); flex:none; }
+    .dl-pop-item.danger { color: var(--dl-danger); }
+    .dl-pop-item.danger .dl-icon { color: var(--dl-danger); }
+    .dl-pop-sep { height:1px; background:var(--dl-border); margin: 4px 2px; }
+    .dl-pop-check { margin-left:auto; --od-icon-size:16px; color: var(--dl-accent); }
+    .dl-pop-title { padding: 8px 10px 4px; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--dl-text-faint); }
+    .dl-confirm-box { padding: 12px 12px 10px; }
+    .dl-confirm-box p { font-size: 13px; color: var(--dl-text-muted); margin-bottom: 10px; line-height:1.4; }
+    .dl-confirm-actions { display:flex; gap:8px; justify-content:flex-end; }
+    .dl-btn-sm { height:32px; padding:0 13px; border-radius:8px; font-size:12.5px; font-weight:650; cursor:pointer; border:1px solid var(--dl-border); background:var(--dl-surface-3); color:var(--dl-text); }
+    .dl-btn-sm.danger { background: var(--dl-danger); border-color: var(--dl-danger); color:#fff; }
+
+    /* ---- Request list ---- */
+    .dl-group-label { padding: 14px 16px 6px; font-size:11.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color: var(--dl-text-faint); }
+    .dl-list { padding: 0 0 18px; }
+    .dl-row-swipe { position:relative; overflow:hidden; }
+    .dl-row-swipe + .dl-row-swipe { border-top: 1px solid var(--dl-border); }
+    .dl-row-delete {
+      position:absolute; inset:0 0 0 auto; width:84px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      background: var(--dl-danger); color:#fff; border:none; font-size:11px; font-weight:700; cursor:pointer;
+    }
+    .dl-row-delete .dl-icon { --od-icon-size:18px; }
+    .dl-row-content {
+      position:relative; width:100%; display:block; text-align:left; border:none; background: var(--dl-bg); color: var(--dl-text);
+      padding: 12px 16px; cursor:pointer; touch-action: pan-y; will-change: transform;
+    }
+    .dl-row-content:hover { background: var(--dl-surface-2); }
+    .dl-row-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .dl-chip {
+      flex:none; height:21px; padding:0 8px; border-radius:6px; font-size:11px; font-weight:750; letter-spacing:.02em;
+      display:inline-flex; align-items:center; font-family: var(--dl-font-mono);
+    }
+    .dl-chip.GET { background: var(--m-get-bg); color: var(--m-get); }
+    .dl-chip.POST { background: var(--m-post-bg); color: var(--m-post); }
+    .dl-chip.PUT { background: var(--m-put-bg); color: var(--m-put); }
+    .dl-chip.PATCH { background: var(--m-patch-bg); color: var(--m-patch); }
+    .dl-chip.DELETE { background: var(--m-delete-bg); color: var(--m-delete); }
+    .dl-badge { flex:none; height:21px; padding:0 8px; border-radius:6px; font-size:11.5px; font-weight:700; font-family:var(--dl-font-mono); display:inline-flex; align-items:center; gap:4px; }
+    .dl-badge.c2xx { background: var(--dl-success-bg); color: var(--dl-success); }
+    .dl-badge.c3xx { background: var(--dl-redirect-bg); color: var(--dl-redirect); }
+    .dl-badge.c4xx { background: var(--dl-warn-bg); color: var(--dl-warn); }
+    .dl-badge.c5xx { background: var(--dl-danger-bg); color: var(--dl-danger); }
+    .dl-badge.cpending { background: var(--dl-pending-bg); color: var(--dl-pending); }
+    .dl-badge.cerror { background: var(--dl-danger-bg); color: var(--dl-danger); }
+    .dl-badge .dl-icon { --od-icon-size:12px; }
+    .dl-row-time { margin-left:auto; flex:none; font-size:11.5px; color: var(--dl-text-faint); font-variant-numeric: tabular-nums; }
+    .dl-row-path { font-size: 14px; font-weight: 650; font-family: var(--dl-font-mono); }
+    .dl-row-host { font-size: 12px; color: var(--dl-text-muted); margin-top: 2px; font-family: var(--dl-font-mono); }
+    .dl-row-meta { margin-top:6px; display:flex; align-items:center; gap:10px; font-size:11.5px; color: var(--dl-text-faint); font-variant-numeric: tabular-nums; }
+    .dl-row-meta .dl-icon { --od-icon-size:12px; margin-right:2px; }
+    .dl-row-meta .dl-err-text { color: var(--dl-danger); font-weight:600; }
+
+    .dl-empty { display:grid; justify-items:center; gap:10px; padding: 70px 36px 40px; text-align:center; }
+    .dl-empty .dl-icon { --od-icon-size:40px; color: var(--dl-text-faint); }
+    .dl-empty h3 { font-size:15px; font-weight:700; }
+    .dl-empty p { font-size:12.5px; color: var(--dl-text-muted); line-height:1.5; }
+
+    /* ---- Bottom nav ---- */
+    .dl-bottomnav {
+      display:flex; border-top:1px solid var(--dl-border); background: color-mix(in srgb, var(--dl-bg) 92%, transparent);
+      backdrop-filter: blur(14px); padding: 6px 10px 2px;
+    }
+    .dl-nav-btn {
+      flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0; border:none; background:transparent;
+      color: var(--dl-text-faint); font-size:10.5px; font-weight:650; cursor:pointer; border-radius:10px;
+    }
+    .dl-nav-btn .dl-icon { --od-icon-size:21px; }
+    .dl-nav-btn[aria-current="true"] { color: var(--dl-accent); }
+
+    /* ---- Detail screen ---- */
+    .dl-detail-header { padding: 14px 16px 0; border-bottom: 1px solid var(--dl-border); background: var(--dl-bg); position: sticky; top:0; z-index:5; }
+    .dl-dh-top { display:flex; align-items:flex-start; gap:4px; }
+    .dl-dh-url { flex:1; min-width:0; padding-top:4px; }
+    .dl-dh-url .u-line1 { display:flex; align-items:center; gap:7px; }
+    .dl-dh-path { font-family: var(--dl-font-mono); font-size:15px; font-weight:700; overflow-wrap:anywhere; }
+    .dl-dh-host { font-family: var(--dl-font-mono); font-size:12px; color: var(--dl-text-muted); margin-top:3px; overflow-wrap:anywhere; }
+    .dl-dh-stats { display:flex; align-items:center; gap:14px; margin: 12px 0 12px; font-size:12px; color:var(--dl-text-muted); flex-wrap:wrap; }
+    .dl-dh-stats .dl-icon { --od-icon-size:13px; margin-right:3px; }
+    .dl-dh-actions { display:flex; gap:8px; padding-bottom: 12px; }
+    .dl-act-btn {
+      flex:1; display:flex; align-items:center; justify-content:center; gap:6px; height:36px; border-radius:10px;
+      border:1px solid var(--dl-border); background: var(--dl-surface-2); color: var(--dl-text); font-size:12.5px; font-weight:650; cursor:pointer;
+    }
+    .dl-act-btn:hover { background: var(--dl-surface-3); }
+    .dl-act-btn .dl-icon { --od-icon-size:15px; }
+
+    .dl-tabs { display:flex; gap:4px; padding: 0 10px; }
+    .dl-tab {
+      flex:1; text-align:center; padding: 11px 4px; border:none; background:transparent; color:var(--dl-text-faint);
+      font-size:12.5px; font-weight:650; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+    }
+    .dl-tab[aria-selected="true"] { color: var(--dl-accent); border-bottom-color: var(--dl-accent); }
+
+    .dl-tabpanel { padding: 16px; }
+    .dl-kv-grid { display:grid; grid-template-columns: 112px 1fr; gap: 10px 12px; }
+    .dl-kv-grid dt { font-size:12px; color: var(--dl-text-faint); padding-top:1px; }
+    .dl-kv-grid dd { margin:0; font-size:13px; font-family: var(--dl-font-mono); overflow-wrap:anywhere; }
+    .dl-kv-grid dd.status-ok { color: var(--dl-success); font-weight:700; }
+    .dl-kv-grid dd.status-warn { color: var(--dl-warn); font-weight:700; }
+    .dl-kv-grid dd.status-bad { color: var(--dl-danger); font-weight:700; }
+
+    .dl-section { border:1px solid var(--dl-border); border-radius: var(--dl-r-md); margin-bottom:12px; overflow:hidden; background: var(--dl-surface); }
+    .dl-section-head {
+      width:100%; display:flex; align-items:center; gap:8px; padding: 11px 13px; border:none; background: var(--dl-surface-2);
+      color: var(--dl-text); font-size:13px; font-weight:650; cursor:pointer;
+    }
+    .dl-section-head .count { margin-left:auto; font-size:11.5px; font-weight:600; color: var(--dl-text-faint); font-variant-numeric: tabular-nums; }
+    .dl-section-head .chev { --od-icon-size:16px; color: var(--dl-text-faint); transition: transform .18s ease; flex:none; }
+    .dl-section-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+    .dl-section-body { padding: 10px 13px 13px; }
+    .dl-kv-mono { display:grid; grid-template-columns: minmax(0,1fr); gap:9px; }
+    .dl-kv-mono .row { display:grid; gap:2px; }
+    .dl-kv-mono .k { font-size:11px; color: var(--dl-text-faint); font-family: var(--dl-font-mono); }
+    .dl-kv-mono .v { font-size:12.5px; font-family: var(--dl-font-mono); overflow-wrap:anywhere; }
+    .dl-kv-mono .v.redacted { color: var(--dl-text-faint); font-style:italic; }
+
+    .dl-body-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .dl-body-toggle { display:inline-flex; border:1px solid var(--dl-border); border-radius:8px; overflow:hidden; }
+    .dl-body-toggle button { padding: 5px 11px; border:none; background: var(--dl-surface-2); color: var(--dl-text-muted); font-size:11.5px; font-weight:650; cursor:pointer; }
+    .dl-body-toggle button[aria-pressed="true"] { background: var(--dl-accent); color: var(--dl-on-accent); }
+    .dl-copy-btn { margin-left:auto; display:inline-flex; align-items:center; gap:5px; border:1px solid var(--dl-border); background:var(--dl-surface-2); color:var(--dl-text-muted); border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:600; cursor:pointer; }
+    .dl-copy-btn .dl-icon { --od-icon-size:13px; }
+    .dl-copy-btn:hover { color: var(--dl-text); }
+
+    .dl-json-raw { font-family: var(--dl-font-mono); font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; color: var(--dl-text); }
+    .dl-json-tree { font-family: var(--dl-font-mono); font-size:12.5px; line-height:1.7; }
+    .dl-json-tree .jt-node { margin-left: 14px; }
+    .dl-json-tree .jt-row { display:flex; align-items:flex-start; gap:4px; }
+    .dl-json-tree .jt-toggle { flex:none; width:16px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; color: var(--dl-text-faint); cursor:pointer; padding:0; }
+    .dl-json-tree .jt-toggle .dl-icon { --od-icon-size:12px; transition: transform .15s ease; }
+    .dl-json-tree .jt-toggle[aria-expanded="true"] .dl-icon { transform: rotate(90deg); }
+    .dl-json-tree .jt-key { color: var(--dl-jt-key); }
+    .dl-json-tree .jt-str { color: var(--dl-success); }
+    .dl-json-tree .jt-num { color: #e0ac55; }
+    .dl-json-tree .jt-bool, .dl-json-tree .jt-null { color: #b084f5; }
+    .dl-json-tree .jt-punct { color: var(--dl-text-faint); }
+    .dl-json-tree .jt-count { color: var(--dl-text-faint); font-size:11px; margin-left:2px; }
+
+    .dl-image-preview { border:1px solid var(--dl-border); border-radius: var(--dl-r-md); overflow:hidden; background: var(--dl-surface); }
+    .dl-image-ph {
+      aspect-ratio: 1; display:grid; place-items:center; gap:8px;
+      background: repeating-linear-gradient(45deg, var(--dl-surface-2) 0 10px, var(--dl-surface-3) 10px 20px);
+      color: var(--dl-text-faint);
+    }
+    .dl-image-ph .dl-icon { --od-icon-size:30px; }
+    .dl-image-ph span { font-size:11px; }
+    .dl-image-meta { padding: 9px 12px; font-size:11.5px; color: var(--dl-text-muted); font-family: var(--dl-font-mono); display:flex; justify-content:space-between; }
+
+    .dl-waterfall { padding: 4px 0 2px; }
+    .dl-wf-bar { display:flex; height:30px; border-radius:8px; overflow:hidden; margin-bottom:12px; background: var(--dl-surface-2); }
+    .dl-wf-seg { height:100%; }
+    .dl-wf-legend { display:grid; gap:9px; }
+    .dl-wf-item { display:flex; align-items:center; gap:9px; font-size:12.5px; }
+    .dl-wf-dot { width:10px; height:10px; border-radius:3px; flex:none; }
+    .dl-wf-item .lbl { flex:1; color: var(--dl-text-muted); }
+    .dl-wf-item .ms { font-family: var(--dl-font-mono); font-weight:600; font-variant-numeric: tabular-nums; }
+    .dl-wf-total { margin-top:12px; padding-top:12px; border-top:1px solid var(--dl-border); display:flex; justify-content:space-between; font-size:12.5px; font-weight:700; }
+
+    .dl-error-card { border:1px solid var(--dl-danger); background: var(--dl-danger-bg); border-radius: var(--dl-r-md); padding:14px; margin-bottom:14px; }
+    .dl-error-card .et-type { font-family: var(--dl-font-mono); font-size:12px; font-weight:700; color: var(--dl-danger); display:flex; align-items:center; gap:7px; }
+    .dl-error-card .et-type .dl-icon { --od-icon-size:16px; }
+    .dl-error-card .et-msg { margin-top:8px; font-size:13px; color: var(--dl-text); line-height:1.5; }
+    .dl-stack { background: var(--dl-surface); border:1px solid var(--dl-border); border-radius: var(--dl-r-md); padding:12px; font-family: var(--dl-font-mono); font-size:11.5px; line-height:1.7; color: var(--dl-text-muted); overflow-x:auto; white-space:pre; }
+
+    /* ---- Stats dashboard ---- */
+    .dl-stats-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 14px 16px 6px; }
+    .dl-stat-card { border:1px solid var(--dl-border); background: var(--dl-surface); border-radius: var(--dl-r-md); padding: 13px 14px; }
+    .dl-stat-card .lbl { font-size: 11px; color: var(--dl-text-faint); font-weight:650; letter-spacing:.02em; }
+    .dl-stat-card .val { font-size: 21px; font-weight: 800; margin-top:5px; font-variant-numeric: tabular-nums; letter-spacing:-.01em; }
+    .dl-stat-card .val.ok { color: var(--dl-success); }
+    .dl-stat-card .val.bad { color: var(--dl-danger); }
+    .dl-stat-card .sub { font-size:11px; color: var(--dl-text-faint); margin-top:3px; }
+
+    .dl-panel { margin: 10px 16px 16px; border:1px solid var(--dl-border); background: var(--dl-surface); border-radius: var(--dl-r-lg); padding: 15px; }
+    .dl-panel h2 { font-size: 13px; font-weight:700; margin-bottom: 12px; }
+    .dl-chart-bars { display:flex; align-items:flex-end; gap:6px; height: 92px; }
+    .dl-chart-bars .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px; }
+    .dl-chart-bars .bar { width:100%; max-width:16px; border-radius: 4px 4px 2px 2px; background: var(--dl-accent); }
+    .dl-chart-bars .bar-lbl { font-size:9px; color: var(--dl-text-faint); transform: rotate(0deg); }
+
+    .dl-donut-row { display:flex; align-items:center; gap:18px; }
+    .dl-donut-row svg { flex:none; }
+    .dl-legend { display:grid; gap:8px; flex:1; min-width:0; }
+    .dl-legend-item { display:flex; align-items:center; gap:8px; font-size:12px; }
+    .dl-legend-dot { width:9px; height:9px; border-radius:3px; flex:none; }
+    .dl-legend-item .name { flex:1; color: var(--dl-text-muted); }
+    .dl-legend-item .pct { font-weight:700; font-variant-numeric: tabular-nums; }
+
+    .dl-rank-list { display:grid; gap:11px; }
+    .dl-rank-row { display:grid; gap:4px; }
+    .dl-rank-top { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; }
+    .dl-rank-top .path { font-family: var(--dl-font-mono); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dl-rank-top .val { flex:none; font-weight:700; font-variant-numeric: tabular-nums; color: var(--dl-text-muted); }
+    .dl-rank-track { height:6px; border-radius:4px; background: var(--dl-surface-3); overflow:hidden; }
+    .dl-rank-fill { height:100%; border-radius:4px; background: var(--dl-accent); }
+    .dl-rank-fill.warn { background: var(--dl-warn); }
+
+    /* ---- Settings sheet (dialog mounted in overlay root, outside .dl-app) ---- */
+    #dl-overlay-root { position:absolute; inset:0; z-index:50; pointer-events:none; }
+    #dl-settings-sheet {
+      position:absolute; inset:0; margin:0; padding:0; border:none; background:transparent; max-width:none; max-height:none; width:100%; height:100%;
+      display:none; pointer-events:auto;
+    }
+    #dl-settings-sheet[open] { display:flex; flex-direction:column; justify-content:flex-end; }
+    .dl-scrim { position:absolute; inset:0; background: rgba(5,6,10,.55); opacity:0; transition: opacity .18s ease; }
+    #dl-settings-sheet[open] .dl-scrim { opacity:1; }
+    .dl-sheet-panel {
+      position:relative; background: var(--dl-surface); border-radius: 22px 22px 0 0; border:1px solid var(--dl-border); border-bottom:none;
+      max-height: 86%; display:flex; flex-direction:column; color: var(--dl-text); font-family: var(--dl-font-sans);
+      transform: translateY(100%); transition: transform .22s ease-out; box-shadow: 0 -12px 30px rgba(0,0,0,.35);
+    }
+    #dl-settings-sheet[open] .dl-sheet-panel { transform: translateY(0); }
+    .dl-sheet-grabber { width:36px; height:4px; border-radius:99px; background: var(--dl-border-strong); margin: 10px auto 2px; flex:none; }
+    .dl-sheet-head { display:flex; align-items:center; padding: 8px 16px 10px; border-bottom:1px solid var(--dl-border); flex:none; }
+    .dl-sheet-head h2 { font-size:15px; font-weight:750; }
+    .dl-sheet-body { overflow-y:auto; padding: 14px 16px 24px; }
+    .dl-set-section { margin-bottom: 18px; }
+    .dl-set-section h3 { font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color: var(--dl-text-faint); margin-bottom:8px; }
+    .dl-set-row { display:flex; align-items:center; gap:10px; padding: 10px 0; border-bottom: 1px solid var(--dl-border); }
+    .dl-set-row:last-child { border-bottom:none; }
+    .dl-set-row .set-label { flex:1; min-width:0; }
+    .dl-set-row .set-title { font-size:13.5px; font-weight:600; }
+    .dl-set-row .set-desc { font-size:11.5px; color: var(--dl-text-faint); margin-top:2px; }
+    .dl-select {
+      flex:none; height:34px; padding: 0 10px; border-radius:9px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text); font-size:12.5px; font-family: var(--dl-font-sans);
+    }
+
+    /* Max stored requests: stepper + presets + usage, stacked under its label */
+    .dl-set-row--col { flex-direction: column; align-items: stretch; gap: 8px; }
+    .dl-set-row--col .set-label { flex: none; }
+    .dl-stepper { display:flex; align-items:center; gap:8px; }
+    .dl-stepper-btn {
+      flex:none; width:40px; height:40px; border-radius:10px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text); font-size:18px; font-weight:600; line-height:1; cursor:pointer; display:grid; place-items:center;
+    }
+    .dl-stepper-btn:hover { background: var(--dl-surface-3); }
+    .dl-stepper-btn:active { background: var(--dl-surface-3); transform: scale(.96); }
+    .dl-stepper-input {
+      flex:1; min-width:0; height:40px; border-radius:10px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text); font-family: var(--dl-font-mono); font-size:15px; font-weight:700; text-align:center;
+    }
+    .dl-stepper-input.invalid { border-color: var(--dl-danger); color: var(--dl-danger); }
+    .dl-max-stored-help { font-size:11.5px; color: var(--dl-text-faint); line-height:1.4; }
+    .dl-max-stored-error { font-size:11.5px; color: var(--dl-danger); font-weight:600; line-height:1.4; }
+    .dl-preset-rail { display:flex; gap:6px; flex-wrap:wrap; }
+    .dl-preset-chip {
+      flex:none; height:28px; padding:0 11px; border-radius:999px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text-muted); font-size:12px; font-weight:650; font-family: var(--dl-font-mono); cursor:pointer;
+    }
+    .dl-preset-chip:hover { background: var(--dl-surface-3); }
+    .dl-preset-chip[aria-pressed="true"] { background: var(--dl-accent); border-color: var(--dl-accent); color: var(--dl-on-accent); }
+    .dl-usage-row { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; color: var(--dl-text-muted); margin-top:2px; }
+    .dl-usage-row .pct { font-weight:700; font-variant-numeric: tabular-nums; }
+    .dl-usage-track { height:5px; border-radius:99px; background: var(--dl-surface-3); overflow:hidden; }
+    .dl-usage-fill { height:100%; border-radius:99px; transition: width .18s ease; }
+    .dl-mini-stepper { flex:none; display:flex; align-items:center; gap:6px; }
+    .dl-mini-step {
+      flex:none; width:28px; height:28px; border-radius:8px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text); font-size:15px; font-weight:600; line-height:1; cursor:pointer; display:grid; place-items:center;
+    }
+    .dl-mini-step:hover { background: var(--dl-surface-3); }
+    .dl-mini-val { flex:none; min-width:30px; text-align:center; font-family: var(--dl-font-mono); font-size:13px; font-weight:700; }
+    .dl-switch { flex:none; width:44px; height:26px; border-radius:99px; border:1px solid var(--dl-border); background: var(--dl-surface-3); position:relative; cursor:pointer; }
+    .dl-switch .knob { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .18s ease; }
+    .dl-switch[aria-checked="true"] { background: var(--dl-accent); border-color: var(--dl-accent); }
+    .dl-switch[aria-checked="true"] .knob { transform: translateX(18px); }
+    .dl-theme-row { display:flex; gap:8px; }
+    .dl-theme-opt { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; padding: 12px 6px; border-radius:12px; border:1px solid var(--dl-border); background: var(--dl-surface-2); color: var(--dl-text-muted); cursor:pointer; font-size:11.5px; font-weight:600; }
+    .dl-theme-opt .dl-icon { --od-icon-size:18px; }
+    .dl-theme-opt[aria-checked="true"] { border-color: var(--dl-accent); color: var(--dl-accent); background: color-mix(in srgb, var(--dl-accent) 12%, var(--dl-surface-2)); }
+    .dl-pos-grid { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+    .dl-pos-opt {
+      height:40px; border-radius:10px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text-muted); font-size:12.5px; font-weight:600; cursor:pointer;
+    }
+    .dl-pos-opt:hover { background: var(--dl-surface-3); }
+    .dl-pos-opt[aria-checked="true"] { border-color: var(--dl-accent); color: var(--dl-accent); background: color-mix(in srgb, var(--dl-accent) 12%, var(--dl-surface-2)); }
+    .dl-export-row { display:flex; gap:8px; }
+    .dl-export-row .dl-act-btn { flex:1; }
+
+    /* ---- Toasts ---- */
+    #dl-toast-root { position:absolute; left:0; right:0; bottom: 38px; z-index: 60; display:grid; justify-items:center; gap:8px; padding: 0 16px; pointer-events:none; }
+    .dl-toast {
+      pointer-events:auto; max-width: 100%; padding: 10px 16px; border-radius: 12px; background: var(--dl-surface-3);
+      border: 1px solid var(--dl-border-strong); color: var(--dl-text); font-size: 12.5px; font-weight:600; box-shadow: var(--dl-shadow);
+      animation: dl-toast-in .2s ease-out both, dl-toast-out .2s ease-in 1.9s both;
+    }
+    @keyframes dl-toast-in { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes dl-toast-out { to { opacity:0; transform: translateY(-4px); } }
+
+    /* ---- In-app request-finished notification banner ---- */
+    #dl-notif-root {
+      position:absolute; left:0; right:0; top: var(--phone-safe-top, 50px); z-index: 55;
+      padding: 8px 12px 0; pointer-events:none;
+    }
+    .dl-notif {
+      pointer-events:auto; display:flex; align-items:flex-start; gap:10px; padding: 12px 12px 12px 14px;
+      border-radius: var(--dl-r-lg); background: var(--dl-surface-2); border:1px solid var(--dl-border-strong);
+      box-shadow: var(--dl-shadow); animation: dl-notif-in .22s ease-out both;
+    }
+    .dl-notif.dl-notif-leave { animation: dl-notif-out .18s ease-in both; }
+    @keyframes dl-notif-in { from { opacity:0; transform: translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes dl-notif-out { to { opacity:0; transform: translateY(-8px); } }
+    .dl-notif-icon {
+      --od-icon-size:16px; flex:none; width:30px; height:30px; border-radius:9px; display:grid; place-items:center;
+      background: var(--dl-success-bg); color: var(--dl-success); margin-top:1px;
+    }
+    .dl-notif-icon.cwarn { background: var(--dl-warn-bg); color: var(--dl-warn); }
+    .dl-notif-icon.cbad { background: var(--dl-danger-bg); color: var(--dl-danger); }
+    .dl-notif-body { flex:1; min-width:0; }
+    .dl-notif-top { display:flex; align-items:center; gap:6px; }
+    .dl-notif-top .lbl { font-size:11px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; color: var(--dl-text-faint); }
+    .dl-notif-path { margin-top:3px; font-family: var(--dl-font-mono); font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dl-notif-host { font-family: var(--dl-font-mono); font-size:11px; color: var(--dl-text-faint); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .dl-notif-actions { display:flex; align-items:center; gap:4px; flex:none; margin-top:1px; }
+    .dl-notif-view {
+      flex:none; height:28px; padding:0 11px; border-radius:999px; border:none; background: var(--dl-accent); color: var(--dl-on-accent);
+      font-size:11.5px; font-weight:700; cursor:pointer;
+    }
+    .dl-notif-close { flex:none; width:28px; height:28px; border-radius:50%; border:none; background:transparent; color: var(--dl-text-faint); display:grid; place-items:center; cursor:pointer; }
+    .dl-notif-close .dl-icon { --od-icon-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame" data-phone-shell data-platform="neutral">
+    <span class="hardware-button volume" aria-hidden="true"></span>
+    <span class="hardware-button power" aria-hidden="true"></span>
+
+    <section class="phone-screen" data-phone-screen>
+      <main class="phone-content" data-phone-content>
+        <!-- APP CONTENT START -->
+        <div id="dl-app" class="dl-app"></div>
+        <!-- APP CONTENT END -->
+      </main>
+
+      <div class="status-bar" aria-hidden="true">
+        <span class="status-time">9:41</span>
+        <span class="status-cutout-zone"></span>
+        <span class="status-icons">
+          <svg class="connectivity" viewBox="0 0 15 12"><path d="M1.5 10.5v-2m4 2v-4.5m4 4.5v-7m4 7v-9"/></svg>
+          <svg class="wifi" viewBox="0 0 16 12"><path d="M1.5 4.7a9.2 9.2 0 0 1 13 0M4.2 7.3a5.4 5.4 0 0 1 7.6 0M6.9 10a1.55 1.55 0 0 1 2.2 0"/></svg>
+          <svg class="battery" viewBox="0 0 20 11"><rect x=".75" y="1.25" width="16.5" height="8.5" rx="2"/><path d="M18.5 4v3M3.2 3.4h10.4v4.2H3.2z" fill="currentColor" stroke="none"/></svg>
+        </span>
+      </div>
+      <div class="camera-dot" aria-hidden="true"></div>
+      <div class="gesture-indicator" aria-hidden="true"></div>
+
+      <div id="dl-overlay-root">
+        <div id="dl-bubble-root"></div>
+        <div id="dl-notif-root" aria-live="assertive"></div>
+        <dialog id="dl-settings-sheet" aria-labelledby="dl-settings-title">
+          <div class="dl-scrim" data-action="close-settings"></div>
+          <div class="dl-sheet-panel" role="document">
+            <div class="dl-sheet-grabber" aria-hidden="true"></div>
+            <div class="dl-sheet-head">
+              <h2 id="dl-settings-title">Settings</h2>
+              <button type="button" class="dl-btn-icon" style="margin-left:auto" data-action="close-settings" aria-label="Close settings"></button>
+            </div>
+            <div class="dl-sheet-body" id="dl-settings-body"></div>
+          </div>
+        </dialog>
+        <div id="dl-toast-root" aria-live="polite"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+  (function () {
+    "use strict";
+
+    /* ---------------------------------------------------------------- icons */
+    var ICONS = {
+      search: '<circle cx="10" cy="10" r="6.2"/><path d="M14.6 14.6L20 20"/>',
+      sliders: '<path d="M4 6h16M8 12h12M11 18h9"/><circle cx="8" cy="6" r="1.6" fill="currentColor" stroke="none"/><circle cx="14" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="17" cy="18" r="1.6" fill="currentColor" stroke="none"/>',
+      trash: '<path d="M5 7h14M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"/><path d="M10 11v6M14 11v6"/>',
+      more: '<circle cx="12" cy="5" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.7" fill="currentColor" stroke="none"/>',
+      chevronLeft: '<path d="M15 5l-7 7 7 7"/>',
+      chevronRight: '<path d="M9 5l7 7-7 7"/>',
+      chevronDown: '<path d="M5 9l7 7 7-7"/>',
+      share: '<path d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
+      copy: '<rect x="9" y="9" width="11" height="11" rx="2.2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+      replay: '<path d="M4 10a8 8 0 1 1 2.1 7.3"/><path d="M4 4v6h6"/>',
+      close: '<path d="M6 6l12 12M18 6L6 18"/>',
+      check: '<path d="M5 12l5 5 9-10"/>',
+      clock: '<circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3.2 2"/>',
+      globe: '<circle cx="12" cy="12" r="8.4"/><path d="M3.6 12h16.8M12 3.6c2.3 2.3 3.5 5.3 3.5 8.4s-1.2 6.1-3.5 8.4c-2.3-2.3-3.5-5.3-3.5-8.4S9.7 5.9 12 3.6Z"/>',
+      image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><circle cx="9" cy="10" r="1.6"/><path d="M4 17l5-5 3.5 3.5L17 11l3 3"/>',
+      alert: '<path d="M12 3.4 21 19H3L12 3.4Z"/><path d="M12 10v3.2M12 16.4v.1"/>',
+      gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.5 7.5 0 0 0 0-2l2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5a7.6 7.6 0 0 0-1.7 1l-2.3-.9-2 3.4L6.6 11a7.5 7.5 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.75 1.7 1l.4 2.5h4l.4-2.5c.6-.25 1.2-.6 1.7-1l2.3.9 2-3.4-2-1.5Z"/>',
+      sun: '<circle cx="12" cy="12" r="4.1"/><path d="M12 2.6v2.3M12 19.1v2.3M4.3 4.3l1.6 1.6M18.1 18.1l1.6 1.6M2.6 12h2.3M19.1 12h2.3M4.3 19.7l1.6-1.6M18.1 5.9l1.6-1.6"/>',
+      moon: '<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/>',
+      monitor: '<rect x="3" y="4.5" width="18" height="12" rx="1.7"/><path d="M8 20h8M12 16.5V20"/>',
+      download: '<path d="M12 3.5v11M8 11l4 4 4-4M5 19.5h14"/>',
+      bolt: '<path d="M13 3 4 14h6l-1 7 9-11h-6l1-7Z"/>',
+      server: '<rect x="4" y="4" width="16" height="6" rx="1.7"/><rect x="4" y="14" width="16" height="6" rx="1.7"/><circle cx="8" cy="7" r=".9" fill="currentColor" stroke="none"/><circle cx="8" cy="17" r=".9" fill="currentColor" stroke="none"/>',
+      box: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 4v16M4 10h16"/>',
+      stats: '<path d="M5 19V9M11 19V4M17 19v-7"/>'
+    };
+    function icon(name, extra) {
+      return '<svg class="dl-icon' + (extra ? ' ' + extra : '') + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+    }
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    /* ---------------------------------------------------------------- data */
+    var requests = [
+      { id:'r1', method:'GET', host:'api.example.com', path:'/v1/users', query:null, status:200, statusClass:'2xx',
+        duration:182, reqSize:0, resSize:2140, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:07.182',
+        contentType:'application/json',
+        reqHeaders:{ 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig', 'Accept-Encoding':'gzip' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Content-Length':'2140', 'Cache-Control':'no-store', 'X-Request-Id':'req_4a1c9f' },
+        reqQuery:{}, reqBody:null,
+        resBody:{ data:[ { id:1, name:'Ava Thompson', email:'ava.thompson@example.com', role:'admin' }, { id:2, name:'Liam Chen', email:'liam.chen@example.com', role:'member' }, { id:3, name:'Noor Haddad', email:'noor.haddad@example.com', role:'member' } ], meta:{ page:1, totalPages:5, totalItems:98 } },
+        timing:{ dns:4, connect:18, tls:22, send:2, wait:118, receive:18 } },
+
+      { id:'r2', method:'POST', host:'api.example.com', path:'/v1/auth/login', query:null, status:200, statusClass:'2xx',
+        duration:341, reqSize:64, resSize:612, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:52.906',
+        contentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/json', 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Set-Cookie':'session=REDACTED; HttpOnly', 'X-Request-Id':'req_9b2e11' },
+        reqQuery:{}, reqBody:{ email:'ava.thompson@example.com', password:'SuperSecret!23' },
+        resBody:{ accessToken:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0', refreshToken:'8f14e45fceea167a5a36dedd4bea2543', expiresIn:3600, user:{ id:1, name:'Ava Thompson', role:'admin' } },
+        timing:{ dns:6, connect:24, tls:30, send:3, wait:260, receive:18 } },
+
+      { id:'r3', method:'GET', host:'api.example.com', path:'/v1/orders', query:'page=2&limit=20', status:200, statusClass:'2xx',
+        duration:96, reqSize:0, resSize:1860, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:40.221',
+        contentType:'application/json',
+        reqHeaders:{ 'Accept':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Content-Length':'1860' },
+        reqQuery:{ page:'2', limit:'20' },
+        reqBody:null,
+        resBody:{ data:[ { id:5021, status:'shipped', total:128.5, items:3 }, { id:5022, status:'processing', total:44.0, items:1 } ], meta:{ page:2, totalPages:9 } },
+        timing:{ dns:2, connect:10, tls:12, send:1, wait:63, receive:8 } },
+
+      { id:'r4', method:'GET', host:'cdn.example.com', path:'/images/avatar-42.jpg', query:null, status:200, statusClass:'2xx',
+        duration:64, reqSize:0, resSize:18400, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:35.004',
+        contentType:'image/jpeg', isImage:true, imageMeta:{ width:256, height:256 },
+        reqHeaders:{ 'Accept':'image/*' },
+        resHeaders:{ 'Content-Type':'image/jpeg', 'Content-Length':'18400', 'Cache-Control':'public, max-age=604800' },
+        reqQuery:{}, reqBody:null, resBody:null,
+        timing:{ dns:3, connect:9, tls:11, send:1, wait:28, receive:12 } },
+
+      { id:'r5', method:'GET', host:'api.example.com', path:'/v1/payments/intent', query:null, status:500, statusClass:'5xx',
+        duration:812, reqSize:48, resSize:188, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:12.558',
+        contentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'X-Request-Id':'req_8f3ac1' },
+        reqQuery:{}, reqBody:{ amount:4200, currency:'USD', orderId:5021 },
+        resBody:{ error:{ code:'INTERNAL_ERROR', message:'Unexpected error while creating payment intent.', requestId:'req_8f3ac1' } },
+        timing:{ dns:5, connect:16, tls:20, send:3, wait:748, receive:20 } },
+
+      { id:'r6', method:'GET', host:'api.example.com', path:'/v1/notifications', query:null, status:null, statusClass:'pending',
+        duration:null, reqSize:0, resSize:null, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:11.900',
+        contentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null, timing:null },
+
+      { id:'r7', method:'GET', host:'api.example.com', path:'/v1/sync', query:null, status:'error', statusClass:'error',
+        duration:10000, reqSize:0, resSize:null, group:'earlier', timeLabel:'18 min ago', protocol:'HTTP/2', startTime:'14:14:02.447',
+        contentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null,
+        error:{ type:'DioExceptionType.connectionTimeout', message:'The request connection took longer than 0:00:10.000000 and it was aborted.\nThis happens when the client sends a request but the server fails to respond in the given time frame.',
+          stack:'DioException [connectionTimeout]: The request connection took longer than 0:00:10.000000\n    at DioMixin._dispatchRequest (package:dio/src/dio_mixin.dart:432)\n    at DioMixin.fetch (package:dio/src/dio_mixin.dart:386)\n    at DioMixin.get (package:dio/src/dio_mixin.dart:118)\n    at SyncRepository.pull (package:app/data/sync_repository.dart:47)\n    at SyncService._run (package:app/services/sync_service.dart:63)\n    <asynchronous suspension>' },
+        timing:{ dns:5, connect:20, tls:0, send:0, wait:9975, receive:0 } },
+
+      { id:'r8', method:'PUT', host:'api.example.com', path:'/v1/profile', query:null, status:200, statusClass:'2xx',
+        duration:155, reqSize:58, resSize:140, group:'earlier', timeLabel:'42 min ago', protocol:'HTTP/2', startTime:'13:50:33.112',
+        contentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8' },
+        reqQuery:{}, reqBody:{ name:'Ava Thompson', bio:'Product designer' },
+        resBody:{ id:1, name:'Ava Thompson', bio:'Product designer', updatedAt:'2026-10-24T09:12:31Z' },
+        timing:{ dns:2, connect:8, tls:10, send:2, wait:120, receive:13 } },
+
+      { id:'r9', method:'DELETE', host:'api.example.com', path:'/v1/cart/items/88', query:null, status:204, statusClass:'2xx',
+        duration:58, reqSize:0, resSize:0, group:'earlier', timeLabel:'1 hr ago', protocol:'HTTP/2', startTime:'13:31:09.740',
+        contentType:null,
+        reqHeaders:{ 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'X-Request-Id':'req_2b7701' },
+        reqQuery:{}, reqBody:null, resBody:null,
+        timing:{ dns:1, connect:6, tls:8, send:1, wait:38, receive:4 } },
+
+      { id:'r10', method:'GET', host:'api.example.com', path:'/v1/search', query:'q=sneakers&page=1', status:301, statusClass:'3xx',
+        duration:40, reqSize:0, resSize:0, group:'earlier', timeLabel:'1 hr ago', protocol:'HTTP/2', startTime:'13:28:51.300',
+        contentType:null,
+        reqHeaders:{ 'Accept':'application/json' },
+        resHeaders:{ 'Location':'https://api.example.com/v2/search?q=sneakers&page=1' },
+        reqQuery:{ q:'sneakers', page:'1' }, reqBody:null, resBody:null,
+        timing:{ dns:2, connect:7, tls:9, send:1, wait:19, receive:2 } },
+
+      { id:'r11', method:'PATCH', host:'api.example.com', path:'/v1/settings', query:null, status:403, statusClass:'4xx',
+        duration:77, reqSize:36, resSize:98, group:'earlier', timeLabel:'2 hr ago', protocol:'HTTP/2', startTime:'12:46:18.009',
+        contentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8' },
+        reqQuery:{}, reqBody:{ marketingEmails:false },
+        resBody:{ error:{ code:'FORBIDDEN', message:'You do not have permission to modify these settings.' } },
+        timing:{ dns:2, connect:9, tls:11, send:1, wait:50, receive:4 } }
+    ];
+
+    var STATS = {
+      successRate: 72.0, avgLatency: 214, p95Latency: 680, totalData: '4.9 MB', errorCount: 68,
+      overTime: { labels:['09','10','11','12','13','14','15','16','17','18','19','20'], values:[6,9,14,22,31,27,19,24,35,29,18,10] },
+      distribution: [
+        { key:'2xx', label:'2xx success', pct:72, color:'var(--dl-success)' },
+        { key:'3xx', label:'3xx redirect', pct:6, color:'var(--dl-redirect)' },
+        { key:'4xx', label:'4xx client', pct:9, color:'var(--dl-warn)' },
+        { key:'5xx', label:'5xx server', pct:5, color:'var(--dl-danger)' },
+        { key:'error', label:'Network errors', pct:5, color:'#a83250' },
+        { key:'pending', label:'Pending', pct:3, color:'var(--dl-pending)' }
+      ],
+      slowest: [
+        { path:'/v1/payments/intent', avg:742 }, { path:'/v1/sync', avg:612 }, { path:'/v1/reports/export', avg:398 },
+        { path:'/v1/orders', avg:266 }, { path:'/v1/users', avg:184 }
+      ],
+      mostCalled: [
+        { path:'/v1/users', count:142 }, { path:'/v1/orders', count:97 }, { path:'/auth/login', count:54 },
+        { path:'/v1/notifications', count:41 }, { path:'/v1/cart', count:22 }
+      ],
+      topHosts: [
+        { host:'api.example.com', count:278, pct:78 }, { host:'cdn.example.com', count:57, pct:16 }, { host:'auth.example.com', count:21, pct:6 }
+      ]
+    };
+
+    /* ---------------------------------------------------------------- state */
+    var state = {
+      view: 'host',               // host | list | detail | stats
+      filter: 'all',              // all | 2xx | 3xx | 4xx | 5xx | errors
+      methodFilter: new Set(),    // empty = all methods
+      search: '',
+      activeId: null,
+      tab: 'overview',
+      popover: null,              // null | 'filter' | 'overflow' | 'clear-confirm'
+      popoverAnchor: null,
+      openSections: {},           // key -> bool, keyed per request+tab+section
+      bodyMode: {},                // key -> 'pretty' | 'raw'
+      openJsonPaths: {},           // treeKey -> Set of expanded node paths
+      settings: {
+        maxStored: 500, retention: '24h', notification: true, notificationDuration: 4, bubble: true, bubblePosition: 'br', redactHeaders: true, theme: 'dark'
+      },
+      maxStoredDraft: '500',
+      lastListFocusId: null,
+      simCounter: 0,
+      notifTimer: null
+    };
+
+    var app = document.getElementById('dl-app');
+    var settingsDialog = document.getElementById('dl-settings-sheet');
+    var settingsBody = document.getElementById('dl-settings-body');
+    var toastRoot = document.getElementById('dl-toast-root');
+    var notifRoot = document.getElementById('dl-notif-root');
+
+    function effectiveTheme() {
+      if (state.settings.theme === 'system') {
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      return state.settings.theme;
+    }
+
+    /* ---------------------------------------------------------------- utils */
+    function fmtMs(ms) { if (ms == null) return '—'; return ms >= 1000 ? (ms / 1000).toFixed(2) + ' s' : ms + ' ms'; }
+    function fmtBytes(b) {
+      if (b == null) return '—';
+      if (b === 0) return '0 B';
+      if (b < 1024) return b + ' B';
+      if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
+      return (b / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+    function statusLabel(req) {
+      if (req.statusClass === 'pending') return 'PENDING';
+      if (req.statusClass === 'error') return 'ERR';
+      return String(req.status);
+    }
+    function matchesFilters(r) {
+      if (state.filter === 'errors') {
+        if (!(r.statusClass === '5xx' || r.statusClass === 'error')) return false;
+      } else if (state.filter !== 'all' && r.statusClass !== state.filter) {
+        return false;
+      }
+      if (state.methodFilter.size && !state.methodFilter.has(r.method)) return false;
+      if (state.search) {
+        var q = state.search.toLowerCase();
+        var hay = (r.method + ' ' + r.host + ' ' + r.path + ' ' + (r.query || '')).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    }
+    function toast(msg) {
+      var el = document.createElement('div');
+      el.className = 'dl-toast';
+      el.textContent = msg;
+      toastRoot.appendChild(el);
+      setTimeout(function () { el.remove(); }, 2150);
+    }
+
+    /* ---------------------------------------------------------------- simulated requests + notification banner */
+    var SIM_TEMPLATES = [
+      { method:'GET', path:'/v1/products', reqBody:null, resBody:{ data:[{ id:301, name:'Trail Runner 2', price:128 }, { id:302, name:'Wool Beanie', price:24 }], meta:{ page:1, totalPages:12 } } },
+      { method:'POST', path:'/v1/cart/items', reqBody:{ itemId:301, quantity:1 }, resBody:{ cartId:'c_88f2', itemId:301, quantity:1 } },
+      { method:'GET', path:'/v1/profile', reqBody:null, resBody:{ id:1, name:'Ava Thompson', email:'ava.thompson@example.com' } },
+      { method:'PATCH', path:'/v1/preferences', reqBody:{ marketingEmails:true, theme:'dark' }, resBody:{ marketingEmails:true, theme:'dark', updatedAt:'2026-10-24T10:02:11Z' } },
+      { method:'DELETE', path:'/v1/sessions/current', reqBody:null, resBody:null }
+    ];
+    function rollOutcome() {
+      var r = Math.random();
+      if (r < 0.78) return { statusClass:'2xx', status: Math.random() < 0.15 ? 204 : 200 };
+      if (r < 0.9) return { statusClass:'4xx', status:[400, 403, 404, 422][Math.floor(Math.random() * 4)] };
+      if (r < 0.97) return { statusClass:'5xx', status:500 };
+      return { statusClass:'error', status:'error' };
+    }
+    function makeTiming(total) {
+      var shares = { dns:.02, connect:.08, tls:.1, send:.01, wait:.7, receive:.09 };
+      var t = {};
+      Object.keys(shares).forEach(function (k) { t[k] = Math.max(1, Math.round(total * shares[k])); });
+      return t;
+    }
+    function pad(n, w) { var s = String(n); while (s.length < (w || 2)) s = '0' + s; return s; }
+    function simulateRequest() {
+      var tpl = SIM_TEMPLATES[Math.floor(Math.random() * SIM_TEMPLATES.length)];
+      var outcome = rollOutcome();
+      state.simCounter += 1;
+      var id = 'sim' + state.simCounter;
+      var now = new Date();
+      var startTime = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()) + '.' + pad(now.getMilliseconds(), 3);
+      var pending = {
+        id: id, method: tpl.method, host: 'api.example.com', path: tpl.path, query: null,
+        status: null, statusClass: 'pending', duration: null, reqSize: tpl.reqBody ? JSON.stringify(tpl.reqBody).length : 0, resSize: null,
+        group: 'now', timeLabel: 'Just now', protocol: 'HTTP/2', startTime: startTime,
+        contentType: tpl.reqBody ? 'application/json' : null,
+        reqHeaders: tpl.reqBody ? { 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' } : { 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders: {}, reqQuery: {}, reqBody: tpl.reqBody, resBody: null, timing: null
+      };
+      requests.unshift(pending);
+      if (state.view === 'list' || state.view === 'stats') render();
+      setTimeout(function () { finishSimulatedRequest(id, tpl, outcome); }, 500 + Math.random() * 900);
+    }
+    function finishSimulatedRequest(id, tpl, outcome) {
+      var req = requests.find(function (r) { return r.id === id; });
+      if (!req) return;
+      if (outcome.statusClass === 'error') {
+        req.statusClass = 'error'; req.status = 'error'; req.duration = 10000; req.resSize = null;
+        req.error = { type:'DioExceptionType.receiveTimeout', message:'The request made and received a response but the response took longer than 0:00:10.000000 to receive.',
+          stack:'DioException [receiveTimeout]: The request made and received a response but the response took longer than 0:00:10.000000 to receive.\n    at DioMixin._dispatchRequest (package:dio/src/dio_mixin.dart:452)\n    at DioMixin.fetch (package:dio/src/dio_mixin.dart:386)\n    at SimulatedClient.run (package:app/debug/simulated_client.dart:22)' };
+        req.timing = makeTiming(10000);
+      } else {
+        var duration = outcome.statusClass === '2xx' ? Math.round(60 + Math.random() * 340) : outcome.statusClass === '4xx' ? Math.round(60 + Math.random() * 180) : Math.round(400 + Math.random() * 500);
+        req.statusClass = outcome.statusClass; req.status = outcome.status; req.duration = duration;
+        req.resBody = outcome.statusClass === '2xx' ? tpl.resBody : { error:{ code: outcome.status === 404 ? 'NOT_FOUND' : outcome.status === 500 ? 'INTERNAL_ERROR' : 'REQUEST_FAILED', message:'The request could not be completed.' } };
+        req.contentType = req.resBody ? 'application/json' : null;
+        req.resSize = req.resBody ? JSON.stringify(req.resBody).length : 0;
+        req.resHeaders = { 'Content-Type': req.contentType || 'text/plain', 'X-Request-Id':'req_' + id };
+        req.timing = makeTiming(duration);
+      }
+      if (requests.length > state.settings.maxStored) {
+        var excess = requests.length - state.settings.maxStored;
+        var oldestFirst = requests.slice().sort(function (a, b) { return a.startTime < b.startTime ? -1 : a.startTime > b.startTime ? 1 : 0; });
+        oldestFirst.slice(0, excess).forEach(function (victim) {
+          var idx = requests.findIndex(function (r) { return r.id === victim.id; });
+          if (idx !== -1) requests.splice(idx, 1);
+        });
+      }
+      if (state.view === 'list' || state.view === 'stats' || (state.view === 'detail' && state.activeId === id)) render();
+      showNotificationFor(req);
+    }
+    function dismissNotification() {
+      if (state.notifTimer) { clearTimeout(state.notifTimer); state.notifTimer = null; }
+      var el = notifRoot.firstElementChild;
+      if (!el) return;
+      el.classList.add('dl-notif-leave');
+      setTimeout(function () { notifRoot.innerHTML = ''; }, 180);
+    }
+    function showNotificationFor(req) {
+      if (!state.settings.notification) return;
+      if (!requests.some(function (r) { return r.id === req.id; })) return;
+      if (state.notifTimer) clearTimeout(state.notifTimer);
+      var bad = req.statusClass === '5xx' || req.statusClass === 'error';
+      var warn = req.statusClass === '4xx';
+      var iconCls = bad ? 'cbad' : warn ? 'cwarn' : '';
+      notifRoot.innerHTML =
+        '<div class="dl-notif">' +
+          '<div class="dl-notif-icon ' + iconCls + '">' + icon(bad || warn ? 'alert' : 'check') + '</div>' +
+          '<div class="dl-notif-body">' +
+            '<div class="dl-notif-top"><span class="dl-chip ' + req.method + '" style="height:18px;font-size:10px;">' + req.method + '</span><span class="dl-badge c' + req.statusClass + '" style="height:18px;">' + statusLabel(req) + '</span><span class="lbl" style="margin-left:auto">Request finished</span></div>' +
+            '<div class="dl-notif-path">' + esc(req.path) + '</div>' +
+            '<div class="dl-notif-host">' + esc(req.host) + '</div>' +
+          '</div>' +
+          '<div class="dl-notif-actions">' +
+            '<button type="button" class="dl-notif-view" data-action="open-detail-from-notif" data-id="' + req.id + '">View</button>' +
+            '<button type="button" class="dl-notif-close" data-action="dismiss-notif" aria-label="Dismiss notification">' + icon('close') + '</button>' +
+          '</div>' +
+        '</div>';
+      state.notifTimer = setTimeout(dismissNotification, state.settings.notificationDuration * 1000);
+    }
+    function copyText(text, label) {
+      function done(ok) { toast(ok ? (label || 'Copied to clipboard') : 'Copy failed'); }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      } else {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); ta.remove(); done(true);
+        } catch (e) { done(false); }
+      }
+    }
+    function buildCurl(r) {
+      var parts = ['curl -X ' + r.method, "'https://" + r.host + r.path + (r.query ? '?' + r.query : '') + "'"];
+      Object.keys(r.reqHeaders || {}).forEach(function (k) { parts.push("-H '" + k + ': ' + r.reqHeaders[k] + "'"); });
+      if (r.reqBody) parts.push("-d '" + JSON.stringify(r.reqBody) + "'");
+      return parts.join(' \\\n  ');
+    }
+
+    /* ---------------------------------------------------------------- JSON tree */
+    function jsonTreeRoot(value, treeKey) {
+      if (!state.openJsonPaths[treeKey]) {
+        var seed = new Set(['$']);
+        if (value && typeof value === 'object') {
+          Object.keys(value).forEach(function (k) { seed.add('$.' + k); });
+        }
+        state.openJsonPaths[treeKey] = seed;
+      }
+      return '<div class="dl-json-tree" data-tree-key="' + esc(treeKey) + '">' + jsonNode(value, '$', treeKey, null) + '</div>';
+    }
+    function jsonNode(value, path, treeKey, keyLabel) {
+      var openSet = state.openJsonPaths[treeKey];
+      var isOpen = openSet.has(path);
+      var keyHtml = keyLabel != null ? '<span class="jt-key">"' + esc(keyLabel) + '"</span><span class="jt-punct">: </span>' : '';
+      if (Array.isArray(value)) {
+        if (!value.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">[]</span></div>';
+        var rowsA = value.map(function (v, i) { return jsonNode(v, path + '[' + i + ']', treeKey, null); }).join('');
+        return '<div class="jt-row">' +
+          '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="' + isOpen + '">' + icon('chevronRight') + '</button>' +
+          keyHtml + '<span class="jt-punct">[</span><span class="jt-count">' + value.length + ' items</span>' +
+          (isOpen ? '<div class="jt-node">' + rowsA + '</div><span class="jt-punct">]</span>' : '<span class="jt-punct">…]</span>') +
+          '</div>';
+      }
+      if (value && typeof value === 'object') {
+        var keys = Object.keys(value);
+        if (!keys.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">{}</span></div>';
+        var rowsO = keys.map(function (k) { return jsonNode(value[k], path + '.' + k, treeKey, k); }).join('');
+        return '<div class="jt-row">' +
+          '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="' + isOpen + '">' + icon('chevronRight') + '</button>' +
+          keyHtml + '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + ' keys</span>' +
+          (isOpen ? '<div class="jt-node">' + rowsO + '</div><span class="jt-punct">}</span>' : '<span class="jt-punct">…}</span>') +
+          '</div>';
+      }
+      var rendered = typeof value === 'string' ? '<span class="jt-str">"' + esc(value) + '"</span>' :
+        typeof value === 'number' ? '<span class="jt-num">' + value + '</span>' :
+        typeof value === 'boolean' ? '<span class="jt-bool">' + value + '</span>' : '<span class="jt-null">null</span>';
+      return '<div class="jt-row"><span class="jt-toggle" aria-hidden="true"></span>' + keyHtml + rendered + '</div>';
+    }
+
+    /* ---------------------------------------------------------------- render: host */
+    function renderHost() {
+      return '' +
+        '<div class="dl-screen dl-host dl-enter">' +
+          '<p class="host-eyebrow">Acme Shopper · Debug build</p>' +
+          '<h1>Good afternoon, Ava</h1>' +
+          '<p class="host-sub">This is a sample host app. Dio Lens runs alongside it in debug builds — tap the floating bubble to inspect live network traffic.</p>' +
+          '<div class="host-card"><div class="host-row"><div class="host-chip">' + icon('box') + '</div><div><div class="host-title">Order #5021 shipped</div><div class="host-meta">Arriving Thursday · 3 items</div></div></div></div>' +
+          '<div class="host-card"><div class="host-row"><div class="host-chip alt">' + icon('check') + '</div><div><div class="host-title">Profile updated</div><div class="host-meta">Changes saved just now</div></div></div><div class="host-skeleton w80"></div><div class="host-skeleton w40"></div></div>' +
+          '<div class="host-card"><div class="host-row"><div class="host-chip warn">' + icon('alert') + '</div><div><div class="host-title">Payment retry needed</div><div class="host-meta">We could not process your last payment</div></div></div></div>' +
+          '<button type="button" class="host-sim-btn" data-action="simulate-request">' + icon('bolt') + '<span>Simulate a network request</span></button>' +
+        '</div>';
+    }
+    function renderBubble() {
+      return '<div class="dl-bubble-wrap pos-' + state.settings.bubblePosition + '">' +
+          '<button type="button" class="dl-bubble" data-action="open-inspector" aria-label="Open Dio Lens inspector">' +
+            icon('bolt') +
+          '</button>' +
+        '</div>';
+    }
+
+    /* ---------------------------------------------------------------- render: top bar + filters */
+    function quickThemeToggleBtn(extraStyle) {
+      var eff = effectiveTheme();
+      var nextLabel = eff === 'dark' ? 'light' : 'dark';
+      return '<button type="button" class="dl-btn-icon" data-action="quick-theme-toggle" aria-label="Preview ' + nextLabel + ' theme" title="Preview ' + nextLabel + ' theme"' + (extraStyle ? ' style="' + extraStyle + '"' : '') + '>' + icon(eff === 'dark' ? 'moon' : 'sun') + '</button>';
+    }
+    function topbar(title, opts) {
+      opts = opts || {};
+      var back = opts.back ? '<button type="button" class="dl-btn-icon" data-action="' + opts.back + '" aria-label="Back">' + icon('chevronLeft') + '</button>' : '';
+      var mark = opts.brand ? '<span class="tb-mark">' + icon('bolt') + '</span>' : '';
+      var actions = opts.actions || '';
+      return '' +
+        '<div class="dl-topbar">' +
+          '<div class="tb-row">' +
+            back +
+            '<div class="tb-brand">' + mark + '<h1>' + esc(title) + '</h1></div>' +
+            '<div class="tb-actions" id="dl-tb-actions">' + quickThemeToggleBtn() + actions + popoverHtml() + '</div>' +
+          '</div>' +
+          (opts.searchOpen ? '<div class="dl-search-row dl-enter">' +
+            '<div class="dl-search-field">' + icon('search') +
+              '<input type="text" data-role="search-input" placeholder="Search path, host…" value="' + esc(state.search) + '" aria-label="Search requests" autofocus>' +
+            '</div>' +
+            '<button type="button" class="dl-btn-icon" data-action="close-search" aria-label="Close search">' + icon('close') + '</button>' +
+          '</div>' : '') +
+        '</div>';
+    }
+
+    function popoverHtml() {
+      if (state.popover === 'filter') {
+        var methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+        return '<div class="dl-popover" role="menu" aria-label="Filter by method">' +
+          '<div class="dl-pop-title">Method</div>' +
+          methods.map(function (m) {
+            var checked = state.methodFilter.has(m);
+            return '<button type="button" class="dl-pop-item" role="menuitemcheckbox" aria-checked="' + checked + '" data-action="toggle-method" data-method="' + m + '">' +
+              '<span class="dl-chip ' + m + '" style="flex:1;justify-content:center;height:22px;font-size:11px;">' + m + '</span>' +
+              (checked ? '<span class="dl-pop-check">' + icon('check') + '</span>' : '') +
+            '</button>';
+          }).join('') +
+          (state.methodFilter.size ? '<div class="dl-pop-sep"></div><button type="button" class="dl-pop-item" data-action="clear-method-filter">Clear method filter</button>' : '') +
+        '</div>';
+      }
+      if (state.popover === 'overflow') {
+        return '<div class="dl-popover wide" role="menu" aria-label="More options">' +
+          '<button type="button" class="dl-pop-item" data-action="open-settings-from-menu">' + icon('gear') + '<span>Settings</span></button>' +
+          '<button type="button" class="dl-pop-item" data-action="export" data-format="HAR">' + icon('download') + '<span>Export as HAR</span></button>' +
+          '<button type="button" class="dl-pop-item" data-action="export" data-format="JSON">' + icon('download') + '<span>Export as JSON</span></button>' +
+          '<div class="dl-pop-sep"></div>' +
+          '<button type="button" class="dl-pop-item danger" data-action="open-popover" data-popover="clear-confirm">' + icon('trash') + '<span>Clear all requests</span></button>' +
+          '<div class="dl-pop-sep"></div>' +
+          '<button type="button" class="dl-pop-item" data-action="minimize">' + icon('chevronDown') + '<span>Minimize Dio Lens</span></button>' +
+        '</div>';
+      }
+      if (state.popover === 'clear-confirm') {
+        return '<div class="dl-popover wide" role="dialog" aria-label="Confirm clear all">' +
+          '<div class="dl-confirm-box">' +
+            '<p>Clear all ' + requests.length + ' captured requests? This cannot be undone.</p>' +
+            '<div class="dl-confirm-actions">' +
+              '<button type="button" class="dl-btn-sm" data-action="close-popover">Cancel</button>' +
+              '<button type="button" class="dl-btn-sm danger" data-action="confirm-clear-all">Clear all</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+      return '';
+    }
+
+    function segmented() {
+      var defs = [
+        { key: 'all', label: 'All' }, { key: '2xx', label: '2xx' }, { key: '3xx', label: '3xx' },
+        { key: '4xx', label: '4xx' }, { key: '5xx', label: '5xx' }, { key: 'errors', label: 'Errors' }
+      ];
+      return '<div class="dl-segmented" role="tablist" aria-label="Filter by status">' +
+        defs.map(function (d) {
+          return '<button type="button" class="dl-seg-btn" role="tab" aria-selected="' + (state.filter === d.key) + '" data-action="set-filter" data-filter="' + d.key + '">' +
+            d.label + '</button>';
+        }).join('') +
+      '</div>';
+    }
+
+    /* ---------------------------------------------------------------- render: list */
+    function renderRow(r, idx) {
+      var triggerAttrs = 'data-action="open-detail" data-id="' + r.id + '" data-row-trigger="' + r.id + '"';
+      var right;
+      if (r.statusClass === 'pending') {
+        right = '<span class="dl-badge cpending"><span class="dl-spinner" aria-hidden="true"></span> PENDING</span>';
+      } else if (r.statusClass === 'error') {
+        right = '<span class="dl-badge cerror">' + icon('alert') + ' ERR</span>';
+      } else {
+        right = '<span class="dl-badge c' + r.statusClass + '">' + statusLabel(r) + '</span>';
+      }
+      var metaBits = [];
+      if (r.statusClass === 'pending') {
+        metaBits.push('<span>Waiting…</span>');
+      } else if (r.statusClass === 'error') {
+        metaBits.push('<span class="dl-err-text">' + esc(r.error.type.replace('DioExceptionType.', '')) + '</span>');
+        metaBits.push('<span>' + fmtMs(r.duration) + '</span>');
+      } else {
+        metaBits.push('<span>' + fmtMs(r.duration) + '</span>');
+        metaBits.push('<span>' + fmtBytes(r.resSize) + '</span>');
+      }
+      return '' +
+        '<div class="dl-row-swipe" style="animation-delay:' + Math.min(idx * 35, 280) + 'ms">' +
+          '<button type="button" class="dl-row-delete" data-action="delete-row" data-id="' + r.id + '" aria-label="Delete request ' + esc(r.path) + '">' + icon('trash') + '<span>Delete</span></button>' +
+          '<button type="button" class="dl-row-content dl-enter" ' + triggerAttrs + '>' +
+            '<div class="dl-row-top">' +
+              '<span class="dl-chip ' + r.method + '">' + r.method + '</span>' +
+              right +
+              '<span class="dl-row-time">' + esc(r.timeLabel) + '</span>' +
+            '</div>' +
+            '<div class="dl-row-path">' + esc(r.path) + (r.query ? '<span style="color:var(--dl-text-faint)">?' + esc(r.query) + '</span>' : '') + '</div>' +
+            '<div class="dl-row-host">' + esc(r.host) + '</div>' +
+            '<div class="dl-row-meta">' + metaBits.join('<span aria-hidden="true">·</span>') + '</div>' +
+          '</button>' +
+        '</div>';
+    }
+
+    function renderList() {
+      var filtered = requests.filter(matchesFilters);
+      var now = filtered.filter(function (r) { return r.group === 'now'; });
+      var earlier = filtered.filter(function (r) { return r.group === 'earlier'; });
+      var body;
+      if (!filtered.length) {
+        body = requests.length === 0 ?
+          '<div class="dl-empty dl-enter">' + icon('bolt') + '<h3>No requests captured yet</h3><p>Dio Lens is listening. Traffic from your Dio client will appear here as it happens.</p></div>' :
+          '<div class="dl-empty dl-enter">' + icon('search') + '<h3>No requests match this filter</h3><p>Try a different status, method, or search term.</p></div>';
+      } else {
+        body = '<div class="dl-list">' +
+          (now.length ? '<div class="dl-group-label">Just now</div>' + now.map(function (r, i) { return renderRow(r, i); }).join('') : '') +
+          (earlier.length ? '<div class="dl-group-label">Earlier</div>' + earlier.map(function (r, i) { return renderRow(r, i); }).join('') : '') +
+        '</div>';
+      }
+      var actions =
+        '<button type="button" class="dl-btn-icon" data-action="open-search" aria-label="Search requests">' + icon('search') + '</button>' +
+        '<button type="button" class="dl-btn-icon" data-action="open-popover" data-popover="filter" aria-label="Filter by method" aria-haspopup="menu">' + icon('sliders') + '</button>' +
+        '<button type="button" class="dl-btn-icon" data-action="open-popover" data-popover="overflow" aria-label="More options" aria-haspopup="menu">' + icon('more') + '</button>';
+      return '<div class="dl-screen od-screen">' +
+        '<div class="dl-list-chrome">' +
+          topbar('Dio Lens', { brand: true, actions: actions, searchOpen: state.searchOpen }) +
+          segmented() +
+        '</div>' +
+        '<div class="od-scroll" id="dl-scroll">' + body + '</div>' +
+        bottomNav('list') +
+      '</div>';
+    }
+
+    function bottomNav(active) {
+      return '<nav class="dl-bottomnav">' +
+        '<button type="button" class="dl-nav-btn" aria-current="' + (active === 'list') + '" data-action="nav" data-view="list">' + icon('bolt') + '<span>Requests</span></button>' +
+        '<button type="button" class="dl-nav-btn" aria-current="' + (active === 'stats') + '" data-action="nav" data-view="stats">' + icon('stats') + '<span>Stats</span></button>' +
+      '</nav>';
+    }
+
+    /* ---------------------------------------------------------------- render: detail */
+    function section(key, title, countLabel, bodyHtml) {
+      var open = !!state.openSections[key];
+      return '<div class="dl-section">' +
+        '<button type="button" class="dl-section-head" data-action="toggle-section" data-key="' + key + '" aria-expanded="' + open + '">' +
+          '<span>' + title + '</span>' + (countLabel ? '<span class="count">' + countLabel + '</span>' : '') +
+          '<span class="chev">' + icon('chevronRight') + '</span>' +
+        '</button>' +
+        (open ? '<div class="dl-section-body">' + bodyHtml + '</div>' : '') +
+      '</div>';
+    }
+    function headerRows(obj, redactList) {
+      var keys = Object.keys(obj || {});
+      if (!keys.length) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No headers.</p>';
+      return '<div class="dl-kv-mono">' + keys.map(function (k) {
+        var redact = state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1;
+        return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v' + (redact ? ' redacted' : '') + '">' + (redact ? '••••••• (redacted)' : esc(obj[k])) + '</span></div>';
+      }).join('') + '</div>';
+    }
+    function bodyBlock(req, which) {
+      var data = which === 'request' ? req.reqBody : req.resBody;
+      if (req.isImage && which === 'response') {
+        return '<div class="dl-image-preview">' +
+          '<div class="dl-image-ph">' + icon('image') + '<span>Preview placeholder — stock photo lookup unavailable</span></div>' +
+          '<div class="dl-image-meta"><span>' + req.imageMeta.width + '×' + req.imageMeta.height + '</span><span>' + fmtBytes(req.resSize) + '</span></div>' +
+        '</div>';
+      }
+      if (data == null) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No ' + which + ' body.</p>';
+      var modeKey = req.id + ':' + which;
+      var mode = state.bodyMode[modeKey] || 'pretty';
+      var raw = JSON.stringify(data, null, 2);
+      return '<div class="dl-body-toolbar">' +
+        '<div class="dl-body-toggle">' +
+          '<button type="button" aria-pressed="' + (mode === 'pretty') + '" data-action="set-body-mode" data-key="' + modeKey + '" data-mode="pretty">Pretty</button>' +
+          '<button type="button" aria-pressed="' + (mode === 'raw') + '" data-action="set-body-mode" data-key="' + modeKey + '" data-mode="raw">Raw</button>' +
+        '</div>' +
+        '<button type="button" class="dl-copy-btn" data-action="copy-text" data-copy="' + encodeURIComponent(raw) + '" data-label="Body copied">' + icon('copy') + ' Copy</button>' +
+      '</div>' +
+      (mode === 'pretty' ? jsonTreeRoot(data, modeKey) : '<div class="dl-json-raw">' + esc(raw) + '</div>');
+    }
+
+    function tabOverview(req) {
+      var statusCls = req.statusClass === '2xx' ? 'status-ok' :
+        req.statusClass === '4xx' ? 'status-warn' :
+        (req.statusClass === '5xx' || req.statusClass === 'error') ? 'status-bad' : '';
+      return '<dl class="dl-kv-grid">' +
+        '<dt>URL</dt><dd>https://' + esc(req.host) + esc(req.path) + (req.query ? '?' + esc(req.query) : '') + '</dd>' +
+        '<dt>Method</dt><dd>' + req.method + '</dd>' +
+        '<dt>Status</dt><dd class="' + statusCls + '">' + statusLabel(req) + (req.statusClass==='error' ? ' · ' + esc(req.error.type) : '') + '</dd>' +
+        '<dt>Protocol</dt><dd>' + esc(req.protocol) + '</dd>' +
+        '<dt>Start time</dt><dd>' + esc(req.startTime) + '</dd>' +
+        '<dt>Duration</dt><dd>' + fmtMs(req.duration) + '</dd>' +
+        '<dt>Request size</dt><dd>' + fmtBytes(req.reqSize) + '</dd>' +
+        '<dt>Response size</dt><dd>' + fmtBytes(req.resSize) + '</dd>' +
+        '<dt>Content type</dt><dd>' + (req.contentType ? esc(req.contentType) : '—') + '</dd>' +
+      '</dl>';
+    }
+    function tabRequest(req) {
+      return section('req-headers:' + req.id, 'Headers', Object.keys(req.reqHeaders || {}).length, headerRows(req.reqHeaders, ['authorization', 'cookie'])) +
+        section('req-query:' + req.id, 'Query params', Object.keys(req.reqQuery || {}).length, headerRows(req.reqQuery, [])) +
+        section('req-body:' + req.id, 'Body', null, bodyBlock(req, 'request'));
+    }
+    function tabResponse(req) {
+      return section('res-headers:' + req.id, 'Headers', Object.keys(req.resHeaders || {}).length, headerRows(req.resHeaders, ['set-cookie'])) +
+        section('res-body:' + req.id, 'Body', null, bodyBlock(req, 'response'));
+    }
+    function tabTiming(req) {
+      if (!req.timing) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No timing data for a pending request.</p>';
+      var phases = [
+        { key: 'dns', label: 'DNS lookup', color: '#4da3ff' }, { key: 'connect', label: 'Connect', color: '#36c976' },
+        { key: 'tls', label: 'TLS handshake', color: '#b084f5' }, { key: 'send', label: 'Send', color: '#f3ab35' },
+        { key: 'wait', label: 'Wait (TTFB)', color: '#f35468' }, { key: 'receive', label: 'Receive', color: '#5b8cff' }
+      ];
+      var total = phases.reduce(function (s, p) { return s + (req.timing[p.key] || 0); }, 0) || 1;
+      return '<div class="dl-waterfall">' +
+        '<div class="dl-wf-bar">' + phases.map(function (p) {
+          var w = (req.timing[p.key] || 0) / total * 100;
+          return w > 0 ? '<span class="dl-wf-seg" style="width:' + w + '%;background:' + p.color + '"></span>' : '';
+        }).join('') + '</div>' +
+        '<div class="dl-wf-legend">' + phases.map(function (p) {
+          return '<div class="dl-wf-item"><span class="dl-wf-dot" style="background:' + p.color + '"></span><span class="lbl">' + p.label + '</span><span class="ms">' + fmtMs(req.timing[p.key] || 0) + '</span></div>';
+        }).join('') + '</div>' +
+        '<div class="dl-wf-total"><span>Total</span><span>' + fmtMs(total) + '</span></div>' +
+      '</div>';
+    }
+    function errorVariant(req) {
+      return '<div class="dl-error-card">' +
+          '<div class="et-type">' + icon('alert') + esc(req.error.type) + '</div>' +
+          '<div class="et-msg">' + esc(req.error.message) + '</div>' +
+        '</div>' +
+        section('stack:' + req.id, 'Stack trace', null, '<div class="dl-stack">' + esc(req.error.stack) + '</div>');
+    }
+
+    function renderDetail() {
+      var req = requests.find(function (r) { return r.id === state.activeId; });
+      if (!req) { state.view = 'list'; return renderList(); }
+      var statusBadge = req.statusClass === 'pending' ? '<span class="dl-badge cpending"><span class="dl-spinner"></span> PENDING</span>' :
+        req.statusClass === 'error' ? '<span class="dl-badge cerror">' + icon('alert') + ' ERROR</span>' :
+        '<span class="dl-badge c' + req.statusClass + '">' + statusLabel(req) + '</span>';
+      var tabs = [
+        { key: 'overview', label: 'Overview' }, { key: 'request', label: 'Request' },
+        { key: 'response', label: 'Response' }, { key: 'timing', label: 'Timing' }
+      ];
+      var panel;
+      if (req.statusClass === 'error' && state.tab === 'response') {
+        panel = errorVariant(req);
+      } else {
+        panel = state.tab === 'overview' ? tabOverview(req) : state.tab === 'request' ? tabRequest(req) : state.tab === 'response' ? tabResponse(req) : tabTiming(req);
+      }
+      return '<div class="dl-screen od-screen">' +
+        '<div class="dl-detail-header">' +
+          '<div class="dl-dh-top">' +
+            '<button type="button" class="dl-btn-icon" data-action="back-to-list" aria-label="Back to request list" style="margin-top:2px">' + icon('chevronLeft') + '</button>' +
+            '<div class="dl-dh-url">' +
+              '<div class="u-line1"><span class="dl-chip ' + req.method + '">' + req.method + '</span>' + statusBadge + '</div>' +
+              '<div class="dl-dh-path">' + esc(req.path) + '</div>' +
+              '<div class="dl-dh-host">' + esc(req.host) + (req.query ? '?' + esc(req.query) : '') + '</div>' +
+            '</div>' +
+            quickThemeToggleBtn('margin-top:2px') +
+          '</div>' +
+          '<div class="dl-dh-stats">' +
+            '<span>' + icon('clock') + fmtMs(req.duration) + '</span>' +
+            (req.resSize != null ? '<span>' + icon('server') + fmtBytes(req.resSize) + '</span>' : '') +
+            '<span>' + icon('globe') + esc(req.protocol) + '</span>' +
+          '</div>' +
+          '<div class="dl-dh-actions">' +
+            '<button type="button" class="dl-act-btn" data-action="share">' + icon('share') + ' Share</button>' +
+            '<button type="button" class="dl-act-btn" data-action="copy-curl" data-id="' + req.id + '">' + icon('copy') + ' cURL</button>' +
+            '<button type="button" class="dl-act-btn" data-action="replay" data-id="' + req.id + '">' + icon('replay') + ' Replay</button>' +
+          '</div>' +
+          '<div class="dl-tabs" role="tablist">' + tabs.map(function (t) {
+            return '<button type="button" class="dl-tab" role="tab" aria-selected="' + (state.tab === t.key) + '" data-action="set-tab" data-tab="' + t.key + '">' + t.label + '</button>';
+          }).join('') + '</div>' +
+        '</div>' +
+        '<div class="od-scroll"><div class="dl-tabpanel dl-enter" key="' + state.tab + '">' + panel + '</div></div>' +
+      '</div>';
+    }
+
+    /* ---------------------------------------------------------------- render: stats */
+    function donutSvg() {
+      var r = 42, c = 2 * Math.PI * r, offset = 0, segs = '';
+      STATS.distribution.forEach(function (d) {
+        var len = c * (d.pct / 100);
+        segs += '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="' + d.color + '" stroke-width="16" ' +
+          'stroke-dasharray="' + len + ' ' + (c - len) + '" stroke-dashoffset="' + (-offset) + '" transform="rotate(-90 60 60)"></circle>';
+        offset += len;
+      });
+      return '<svg width="120" height="120" viewBox="0 0 120 120" role="img" aria-label="Status code distribution donut chart">' + segs +
+        '<text x="60" y="56" text-anchor="middle" font-size="20" font-weight="800" fill="var(--dl-text)" font-family="var(--dl-font-sans)">' + requests.length + '</text>' +
+        '<text x="60" y="72" text-anchor="middle" font-size="10" fill="var(--dl-text-faint)" font-family="var(--dl-font-sans)">requests</text>' +
+      '</svg>';
+    }
+    function barsChart() {
+      var max = Math.max.apply(null, STATS.overTime.values);
+      return '<div class="dl-chart-bars" role="img" aria-label="Requests over time, hourly">' +
+        STATS.overTime.values.map(function (v, i) {
+          var h = Math.max(6, Math.round(v / max * 100));
+          return '<div class="bar-col"><div class="bar" style="height:' + h + '%"></div><div class="bar-lbl">' + STATS.overTime.labels[i] + '</div></div>';
+        }).join('') + '</div>';
+    }
+    function rankList(items, valueKey, suffix, maxVal) {
+      return '<div class="dl-rank-list">' + items.map(function (it) {
+        var v = it[valueKey];
+        var pct = Math.round(v / maxVal * 100);
+        var warn = valueKey === 'avg' && v > 400;
+        return '<div class="dl-rank-row">' +
+          '<div class="dl-rank-top"><span class="path">' + esc(it.path || it.host) + '</span><span class="val">' + v + suffix + '</span></div>' +
+          '<div class="dl-rank-track"><div class="dl-rank-fill' + (warn ? ' warn' : '') + '" style="width:' + pct + '%"></div></div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+
+    function renderStats() {
+      var maxSlow = Math.max.apply(null, STATS.slowest.map(function (i) { return i.avg; }));
+      var maxCalled = Math.max.apply(null, STATS.mostCalled.map(function (i) { return i.count; }));
+      var maxHost = Math.max.apply(null, STATS.topHosts.map(function (i) { return i.count; }));
+      return '<div class="dl-screen od-screen">' +
+        topbar('Stats', { actions: '<button type="button" class="dl-btn-icon" data-action="open-popover" data-popover="overflow" aria-label="More options">' + icon('more') + '</button>' }) +
+        '<div class="od-scroll">' +
+          '<div class="dl-stats-grid dl-enter">' +
+            '<div class="dl-stat-card"><div class="lbl">Total requests</div><div class="val">' + requests.length + '</div></div>' +
+            '<div class="dl-stat-card"><div class="lbl">Success rate</div><div class="val ok">' + STATS.successRate + '%</div></div>' +
+            '<div class="dl-stat-card"><div class="lbl">Avg latency</div><div class="val">' + STATS.avgLatency + ' ms</div></div>' +
+            '<div class="dl-stat-card"><div class="lbl">p95 latency</div><div class="val">' + STATS.p95Latency + ' ms</div></div>' +
+            '<div class="dl-stat-card"><div class="lbl">Data transferred</div><div class="val">' + STATS.totalData + '</div></div>' +
+            '<div class="dl-stat-card"><div class="lbl">Error count</div><div class="val bad">' + STATS.errorCount + '</div></div>' +
+          '</div>' +
+          '<div class="dl-panel"><h2>Requests over time</h2>' + barsChart() + '</div>' +
+          '<div class="dl-panel"><h2>Status code distribution</h2><div class="dl-donut-row">' + donutSvg() +
+            '<div class="dl-legend">' + STATS.distribution.map(function (d) {
+              return '<div class="dl-legend-item"><span class="dl-legend-dot" style="background:' + d.color + '"></span><span class="name">' + d.label + '</span><span class="pct">' + d.pct + '%</span></div>';
+            }).join('') + '</div>' +
+          '</div></div>' +
+          '<div class="dl-panel"><h2>Slowest endpoints</h2>' + rankList(STATS.slowest, 'avg', ' ms', maxSlow) + '</div>' +
+          '<div class="dl-panel"><h2>Most-called endpoints</h2>' + rankList(STATS.mostCalled, 'count', '×', maxCalled) + '</div>' +
+          '<div class="dl-panel"><h2>Top hosts</h2>' + rankList(STATS.topHosts, 'count', '×', maxHost) + '</div>' +
+        '</div>' +
+        bottomNav('stats') +
+      '</div>';
+    }
+
+    /* ---------------------------------------------------------------- settings sheet */
+    function themeOpt(key, label, iconName) {
+      var checked = state.settings.theme === key;
+      return '<button type="button" class="dl-theme-opt" role="radio" aria-checked="' + checked + '" data-action="set-theme" data-theme="' + key + '">' + icon(iconName) + '<span>' + label + '</span></button>';
+    }
+    function switchEl(key, checked) {
+      return '<button type="button" class="dl-switch" role="switch" aria-checked="' + checked + '" data-action="toggle-setting" data-key="' + key + '"><span class="knob"></span></button>';
+    }
+    function renderSettings() {
+      var s = state.settings;
+      var usedCount = requests.length;
+      var usagePct = Math.min(100, Math.round(usedCount / s.maxStored * 100));
+      var usageColor = usagePct >= 90 ? 'var(--dl-warn)' : 'var(--dl-accent)';
+      var maxStoredInvalid = validateMaxStoredRaw(state.maxStoredDraft) === null;
+      settingsBody.innerHTML =
+        '<div class="dl-set-section"><h3>Appearance</h3><div class="dl-theme-row">' +
+          themeOpt('light', 'Light', 'sun') + themeOpt('dark', 'Dark', 'moon') + themeOpt('system', 'System', 'monitor') +
+        '</div></div>' +
+        '<div class="dl-set-section"><h3>Capture</h3>' +
+          '<div class="dl-set-row dl-set-row--col">' +
+            '<div class="set-label"><div class="set-title">Max stored requests</div></div>' +
+            '<div class="dl-stepper">' +
+              '<button type="button" class="dl-stepper-btn" data-action="max-stored-step" data-dir="-1" aria-label="Decrease max stored requests">−</button>' +
+              '<input type="text" inputmode="numeric" class="dl-stepper-input" id="dl-max-stored-input" value="' + esc(state.maxStoredDraft) + '" aria-label="Max stored requests" aria-describedby="dl-max-stored-help dl-max-stored-error">' +
+              '<button type="button" class="dl-stepper-btn" data-action="max-stored-step" data-dir="1" aria-label="Increase max stored requests">+</button>' +
+            '</div>' +
+            '<div class="dl-max-stored-help" id="dl-max-stored-help">Oldest requests are removed once this limit is reached.</div>' +
+            '<div class="dl-max-stored-error" id="dl-max-stored-error"' + (maxStoredInvalid ? '' : ' hidden') + '>Enter a number between 10 and 10,000</div>' +
+            '<div class="dl-preset-rail">' +
+              [100, 200, 500, 1000].map(function (v) {
+                return '<button type="button" class="dl-preset-chip" aria-pressed="' + (s.maxStored === v) + '" data-action="max-stored-preset" data-value="' + v + '">' + v + '</button>';
+              }).join('') +
+            '</div>' +
+            '<div class="dl-usage-row"><span>' + usedCount + ' of ' + s.maxStored + ' stored</span><span class="pct">' + usagePct + '%</span></div>' +
+            '<div class="dl-usage-track"><div class="dl-usage-fill" style="width:' + usagePct + '%;background:' + usageColor + '"></div></div>' +
+          '</div>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Retention</div><div class="set-desc">How long captured requests are kept on device</div></div>' +
+            '<select class="dl-select" data-action="set-retention" aria-label="Retention period">' +
+              [['session','This session'],['1h','1 hour'],['24h','24 hours'],['7d','7 days']].map(function(v){ return '<option value="'+v[0]+'"'+(s.retention===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
+            '</select></div>' +
+        '</div>' +
+        '<div class="dl-set-section"><h3>Entry point</h3>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Show notification</div><div class="set-desc">Persistent notification while capturing in the background</div></div>' + switchEl('notification', s.notification) + '</div>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification duration</div><div class="set-desc">How long the finished-request alert stays on screen</div></div>' +
+            '<div class="dl-mini-stepper">' +
+              '<button type="button" class="dl-mini-step" data-action="notif-duration-step" data-dir="-1" aria-label="Decrease notification duration">−</button>' +
+              '<span class="dl-mini-val">' + s.notificationDuration + 's</span>' +
+              '<button type="button" class="dl-mini-step" data-action="notif-duration-step" data-dir="1" aria-label="Increase notification duration">+</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Show floating bubble</div><div class="set-desc">Tap-to-open bubble overlaid on your app</div></div>' + switchEl('bubble', s.bubble) + '</div>' +
+          '<div class="dl-set-row dl-set-row--col">' +
+            '<div class="set-label"><div class="set-title">Bubble position</div><div class="set-desc">Corner where the floating bubble sits on your app</div></div>' +
+            '<div class="dl-pos-grid">' +
+              [['tl', 'Top-left'], ['tr', 'Top-right'], ['bl', 'Bottom-left'], ['br', 'Bottom-right']].map(function (p) {
+                return '<button type="button" class="dl-pos-opt" role="radio" aria-checked="' + (s.bubblePosition === p[0]) + '" data-action="set-bubble-position" data-position="' + p[0] + '">' + p[1] + '</button>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="dl-set-section"><h3>Privacy</h3>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive headers</div><div class="set-desc">Mask Authorization and Cookie header values in the UI</div></div>' + switchEl('redactHeaders', s.redactHeaders) + '</div>' +
+        '</div>' +
+        '<div class="dl-set-section"><h3>Export</h3><div class="dl-export-row">' +
+          '<button type="button" class="dl-act-btn" data-action="export" data-format="HAR">' + icon('download') + ' HAR</button>' +
+          '<button type="button" class="dl-act-btn" data-action="export" data-format="JSON">' + icon('download') + ' JSON</button>' +
+        '</div></div>';
+    }
+
+    /* ---------------------------------------------------------------- max stored requests: validation, commit, trim */
+    function validateMaxStoredRaw(raw) {
+      var trimmed = String(raw == null ? '' : raw).trim();
+      if (!/^\d+$/.test(trimmed)) return null;
+      var n = parseInt(trimmed, 10);
+      if (n < 10 || n > 10000) return null;
+      return n;
+    }
+    function updateMaxStoredDraft(raw) {
+      state.maxStoredDraft = raw;
+      var input = document.getElementById('dl-max-stored-input');
+      var errEl = document.getElementById('dl-max-stored-error');
+      var invalid = validateMaxStoredRaw(raw) === null;
+      if (errEl) errEl.hidden = !invalid;
+      if (input) input.classList.toggle('invalid', invalid);
+    }
+    function commitMaxStoredFromDraft() {
+      var n = validateMaxStoredRaw(state.maxStoredDraft);
+      if (n === null) {
+        // Invalid: ignore it and snap back to the last valid value.
+        state.maxStoredDraft = String(state.settings.maxStored);
+        renderSettings();
+        return;
+      }
+      if (n === state.settings.maxStored) { renderSettings(); return; }
+      applyMaxStored(n);
+    }
+    function applyMaxStored(n) {
+      n = Math.max(10, Math.min(10000, Math.round(n)));
+      if (requests.length > n) {
+        var excess = requests.length - n;
+        var oldestFirst = requests.slice().sort(function (a, b) { return a.startTime < b.startTime ? -1 : a.startTime > b.startTime ? 1 : 0; });
+        oldestFirst.slice(0, excess).forEach(function (victim) {
+          var idx = requests.findIndex(function (r) { return r.id === victim.id; });
+          if (idx !== -1) requests.splice(idx, 1);
+        });
+        toast('Trimmed ' + excess + ' oldest request' + (excess === 1 ? '' : 's'));
+      }
+      state.settings.maxStored = n;
+      state.maxStoredDraft = String(n);
+      renderSettings();
+      render();
+    }
+
+    /* ---------------------------------------------------------------- swipe-to-delete */
+    var swipeState = null;
+    function bindSwipe() {
+      Array.prototype.forEach.call(app.querySelectorAll('.dl-row-content'), function (el) {
+        el.addEventListener('pointerdown', onSwipeStart);
+      });
+    }
+    function onSwipeStart(e) {
+      var wrap = e.currentTarget.closest('.dl-row-swipe');
+      Array.prototype.forEach.call(app.querySelectorAll('.dl-row-content'), function (el) {
+        if (el !== e.currentTarget) el.style.transform = '';
+      });
+      swipeState = { el: e.currentTarget, wrap: wrap, startX: e.clientX, dx: 0, moved: false };
+      e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
+      e.currentTarget.addEventListener('pointermove', onSwipeMove);
+      e.currentTarget.addEventListener('pointerup', onSwipeEnd);
+      e.currentTarget.addEventListener('pointercancel', onSwipeEnd);
+    }
+    function onSwipeMove(e) {
+      if (!swipeState || swipeState.el !== e.currentTarget) return;
+      var dx = e.clientX - swipeState.startX;
+      if (Math.abs(dx) > 4) swipeState.moved = true;
+      dx = Math.max(-84, Math.min(0, dx));
+      swipeState.dx = dx;
+      swipeState.el.style.transition = 'none';
+      swipeState.el.style.transform = 'translateX(' + dx + 'px)';
+    }
+    function onSwipeEnd(e) {
+      if (!swipeState || swipeState.el !== e.currentTarget) return;
+      var el = swipeState.el, dx = swipeState.dx, moved = swipeState.moved;
+      el.style.transition = 'transform .18s ease';
+      el.style.transform = 'translateX(' + (dx < -40 ? -84 : 0) + 'px)';
+      el.removeEventListener('pointermove', onSwipeMove);
+      el.removeEventListener('pointerup', onSwipeEnd);
+      el.removeEventListener('pointercancel', onSwipeEnd);
+      if (moved) { el.dataset.swiped = (dx < -40) ? '1' : '0'; }
+      swipeState = null;
+      if (moved) e.preventDefault();
+    }
+
+    /* ---------------------------------------------------------------- render dispatch */
+    function render(opts) {
+      opts = opts || {};
+      document.documentElement.setAttribute('data-theme', effectiveTheme());
+      var focusId = opts.focusAfter || null;
+      if (state.view === 'host') app.innerHTML = renderHost();
+      else if (state.view === 'list') app.innerHTML = renderList();
+      else if (state.view === 'detail') app.innerHTML = renderDetail();
+      else if (state.view === 'stats') app.innerHTML = renderStats();
+      document.getElementById('dl-bubble-root').innerHTML = (state.view === 'host' && state.settings.bubble) ? renderBubble() : '';
+      bindSwipe();
+      if (focusId) {
+        var target = app.querySelector('[data-row-trigger="' + focusId + '"]') || app.querySelector('.dl-btn-icon') || app.querySelector('button');
+        if (target) target.focus();
+      }
+    }
+
+    /* ---------------------------------------------------------------- settings dialog open/close */
+    var settingsOpenerEl = null;
+    function openSettings(opener) {
+      settingsOpenerEl = opener || null;
+      renderSettings();
+      if (typeof settingsDialog.show === 'function') settingsDialog.show();
+      else settingsDialog.setAttribute('open', '');
+      var closeBtn = settingsDialog.querySelector('[data-action="close-settings"].dl-btn-icon');
+      if (closeBtn) closeBtn.focus();
+    }
+    function closeSettings() {
+      settingsDialog.close ? settingsDialog.close() : settingsDialog.removeAttribute('open');
+      if (settingsOpenerEl && document.contains(settingsOpenerEl)) settingsOpenerEl.focus();
+      settingsOpenerEl = null;
+    }
+    settingsDialog.addEventListener('cancel', function (e) { e.preventDefault(); closeSettings(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && settingsDialog.hasAttribute('open')) closeSettings();
+    });
+
+    /* ---------------------------------------------------------------- event delegation
+       Delegated on document (not #dl-app) because the settings sheet and
+       toasts mount in #dl-overlay-root, a sibling of #dl-app's ancestor. */
+    document.addEventListener('click', function (e) {
+      var swiped = e.target.closest('.dl-row-content');
+      if (swiped && swiped.dataset.swiped === '1' && swiped.style.transform && swiped.style.transform !== 'translateX(0px)') {
+        swiped.style.transform = 'translateX(0px)';
+        swiped.dataset.swiped = '0';
+        e.preventDefault();
+        return;
+      }
+      var btn = e.target.closest('[data-action]');
+      if (!btn) {
+        if (state.popover && !e.target.closest('.dl-popover')) { state.popover = null; render(); }
+        return;
+      }
+      var action = btn.dataset.action;
+      switch (action) {
+        case 'open-inspector':
+          state.view = 'list'; render(); break;
+        case 'minimize':
+          state.view = 'host'; state.popover = null; render(); break;
+        case 'simulate-request':
+          simulateRequest(); break;
+        case 'open-detail-from-notif':
+          dismissNotification();
+          state.view = 'detail'; state.activeId = btn.dataset.id; state.tab = 'overview'; state.popover = null;
+          render(); break;
+        case 'dismiss-notif':
+          dismissNotification(); break;
+        case 'nav':
+          state.view = btn.dataset.view; state.popover = null; render(); break;
+        case 'open-detail':
+          state.lastListFocusId = btn.dataset.id;
+          state.view = 'detail'; state.activeId = btn.dataset.id; state.tab = 'overview'; state.popover = null;
+          render({ focusAfter: null });
+          var backBtn = app.querySelector('[data-action="back-to-list"]'); if (backBtn) backBtn.focus();
+          break;
+        case 'back-to-list':
+          state.view = 'list'; render({ focusAfter: state.lastListFocusId }); break;
+        case 'set-tab':
+          state.tab = btn.dataset.tab; render(); break;
+        case 'set-filter':
+          state.filter = btn.dataset.filter; render(); break;
+        case 'toggle-method':
+          var m = btn.dataset.method;
+          state.methodFilter.has(m) ? state.methodFilter.delete(m) : state.methodFilter.add(m);
+          render(); break;
+        case 'clear-method-filter':
+          state.methodFilter.clear(); state.popover = null; render(); break;
+        case 'open-search':
+          state.searchOpen = true; render();
+          var si = app.querySelector('[data-role="search-input"]'); if (si) si.focus();
+          break;
+        case 'close-search':
+          state.searchOpen = false; state.search = ''; render(); break;
+        case 'open-popover':
+          state.popover = (state.popover === btn.dataset.popover) ? null : btn.dataset.popover; render(); break;
+        case 'close-popover':
+          state.popover = null; render(); break;
+        case 'confirm-clear-all':
+          requests.length = 0; state.popover = null; toast('All requests cleared'); render(); break;
+        case 'delete-row':
+          var idx = requests.findIndex(function (r) { return r.id === btn.dataset.id; });
+          if (idx !== -1) requests.splice(idx, 1);
+          toast('Request deleted'); render(); break;
+        case 'toggle-section':
+          state.openSections[btn.dataset.key] = !state.openSections[btn.dataset.key]; render(); break;
+        case 'toggle-json':
+          var set = state.openJsonPaths[btn.dataset.treeKey];
+          set.has(btn.dataset.path) ? set.delete(btn.dataset.path) : set.add(btn.dataset.path);
+          render(); break;
+        case 'set-body-mode':
+          state.bodyMode[btn.dataset.key] = btn.dataset.mode; render(); break;
+        case 'copy-text':
+          copyText(decodeURIComponent(btn.dataset.copy), btn.dataset.label); break;
+        case 'copy-curl':
+          var r1 = requests.find(function (r) { return r.id === btn.dataset.id; });
+          if (r1) copyText(buildCurl(r1), 'cURL command copied');
+          break;
+        case 'replay':
+          toast('Request replayed'); break;
+        case 'share':
+          toast('Share sheet opened'); break;
+        case 'open-settings-from-menu':
+          state.popover = null; render();
+          openSettings(app.querySelector('[data-popover="overflow"]'));
+          break;
+        case 'close-settings':
+          closeSettings(); break;
+        case 'set-theme':
+          state.settings.theme = btn.dataset.theme; renderSettings(); render(); break;
+        case 'quick-theme-toggle':
+          state.settings.theme = effectiveTheme() === 'dark' ? 'light' : 'dark';
+          if (settingsDialog.hasAttribute('open')) renderSettings();
+          render();
+          break;
+        case 'max-stored-step':
+          var stepCur = validateMaxStoredRaw(state.maxStoredDraft);
+          if (stepCur === null) stepCur = state.settings.maxStored;
+          applyMaxStored(stepCur + parseInt(btn.dataset.dir, 10) * 10);
+          break;
+        case 'max-stored-preset':
+          applyMaxStored(parseInt(btn.dataset.value, 10));
+          break;
+        case 'notif-duration-step':
+          state.settings.notificationDuration = Math.max(2, Math.min(15, state.settings.notificationDuration + parseInt(btn.dataset.dir, 10)));
+          renderSettings();
+          break;
+        case 'set-bubble-position':
+          state.settings.bubblePosition = btn.dataset.position;
+          renderSettings();
+          render();
+          break;
+        case 'toggle-setting':
+          var key = btn.dataset.key; state.settings[key] = !state.settings[key];
+          renderSettings();
+          if (key === 'notification' && !state.settings.notification) dismissNotification();
+          if (key === 'redactHeaders' || key === 'bubble') render();
+          break;
+        case 'export':
+          toast('Exported session as ' + btn.dataset.format); state.popover = null; render(); break;
+      }
+    });
+
+    app.addEventListener('input', function (e) {
+      if (e.target.matches('[data-role="search-input"]')) {
+        state.search = e.target.value;
+        var scroller = app.querySelector('#dl-scroll');
+        if (scroller) {
+          // Replace only the scrollable list body (outerHTML reparses fresh
+          // nodes, so swipe listeners must be rebound) — a full render()
+          // would also work, but it would steal focus from this input on
+          // every keystroke.
+          scroller.outerHTML = renderListBodyOnly();
+          bindSwipe();
+        }
+      }
+    });
+    function renderListBodyOnly() {
+      var filtered = requests.filter(matchesFilters);
+      var now = filtered.filter(function (r) { return r.group === 'now'; });
+      var earlier = filtered.filter(function (r) { return r.group === 'earlier'; });
+      var body;
+      if (!filtered.length) {
+        body = '<div class="dl-empty dl-enter">' + icon('search') + '<h3>No requests match this filter</h3><p>Try a different status, method, or search term.</p></div>';
+      } else {
+        body = '<div class="dl-list">' +
+          (now.length ? '<div class="dl-group-label">Just now</div>' + now.map(function (r, i) { return renderRow(r, i); }).join('') : '') +
+          (earlier.length ? '<div class="dl-group-label">Earlier</div>' + earlier.map(function (r, i) { return renderRow(r, i); }).join('') : '') +
+        '</div>';
+      }
+      return '<div class="od-scroll" id="dl-scroll">' + body + '</div>';
+    }
+
+    document.addEventListener('change', function (e) {
+      if (e.target.matches('[data-action="set-retention"]')) { state.settings.retention = e.target.value; }
+    });
+
+    document.addEventListener('input', function (e) {
+      if (e.target.id === 'dl-max-stored-input') updateMaxStoredDraft(e.target.value);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.target.id === 'dl-max-stored-input' && e.key === 'Enter') { e.preventDefault(); commitMaxStoredFromDraft(); }
+    });
+    document.addEventListener('focusout', function (e) {
+      if (e.target.id === 'dl-max-stored-input') commitMaxStoredFromDraft();
+    });
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+        if (state.settings.theme === 'system') render();
+      });
+    }
+
+    render();
+  })();
+  </script>
+</body>
+</html>
