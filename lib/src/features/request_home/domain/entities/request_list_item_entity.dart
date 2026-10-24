@@ -1,30 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/enums/request_state.dart';
+import '../../../../core/enums/request_status_class.dart';
+
 part 'request_list_item_entity.freezed.dart';
 part 'request_list_item_entity.g.dart';
-
-/// Lifecycle of a captured request.
-enum RequestState {
-  /// Sent, no response or error yet.
-  pending,
-
-  /// A response arrived (any status code).
-  completed,
-
-  /// No usable response: timeout, connection error, cancel, etc.
-  failed,
-}
-
-/// Status bucket used for the list filters and badge colors.
-enum RequestStatusClass {
-  pending,
-  informational,
-  success,
-  redirect,
-  clientError,
-  serverError,
-  error,
-}
 
 /// One row of the request list on the home screen.
 @freezed
@@ -64,20 +44,6 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
   /// Query string without the leading `?`; null when there is none.
   String? get query => uri.hasQuery && uri.query.isNotEmpty ? uri.query : null;
 
-  RequestStatusClass get statusClass {
-    switch (state) {
-      case RequestState.pending:
-        return RequestStatusClass.pending;
-      case RequestState.failed:
-        return RequestStatusClass.error;
-      case RequestState.completed:
-        final code = statusCode;
-        if (code == null) return RequestStatusClass.error;
-        if (code >= 500) return RequestStatusClass.serverError;
-        if (code >= 400) return RequestStatusClass.clientError;
-        if (code >= 300) return RequestStatusClass.redirect;
-        if (code >= 200) return RequestStatusClass.success;
-        return RequestStatusClass.informational;
-    }
-  }
+  RequestStatusClass get statusClass =>
+      RequestStatusClass.resolve(state, statusCode);
 }
