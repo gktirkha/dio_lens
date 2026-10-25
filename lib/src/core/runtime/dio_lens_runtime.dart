@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../di/dio_lens_dependencies.dart';
+import '../../features/home/presentation/pages/dio_lens_home_page.dart';
 import '../../features/notification/presentation/request_banner_presenter.dart';
 import '../../features/request_detail/data/data_sources/request_detail_local_data_source.dart';
 import '../../features/request_detail/presentation/pages/request_detail_page.dart';
@@ -9,7 +10,6 @@ import '../../features/settings/domain/entities/dio_lens_settings.dart';
 import '../../features/stats/data/data_sources/stats_local_data_source.dart';
 import '../../theme/dio_lens_theme_mode_controller.dart';
 import '../../theme/dio_lens_theme_scope.dart';
-import '../navigation/dio_lens_inspector.dart';
 import '../storage/dio_lens_storage.dart';
 import '../storage/dio_lens_store.dart';
 
@@ -77,9 +77,9 @@ class DioLensRuntime {
       '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'
       '-${(_sequence++).toRadixString(36)}';
 
-  /// Pushes the inspector on the host's navigator.
+  /// Pushes the Dio Lens home page on the host's navigator.
   Future<void> open() =>
-      _push((_) => DioLensInspector(dependencies: dependencies));
+      _push((_) => DioLensHomePage(dependencies: dependencies));
 
   /// Pushes the detail page of the request with [id].
   Future<void> openRequest(String id) => _push(
