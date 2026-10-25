@@ -7,6 +7,7 @@ import '../controllers/request_detail_controller.dart';
 import '../widgets/overview_tab.dart';
 import '../widgets/request_detail_header.dart';
 import '../widgets/request_tab.dart';
+import '../widgets/response_tab.dart';
 
 /// One captured request: header, quick actions and Overview / Request /
 /// Response tabs.
@@ -118,31 +119,11 @@ class _DetailBody extends StatelessWidget {
               children: [
                 OverviewTab(request: request),
                 RequestTab(request: request),
-                const _ComingSoon(label: 'Response headers and body'),
+                ResponseTab(request: request),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// Placeholder for tabs that are not built yet.
-class _ComingSoon extends StatelessWidget {
-  const _ComingSoon({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '$label — coming soon',
-        style: TextStyle(
-          fontSize: 12.5,
-          color: DioLensTheme.of(context).textMuted,
-        ),
       ),
     );
   }
