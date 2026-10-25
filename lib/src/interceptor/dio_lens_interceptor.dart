@@ -25,7 +25,7 @@ class DioLensInterceptor extends Interceptor {
   }) : _consoleLogger = DioLensConsoleLogger(
          settings: consoleLoggerSettings ?? const ConsoleLoggerSettings(),
          logPrint:
-             logPrint ?? ((Object o) => log(o.toString(), name: 'Dio Lens')),
+             logPrint ?? ((Object o) => log(o.toString(), name: 'dio_lens')),
        );
 
   final Dio? _dio;

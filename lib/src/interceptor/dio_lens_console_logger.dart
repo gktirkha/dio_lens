@@ -33,9 +33,8 @@ class DioLensConsoleLogger {
   void logRequest(RequestOptions options, DioLensSettings dioSettings) {
     if (!_settings.enabled || !_settings.request) return;
 
-    final stateLabel = _settings.showStateInHeader ? '[REQUEST]' : '';
     _printBoxed(
-      header: '$stateLabel ║ ${options.method} ',
+      header: _withState('REQUEST', '${options.method} '),
       text: options.uri.toString(),
     );
 
@@ -47,7 +46,10 @@ class DioLensConsoleLogger {
             : value;
       });
       if (queryParams.isNotEmpty) {
-        _printMapAsTable(queryParams, header: '[REQUEST] ║ Query Parameters');
+        _printMapAsTable(
+          queryParams,
+          header: _withState('REQUEST', 'Query Parameters'),
+        );
       }
 
       final reqHeaders = <String, dynamic>{};
@@ -66,13 +68,13 @@ class DioLensConsoleLogger {
         reqHeaders['receiveTimeout'] = options.receiveTimeout?.toString();
       }
 
-      _printMapAsTable(reqHeaders, header: '[REQUEST] ║ Headers');
+      _printMapAsTable(reqHeaders, header: _withState('REQUEST', 'Headers'));
       if (options.extra.isNotEmpty) {
         final extra = Map<String, dynamic>.from(options.extra)
           ..remove(_timeStampKey)
           ..remove('dio_lens_capture');
         if (extra.isNotEmpty) {
-          _printMapAsTable(extra, header: 'Extras');
+          _printMapAsTable(extra, header: _withState('REQUEST', 'Extras'));
         }
       }
     }
@@ -81,7 +83,10 @@ class DioLensConsoleLogger {
       final dynamic data = options.data;
       if (data is Map) {
         final redacted = _redactMap(data, dioSettings);
-        _printMapAsTable(redacted, header: 'Request Body');
+        _printMapAsTable(
+          redacted,
+          header: _withState('REQUEST', 'Request Body'),
+        );
       } else if (data is FormData) {
         final formDataMap = <String, dynamic>{
           ...Map.fromEntries(
@@ -104,9 +109,12 @@ class DioLensConsoleLogger {
             ),
           ),
         };
-        _printMapAsTable(formDataMap, header: 'Form data | ${data.boundary}');
+        _printMapAsTable(
+          formDataMap,
+          header: _withState('REQUEST', 'Form data | ${data.boundary}'),
+        );
       } else {
-        logPrint('╔ Unknown Form ');
+        logPrint('╔ ${_withState('REQUEST', 'Unknown Form')} ');
         _printBlock(_redactString(data.toString(), dioSettings));
         _printLine('╚');
       }
@@ -118,10 +126,11 @@ class DioLensConsoleLogger {
     if (!_settings.enabled) return;
     if (!_settings.responseBody && !_settings.responseHeader) return;
 
-    final stateLabel = _settings.showStateInHeader ? '[RESPONSE]' : '';
     _printBoxed(
-      header:
-          '$stateLabel ║ ${response.requestOptions.method} ║ Status: ${response.statusCode} ${response.statusMessage ?? ''}  ║ Time: ${_calculateTimeDifference(response.requestOptions.extra)} ms',
+      header: _withState(
+        'RESPONSE',
+        '${response.requestOptions.method} ║ Status: ${response.statusCode} ${response.statusMessage ?? ''}  ║ Time: ${_calculateTimeDifference(response.requestOptions.extra)} ms',
+      ),
       text: response.requestOptions.uri.toString(),
     );
 
@@ -133,12 +142,15 @@ class DioLensConsoleLogger {
             : v.toString();
       });
       if (responseHeaders.isNotEmpty) {
-        _printMapAsTable(responseHeaders, header: '[RESPONSE] ║ Headers');
+        _printMapAsTable(
+          responseHeaders,
+          header: _withState('RESPONSE', 'Headers'),
+        );
       }
     }
 
     if (_settings.responseBody) {
-      logPrint('╔ [RESPONSE] ║ Body');
+      logPrint('╔ ${_withState('RESPONSE', 'Body')}');
       logPrint('║');
       _printResponse(response, dioSettings);
       logPrint('║');
@@ -153,15 +165,16 @@ class DioLensConsoleLogger {
     if (err.type == DioExceptionType.badResponse) {
       final response = err.response;
       final uri = response?.requestOptions.uri;
-      final stateLabel = _settings.showStateInHeader ? '[ERROR]' : '';
       _printBoxed(
-        header:
-            '$stateLabel DioError ║ Status: ${response?.statusCode} ${response?.statusMessage ?? ''} ║ Time: ${_calculateTimeDifference(err.requestOptions.extra)} ms',
+        header: _withState(
+          'ERROR',
+          'DioError ║ Status: ${response?.statusCode} ${response?.statusMessage ?? ''} ║ Time: ${_calculateTimeDifference(err.requestOptions.extra)} ms',
+        ),
         text: uri.toString(),
       );
 
       if (response?.data != null && _settings.responseBody) {
-        logPrint('╔ ${err.type.toString()}');
+        logPrint('╔ ${_withState('ERROR', err.type.toString())}');
         _printResponse(response!, dioSettings);
         _printLine('╚');
 
@@ -172,29 +185,36 @@ class DioLensConsoleLogger {
                 ? RequestRedactor.mask
                 : v.toString();
           });
-          _printMapAsTable(responseHeaders, header: 'Response Headers');
+          _printMapAsTable(
+            responseHeaders,
+            header: _withState('ERROR', 'Response Headers'),
+          );
         }
       } else {
-        logPrint('╔ ${err.type.toString()}');
+        logPrint('╔ ${_withState('ERROR', err.type.toString())}');
         if (err.message != null) {
           _printBlock(_redactString(err.message!, dioSettings));
         }
         _printLine('╚');
       }
     } else {
-      final stateLabel = _settings.showStateInHeader ? '[ERROR]' : '';
       _printBoxed(
-        header: '$stateLabel DioError ║ ${err.type}',
+        header: _withState('ERROR', 'DioError ║ ${err.type}'),
         text: err.message,
       );
       if (err.response?.data != null && _settings.responseBody) {
-        logPrint('╔ Body');
+        logPrint('╔ ${_withState('ERROR', 'Body')}');
         logPrint('║');
         _printResponse(err.response!, dioSettings);
         logPrint('║');
         _printLine('╚');
       }
     }
+  }
+
+  String _withState(String state, String label) {
+    if (!_settings.showStateInHeader) return label;
+    return '[$state] ║ $label';
   }
 
   Map<String, dynamic> _redactMap(Map data, DioLensSettings settings) {

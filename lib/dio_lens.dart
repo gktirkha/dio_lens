@@ -2,6 +2,7 @@ library;
 
 export 'src/core/enums/dio_lens_mode.dart';
 export 'src/core/enums/export_format.dart';
+export 'src/core/models/console_logger_settings.dart';
 export 'src/core/runtime/dio_lens_runtime.dart' show DioLensExportCallback;
 export 'src/core/storage/dio_lens_storage.dart';
 export 'src/dio_lens.dart';
