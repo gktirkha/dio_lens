@@ -1,16 +1,13 @@
 import '../features/export/data/data_sources/export_data_source.dart';
-import '../features/export/data/data_sources/export_mock_data_source.dart';
 import '../features/export/data/repositories/export_repository_impl.dart';
 import '../features/export/domain/repositories/export_repository.dart';
 import '../features/export/domain/use_cases/export_requests_use_case.dart';
 import '../features/request_detail/data/data_sources/request_detail_data_source.dart';
-import '../features/request_detail/data/data_sources/request_detail_mock_data_source.dart';
 import '../features/request_detail/data/repositories/request_detail_repository_impl.dart';
 import '../features/request_detail/domain/repositories/request_detail_repository.dart';
 import '../features/request_detail/domain/use_cases/watch_request_detail_use_case.dart';
 import '../features/request_detail/presentation/controllers/request_detail_controller.dart';
 import '../features/request_home/data/data_sources/request_home_data_source.dart';
-import '../features/request_home/data/data_sources/request_home_mock_data_source.dart';
 import '../features/request_home/data/repositories/request_home_repository_impl.dart';
 import '../features/request_home/domain/repositories/request_home_repository.dart';
 import '../features/request_home/domain/use_cases/clear_all_requests_use_case.dart';
@@ -21,7 +18,6 @@ import '../features/request_home/domain/use_cases/watch_requests_use_case.dart';
 import '../features/request_home/presentation/controllers/request_home_controller.dart';
 import '../features/settings/data/data_sources/settings_data_source.dart';
 import '../features/share/domain/use_cases/build_share_content_use_case.dart';
-import '../features/settings/data/data_sources/settings_mock_data_source.dart';
 import '../features/settings/data/repositories/settings_repository_impl.dart';
 import '../features/settings/domain/repositories/settings_repository.dart';
 import '../features/settings/domain/use_cases/reset_settings_use_case.dart';
@@ -29,7 +25,6 @@ import '../features/settings/domain/use_cases/update_settings_use_case.dart';
 import '../features/settings/domain/use_cases/watch_settings_use_case.dart';
 import '../features/settings/presentation/controllers/settings_controller.dart';
 import '../features/stats/data/data_sources/stats_data_source.dart';
-import '../features/stats/data/data_sources/stats_mock_data_source.dart';
 import '../features/stats/data/repositories/stats_repository_impl.dart';
 import '../features/stats/domain/repositories/stats_repository.dart';
 import '../features/stats/domain/use_cases/watch_stats_use_case.dart';
@@ -37,25 +32,23 @@ import '../features/stats/presentation/controllers/stats_controller.dart';
 
 class DioLensDependencies {
   DioLensDependencies({
-    RequestHomeDataSource Function()? requestHomeDataSource,
-    StatsDataSource Function()? statsDataSource,
-    RequestDetailDataSource Function()? requestDetailDataSource,
-    SettingsDataSource Function()? settingsDataSource,
-    ExportDataSource Function()? exportDataSource,
-  }) : _requestDetailDataSourceFactory = requestDetailDataSource,
-       _exportDataSourceFactory = exportDataSource ?? ExportMockDataSource.new,
-       _settingsDataSourceFactory =
-           settingsDataSource ?? SettingsMockDataSource.new,
-       _requestHomeDataSourceFactory =
-           requestHomeDataSource ?? RequestHomeMockDataSource.new,
-       _statsDataSourceFactory = statsDataSource ?? StatsMockDataSource.new;
+    required RequestHomeDataSource Function() requestHomeDataSource,
+    required StatsDataSource Function() statsDataSource,
+    required RequestDetailDataSource Function() requestDetailDataSource,
+    required SettingsDataSource Function() settingsDataSource,
+    required ExportDataSource Function() exportDataSource,
+  }) : _requestHomeDataSourceFactory = requestHomeDataSource,
+       _statsDataSourceFactory = statsDataSource,
+       _requestDetailDataSourceFactory = requestDetailDataSource,
+       _settingsDataSourceFactory = settingsDataSource,
+       _exportDataSourceFactory = exportDataSource;
 
   final RequestHomeDataSource Function() _requestHomeDataSourceFactory;
   final StatsDataSource Function() _statsDataSourceFactory;
   final SettingsDataSource Function() _settingsDataSourceFactory;
   final ExportDataSource Function() _exportDataSourceFactory;
 
-  final RequestDetailDataSource Function()? _requestDetailDataSourceFactory;
+  final RequestDetailDataSource Function() _requestDetailDataSourceFactory;
 
   late final RequestHomeDataSource requestHomeDataSource =
       _requestHomeDataSourceFactory();
@@ -102,8 +95,7 @@ class DioLensDependencies {
       StatsController(watchStats: watchStatsUseCase);
 
   late final RequestDetailDataSource requestDetailDataSource =
-      _requestDetailDataSourceFactory?.call() ??
-      RequestDetailMockDataSource(requestHomeDataSource);
+      _requestDetailDataSourceFactory();
 
   late final RequestDetailRepository requestDetailRepository =
       RequestDetailRepositoryImpl(requestDetailDataSource);
