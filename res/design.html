@@ -1937,7 +1937,7 @@
           '</div>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Retention</div><div class="set-desc">How long captured requests are kept on device</div></div>' +
             '<select class="dl-select" data-action="set-retention" aria-label="Retention period">' +
-              [['session','This session'],['1h','1 hour'],['24h','24 hours'],['7d','7 days']].map(function(v){ return '<option value="'+v[0]+'"'+(s.retention===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
+              [['session','This session'],['1h','1 hour'],['24h','24 hours'],['7d','7 days'],['always','Always']].map(function(v){ return '<option value="'+v[0]+'"'+(s.retention===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
             '</select></div>' +
         '</div>' +
         '<div class="dl-set-section"><h3>Entry point</h3>' +

@@ -49,6 +49,7 @@ const _$DioLensRetentionEnumMap = {
   DioLensRetention.oneHour: 'one_hour',
   DioLensRetention.oneDay: 'one_day',
   DioLensRetention.sevenDays: 'seven_days',
+  DioLensRetention.always: 'always',
 };
 
 const _$DioLensBubblePositionEnumMap = {
