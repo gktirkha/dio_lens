@@ -2,7 +2,9 @@ import '../../../../core/storage/dio_lens_store.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import 'request_home_data_source.dart';
 
+/// [RequestHomeDataSource] over the stored requests.
 class RequestHomeLocalDataSource implements RequestHomeDataSource {
+  /// Creates the data source over the store.
   RequestHomeLocalDataSource(this._store);
 
   final DioLensStore _store;

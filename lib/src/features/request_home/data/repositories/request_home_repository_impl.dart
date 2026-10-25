@@ -4,7 +4,9 @@ import '../../domain/entities/request_list_item_entity.dart';
 import '../../domain/repositories/request_home_repository.dart';
 import '../data_sources/request_home_data_source.dart';
 
+/// [RequestHomeRepository] over a [RequestHomeDataSource], applying the filter.
 class RequestHomeRepositoryImpl implements RequestHomeRepository {
+  /// Creates the repository.
   const RequestHomeRepositoryImpl(this._dataSource);
 
   final RequestHomeDataSource _dataSource;

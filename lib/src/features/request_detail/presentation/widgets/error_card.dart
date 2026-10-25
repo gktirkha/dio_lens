@@ -6,10 +6,15 @@ import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import 'collapsible_section.dart';
 
+/// Card describing why a request failed without a response.
 class ErrorCard extends StatelessWidget {
+  /// Creates the error card.
   const ErrorCard({super.key, required this.type, required this.message});
 
+  /// The Dio exception type; unknown when null.
   final DioExceptionType? type;
+
+  /// The error message.
   final String? message;
 
   @override
@@ -59,9 +64,12 @@ class ErrorCard extends StatelessWidget {
   }
 }
 
+/// Collapsible stack trace of a failed request, with a copy button.
 class StackTraceSection extends StatelessWidget {
+  /// Creates the section.
   const StackTraceSection({super.key, required this.stackTrace});
 
+  /// The stack trace text.
   final String stackTrace;
 
   @override

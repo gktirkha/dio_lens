@@ -7,9 +7,13 @@ import '../core/enums/request_state.dart';
 import '../core/utils/format_utils.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
 
+/// A body made storable: JSON-encodable body and full size in bytes.
 typedef CapturedBody = ({Object? body, int? size});
 
+/// Turns Dio's request, response and error objects into storable requests. Body
+/// work runs in a background isolate.
 abstract final class RequestCapture {
+  /// The request part of a capture, still pending.
   static Future<RequestDetailEntity> pending({
     required String id,
     required DateTime startedAt,
@@ -46,6 +50,7 @@ abstract final class RequestCapture {
     );
   }
 
+  /// The request finished with a response (any status code).
   static Future<RequestDetailEntity> completed(
     RequestDetailEntity request,
     Response<dynamic> response, {
@@ -71,6 +76,7 @@ abstract final class RequestCapture {
     );
   }
 
+  /// The request failed without a response.
   static RequestDetailEntity failed(
     RequestDetailEntity request,
     DioException error, {

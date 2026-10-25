@@ -8,7 +8,10 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_detail_entity.dart';
 
+/// Top of the detail page: back, method and status, path, host, quick stats and
+/// the Share, cURL and Replay actions.
 class RequestDetailHeader extends StatelessWidget {
+  /// Creates the header.
   const RequestDetailHeader({
     super.key,
     required this.request,
@@ -18,11 +21,19 @@ class RequestDetailHeader extends StatelessWidget {
     this.onOpenHome,
   });
 
+  /// The request shown.
   final RequestDetailEntity request;
+
+  /// Copies the cURL command.
   final VoidCallback onCopyCurl;
+
+  /// Shares the request.
   final VoidCallback? onShare;
+
+  /// Re-sends the request.
   final VoidCallback? onReplay;
 
+  /// Shown as a home button when the page was opened on its own.
   final VoidCallback? onOpenHome;
 
   @override

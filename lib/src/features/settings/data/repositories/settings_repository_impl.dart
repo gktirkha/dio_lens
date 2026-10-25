@@ -3,7 +3,9 @@ import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../data_sources/settings_data_source.dart';
 
+/// [SettingsRepository] over a [SettingsDataSource].
 class SettingsRepositoryImpl implements SettingsRepository {
+  /// Creates the repository.
   const SettingsRepositoryImpl(this._dataSource);
 
   final SettingsDataSource _dataSource;

@@ -11,7 +11,10 @@ import '../../domain/use_cases/reset_settings_use_case.dart';
 import '../../domain/use_cases/update_settings_use_case.dart';
 import '../../domain/use_cases/watch_settings_use_case.dart';
 
+/// State of the settings sheet: the settings and how many requests are stored.
+/// Lazy: nothing is watched until the first listener attaches.
 class SettingsController extends ChangeNotifier {
+  /// Creates the controller.
   SettingsController({
     required this._watchSettings,
     required this._updateSettings,
@@ -29,12 +32,15 @@ class SettingsController extends ChangeNotifier {
 
   DioLensSettings? _settings;
 
+  /// The settings; defaults until the stored ones arrive.
   DioLensSettings get settings => _settings ?? const DioLensSettings();
 
+  /// True until the settings arrive.
   bool get isLoading => _settings == null;
 
   int _storedCount = 0;
 
+  /// Requests currently stored.
   int get storedCount => _storedCount;
 
   @override
@@ -53,6 +59,7 @@ class SettingsController extends ChangeNotifier {
         });
   }
 
+  /// Applies a change to the current settings at once and stores it.
   Future<void> update(
     DioLensSettings Function(DioLensSettings settings) change,
   ) async {
@@ -63,6 +70,7 @@ class SettingsController extends ChangeNotifier {
     await _updateSettings(next);
   }
 
+  /// Goes back to the settings given to `DioLens.init`.
   Future<void> reset() => _resetSettings(unit);
 
   @override

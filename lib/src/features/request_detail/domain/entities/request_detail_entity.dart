@@ -9,10 +9,12 @@ import '../../../../core/enums/request_status_class.dart';
 part 'request_detail_entity.freezed.dart';
 part 'request_detail_entity.g.dart';
 
+/// Everything captured about one request.
 @freezed
 abstract class RequestDetailEntity with _$RequestDetailEntity {
   const RequestDetailEntity._();
 
+  /// Creates a captured request.
   const factory RequestDetailEntity({
     @JsonKey(name: 'id') required String id,
 
@@ -49,15 +51,20 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     bool requestBodyIncomplete,
   }) = _RequestDetailEntity;
 
+  /// Reads a request stored by `toJson`.
   factory RequestDetailEntity.fromJson(Map<String, dynamic> json) =>
       _$RequestDetailEntityFromJson(json);
 
+  /// Host of [uri].
   String get host => uri.host;
 
+  /// Path of [uri]; `/` when empty.
   String get path => uri.path.isEmpty ? '/' : uri.path;
 
+  /// Query string without the leading `?`; null when there is none.
   String? get query => uri.hasQuery && uri.query.isNotEmpty ? uri.query : null;
 
+  /// Decoded query parameters in URL order, duplicates kept.
   List<({String key, String value})> get queryParameters {
     final q = query;
     if (q == null) return const [];
@@ -67,9 +74,11 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     ];
   }
 
+  /// Category used for badges, filters and stats.
   RequestStatusClass get statusClass =>
       RequestStatusClass.resolve(state, statusCode);
 
+  /// Equivalent `curl` command, one option per line.
   String get curl {
     final parts = <String>["curl -X $method '$uri'"];
     requestHeaders.forEach((k, v) => parts.add("-H '$k: $v'"));

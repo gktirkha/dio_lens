@@ -12,6 +12,8 @@ import '../controllers/settings_controller.dart';
 import '../widgets/capture_fields.dart';
 import '../widgets/settings_widgets.dart';
 
+/// Opens the settings sheet over the current Dio Lens page, sharing its theme
+/// mode.
 Future<void> showDioLensSettings(
   BuildContext context, {
   required SettingsController Function() createController,
@@ -37,14 +39,20 @@ Future<void> showDioLensSettings(
   );
 }
 
+/// Every Dio Lens setting, grouped as Appearance, Capture, Entry point,
+/// Privacy, Export and Reset. Changes apply as they are made.
 class SettingsSheet extends StatefulWidget {
+  /// Creates the sheet.
   const SettingsSheet({
     super.key,
     required this.createController,
     this.onExport,
   });
 
+  /// Creates the sheet's controller; the sheet disposes it.
   final SettingsController Function() createController;
+
+  /// Exports in the chosen format; null disables export.
   final ValueChanged<DioLensExportFormat>? onExport;
 
   @override

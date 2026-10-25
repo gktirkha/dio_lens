@@ -8,10 +8,12 @@ import 'status_share_entity.dart';
 part 'request_stats_entity.freezed.dart';
 part 'request_stats_entity.g.dart';
 
+/// Stats of the captured requests, for the stats page.
 @freezed
 abstract class RequestStatsEntity with _$RequestStatsEntity {
   const RequestStatsEntity._();
 
+  /// Creates stats.
   const factory RequestStatsEntity({
     @JsonKey(name: 'total_requests') required int totalRequests,
 
@@ -47,9 +49,11 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     List<NamedCountEntity> topHosts,
   }) = _RequestStatsEntity;
 
+  /// Reads stats stored by `toJson`.
   factory RequestStatsEntity.fromJson(Map<String, dynamic> json) =>
       _$RequestStatsEntityFromJson(json);
 
+  /// Stats of no requests.
   static const RequestStatsEntity empty = RequestStatsEntity(
     totalRequests: 0,
     finishedRequests: 0,
@@ -58,8 +62,11 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     totalBytes: 0,
   );
 
+  /// Whether there are no requests.
   bool get isEmpty => totalRequests == 0;
 
+  /// Share of finished requests that succeeded, 0 to 1; null when none
+  /// finished.
   double? get successRate =>
       finishedRequests == 0 ? null : successCount / finishedRequests;
 }

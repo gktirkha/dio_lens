@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Titled section that expands and collapses on tap.
 class CollapsibleSection extends StatefulWidget {
+  /// Creates the section.
   const CollapsibleSection({
     super.key,
     required this.title,
@@ -11,10 +13,16 @@ class CollapsibleSection extends StatefulWidget {
     this.initiallyExpanded = false,
   });
 
+  /// Section title.
   final String title;
+
+  /// Content shown while expanded.
   final Widget child;
 
+  /// Optional text at the end of the header, e.g. a line count.
   final String? trailingLabel;
+
+  /// Whether the section starts expanded.
   final bool initiallyExpanded;
 
   @override

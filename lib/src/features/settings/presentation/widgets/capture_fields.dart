@@ -6,7 +6,10 @@ import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/enums/dio_lens_size_unit.dart';
 import 'settings_widgets.dart';
 
+/// Max stored requests: stepper, help, presets and how much of the limit is
+/// used.
 class MaxRequestsField extends StatefulWidget {
+  /// Creates the field.
   const MaxRequestsField({
     super.key,
     required this.value,
@@ -14,10 +17,16 @@ class MaxRequestsField extends StatefulWidget {
     required this.onChanged,
   });
 
+  /// Current limit.
   final int value;
+
+  /// Requests currently stored.
   final int storedCount;
+
+  /// Called with a new valid limit.
   final ValueChanged<int> onChanged;
 
+  /// Amount the stepper buttons change the limit by.
   static const int step = 10;
 
   @override
@@ -244,14 +253,19 @@ class _PresetChip extends StatelessWidget {
   }
 }
 
+/// Max body size: a number with a B, KB or MB unit, or Unlimited.
 class MaxBodySizeField extends StatefulWidget {
+  /// Creates the field.
   const MaxBodySizeField({
     super.key,
     required this.value,
     required this.onChanged,
   });
 
+  /// Current size in bytes; null for unlimited.
   final int? value;
+
+  /// Called with a new size in bytes, or null for unlimited.
   final ValueChanged<int?> onChanged;
 
   @override

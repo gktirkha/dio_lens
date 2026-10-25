@@ -13,7 +13,13 @@ import '../enums/request_state.dart';
 import 'dio_lens_storage.dart';
 import 'stored_requests_parser.dart';
 
+/// In-memory source of truth for captured requests and settings, written
+/// through to a [DioLensStorage]. Keeps only request summaries in memory, plus
+/// a small cache of full requests; applies the max requests limit and
+/// retention.
 class DioLensStore {
+  /// Creates a store over the storage built by [storage], starting from
+  /// [initialSettings].
   DioLensStore({
     required DioLensStorage Function() storage,
     required DioLensSettings initialSettings,
@@ -21,6 +27,7 @@ class DioLensStore {
        _initialSettings = initialSettings,
        _settings = ValueNotifier(initialSettings);
 
+  /// Full requests kept in memory, most recently used.
   static const int detailCacheSize = 20;
 
   final DioLensSettings _initialSettings;
@@ -43,14 +50,19 @@ class DioLensStore {
   late final StreamController<Set<String>?> _removals =
       StreamController.broadcast();
 
+  /// Completes once stored settings and request summaries are loaded.
   late final Future<void> ready = _load();
 
   Future<void> _queue = Future.value();
 
+  /// Current settings: the initial ones until the stored ones are loaded.
   ValueListenable<DioLensSettings> get settings => _settings;
 
+  /// Request summaries, newest first; empty until [ready].
   List<RequestListItemEntity> get requests => List.unmodifiable(_summaries);
 
+  /// Request summaries, newest first. Emits once loaded, then after every
+  /// change.
   Stream<List<RequestListItemEntity>> watchRequests() {
     late final StreamController<List<RequestListItemEntity>> controller;
     StreamSubscription<List<RequestListItemEntity>>? subscription;
@@ -66,6 +78,8 @@ class DioLensStore {
     return controller.stream;
   }
 
+  /// The full request with [id], from the cache or storage; null when it is not
+  /// stored.
   Future<RequestDetailEntity?> getRequest(String id) async {
     await ready;
     if (!_summaries.any((s) => s.id == id)) return null;
@@ -80,6 +94,8 @@ class DioLensStore {
     return _cache(_details[id] ?? loaded);
   }
 
+  /// The full request with [id]: emits it once loaded, again on every update,
+  /// and null once it is removed.
   Stream<RequestDetailEntity?> watchRequest(String id) {
     late final StreamController<RequestDetailEntity?> controller;
     final subscriptions = <StreamSubscription<Object?>>[];
@@ -114,6 +130,7 @@ class DioLensStore {
     return controller.stream;
   }
 
+  /// Every stored request in full, newest first. Used for export.
   Future<List<RequestDetailEntity>> getAllRequests() async {
     await ready;
     return _read(
@@ -124,6 +141,7 @@ class DioLensStore {
     );
   }
 
+  /// Stores a newly started [request] as the newest one.
   Future<void> add(RequestDetailEntity request) async {
     await ready;
     _summaries.insert(0, request.toListItem());
@@ -134,6 +152,7 @@ class DioLensStore {
     if (_detailChanges.hasListener) _detailChanges.add(request);
   }
 
+  /// Replaces the stored request with the same id; ignored when it is gone.
   Future<void> update(RequestDetailEntity request) async {
     await ready;
     final index = _summaries.indexWhere((s) => s.id == request.id);
@@ -146,6 +165,7 @@ class DioLensStore {
     if (_detailChanges.hasListener) _detailChanges.add(request);
   }
 
+  /// Removes the request with [id].
   Future<void> delete(String id) async {
     await ready;
     final before = _summaries.length;
@@ -157,6 +177,7 @@ class DioLensStore {
     _notifyRemoved({id});
   }
 
+  /// Removes every request.
   Future<void> clear() async {
     await ready;
     _summaries.clear();
@@ -166,11 +187,14 @@ class DioLensStore {
     _notifyRemoved(null);
   }
 
+  /// Removes requests past the retention or the limit now.
   Future<void> removeExpired() async {
     await ready;
     if (_trim()) _emit();
   }
 
+  /// Applies and stores [settings]; a lower limit or shorter retention removes
+  /// the requests that no longer fit.
   Future<void> updateSettings(DioLensSettings settings) async {
     await ready;
     if (settings == _settings.value) return;
@@ -179,6 +203,7 @@ class DioLensStore {
     if (_trim()) _emit();
   }
 
+  /// Removes the stored settings and goes back to the initial ones.
   Future<void> resetSettings() async {
     await ready;
     _enqueue((s) => s.clearSettings());

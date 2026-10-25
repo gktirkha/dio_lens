@@ -8,14 +8,19 @@ import '../models/stats_ranking.dart';
 import '../widgets/ranked_list.dart';
 import '../widgets/stats_panel.dart';
 
+/// Full list of one stats ranking.
 class StatsRankingPage extends StatelessWidget {
+  /// Creates the page.
   const StatsRankingPage({
     super.key,
     required this.controller,
     required this.ranking,
   });
 
+  /// Provides the stats.
   final StatsController controller;
+
+  /// The ranking shown.
   final StatsRanking ranking;
 
   @override

@@ -5,11 +5,15 @@ import 'package:flutter/material.dart';
 
 import '../../../settings/domain/enums/dio_lens_bubble_position.dart';
 
+/// Round button that opens Dio Lens.
 class DioLensBubble extends StatelessWidget {
+  /// Creates the bubble.
   const DioLensBubble({super.key, this.onTap});
 
+  /// Diameter of the bubble.
   static const double size = 56;
 
+  /// Called on tap.
   final VoidCallback? onTap;
 
   @override
@@ -49,7 +53,10 @@ class DioLensBubble extends StatelessWidget {
   }
 }
 
+/// Fills the overlay and floats a [DioLensBubble] that can be dragged anywhere;
+/// [settleDelay] after a drag it slides to the nearer side edge.
 class FloatingDioLensBubble extends StatefulWidget {
+  /// Creates the floating bubble.
   const FloatingDioLensBubble({
     super.key,
     required this.initialPosition,
@@ -57,12 +64,19 @@ class FloatingDioLensBubble extends StatefulWidget {
     this.settleDelay = const Duration(seconds: 2),
   });
 
+  /// Corner the bubble starts in.
   final DioLensBubblePosition initialPosition;
+
+  /// Called on tap.
   final VoidCallback? onTap;
+
+  /// How long after a drag the bubble slides to an edge.
   final Duration settleDelay;
 
+  /// Gap kept between the bubble and the screen edges.
   static const double margin = 16;
 
+  /// Distance of a bottom corner from the bottom of the safe area.
   static const double bottomInset = 112;
 
   @override

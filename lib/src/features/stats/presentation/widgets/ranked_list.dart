@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// One row of a [RankedList]: label, displayed value, score for the bar, and
+/// whether to highlight it.
 typedef RankedItem = ({String label, String value, double score, bool warn});
 
+/// Rows with a label, a value and a bar proportional to the top score.
 class RankedList extends StatelessWidget {
+  /// Creates the list.
   const RankedList({super.key, required this.items});
 
+  /// The rows, highest first.
   final List<RankedItem> items;
 
   @override

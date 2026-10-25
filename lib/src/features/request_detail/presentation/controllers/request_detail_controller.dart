@@ -10,7 +10,10 @@ import '../../../share/domain/use_cases/build_share_content_use_case.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import '../../domain/use_cases/watch_request_detail_use_case.dart';
 
+/// State of one request's detail page. Lazy: nothing is watched until the first
+/// listener attaches.
 class RequestDetailController extends ChangeNotifier {
+  /// Creates the controller for [requestId].
   RequestDetailController({
     required this.requestId,
     required this._watchRequestDetail,
@@ -18,6 +21,7 @@ class RequestDetailController extends ChangeNotifier {
     required this._buildShareContent,
   });
 
+  /// Id of the request shown.
   final String requestId;
   final WatchRequestDetailUseCase _watchRequestDetail;
   final WatchSettingsUseCase _watchSettings;
@@ -28,14 +32,17 @@ class RequestDetailController extends ChangeNotifier {
 
   DioLensSettings _settings = const DioLensSettings();
 
+  /// Current settings; they decide which values are masked.
   DioLensSettings get settings => _settings;
 
   RequestDetailEntity? _request;
 
+  /// The request; null while loading or once it was deleted.
   RequestDetailEntity? get request => _request;
 
   bool _loading = true;
 
+  /// True until the first result arrives.
   bool get isLoading => _loading;
 
   @override
@@ -53,6 +60,7 @@ class RequestDetailController extends ChangeNotifier {
     });
   }
 
+  /// [request] as a shareable report, masked as the settings say.
   Future<DioLensShareContent> shareContent(RequestDetailEntity request) =>
       _buildShareContent((request: request, settings: _settings));
 

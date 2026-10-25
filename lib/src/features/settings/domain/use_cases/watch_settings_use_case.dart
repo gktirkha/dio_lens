@@ -3,8 +3,10 @@ import '../../../../core/domain/use_case_base.dart';
 import '../entities/dio_lens_settings.dart';
 import '../repositories/settings_repository.dart';
 
+/// Watches the settings.
 class WatchSettingsUseCase
     implements UseCaseBase<Stream<DioLensSettings>, Unit> {
+  /// Creates the use case over [SettingsRepository].
   const WatchSettingsUseCase(this._repository);
 
   final SettingsRepository _repository;

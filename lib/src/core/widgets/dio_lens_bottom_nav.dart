@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 
 import '../../theme/dio_lens_theme.dart';
 
+/// One destination of a [DioLensBottomNav].
 class DioLensNavItem {
+  /// Creates a destination.
   const DioLensNavItem({required this.icon, required this.label});
 
+  /// Icon above the label.
   final IconData icon;
+
+  /// Label under the icon.
   final String label;
 }
 
+/// The bottom tab bar of the Dio Lens home: icon over label, accent when
+/// selected.
 class DioLensBottomNav extends StatelessWidget {
+  /// Creates the tab bar.
   const DioLensBottomNav({
     super.key,
     required this.items,
@@ -17,8 +25,13 @@ class DioLensBottomNav extends StatelessWidget {
     required this.onSelected,
   });
 
+  /// The destinations, in order.
   final List<DioLensNavItem> items;
+
+  /// Index of the selected destination in [items].
   final int selectedIndex;
+
+  /// Called with the index of a tapped destination.
   final ValueChanged<int> onSelected;
 
   @override

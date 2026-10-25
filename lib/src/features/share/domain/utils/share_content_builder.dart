@@ -7,7 +7,9 @@ import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 import '../entities/dio_lens_share_content.dart';
 
+/// Builds the shared report of one request. Pure, so it can run in an isolate.
 abstract final class ShareContentBuilder {
+  /// The report of the request, masked as the settings say.
   static DioLensShareContent build(
     RequestDetailEntity request,
     DioLensSettings settings,

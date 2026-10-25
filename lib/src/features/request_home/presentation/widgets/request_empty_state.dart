@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Shown when the list is empty, either because nothing was captured yet or
+/// because the filters hide everything.
 class RequestEmptyState extends StatelessWidget {
+  /// Creates the empty state.
   const RequestEmptyState({super.key, required this.filtered});
 
+  /// True when requests exist but the filters hide all of them.
   final bool filtered;
 
   @override

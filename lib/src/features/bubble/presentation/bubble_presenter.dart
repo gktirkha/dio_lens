@@ -5,7 +5,10 @@ import 'package:flutter/scheduler.dart';
 import '../../settings/domain/entities/dio_lens_settings.dart';
 import 'widgets/dio_lens_bubble.dart';
 
+/// Floats the Dio Lens bubble over the host app, in the overlay of the host's
+/// navigator, while the bubble setting is on and no Dio Lens page is open.
 class BubblePresenter {
+  /// Creates the presenter.
   BubblePresenter({
     required this._navigatorKey,
     required this._settings,
@@ -20,6 +23,7 @@ class BubblePresenter {
 
   OverlayEntry? _entry;
 
+  /// Inserts the bubble once the navigator is mounted.
   void attach() {
     WidgetsFlutterBinding.ensureInitialized();
     SchedulerBinding.instance.addPostFrameCallback((_) => _insert());

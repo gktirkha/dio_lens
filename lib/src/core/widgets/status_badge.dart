@@ -5,9 +5,13 @@ import '../enums/request_state.dart';
 import '../enums/request_status_class.dart';
 import 'dio_lens_tag.dart';
 
+/// Status code badge colored by status class; shows a spinner while pending and
+/// `ERR` when the request failed without a response.
 class StatusBadge extends StatelessWidget {
+  /// Creates a badge for [statusClass] and [statusCode].
   const StatusBadge({super.key, required this.statusClass, this.statusCode});
 
+  /// Creates a badge for a request in [state] with an optional [statusCode].
   StatusBadge.fromState({
     Key? key,
     required RequestState state,
@@ -18,7 +22,10 @@ class StatusBadge extends StatelessWidget {
          statusCode: statusCode,
        );
 
+  /// Decides the color and what is shown.
   final RequestStatusClass statusClass;
+
+  /// HTTP status code, shown for finished requests.
   final int? statusCode;
 
   @override

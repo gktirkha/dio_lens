@@ -6,7 +6,10 @@ import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../core/widgets/method_chip.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Header of the request list: brand, theme toggle, search, method filter and
+/// the overflow menu.
 class RequestHomeHeader extends StatelessWidget {
+  /// Creates the header.
   const RequestHomeHeader({
     super.key,
     required this.searchOpen,
@@ -22,6 +25,7 @@ class RequestHomeHeader extends StatelessWidget {
     this.onMinimize,
   });
 
+  /// Methods offered in the method filter.
   static const List<String> filterMethods = [
     'GET',
     'POST',
@@ -31,18 +35,37 @@ class RequestHomeHeader extends StatelessWidget {
     'QUERY',
   ];
 
+  /// Whether the search field is shown.
   final bool searchOpen;
+
+  /// Controller of the search field.
   final TextEditingController searchController;
+
+  /// Shows the search field.
   final VoidCallback onSearchOpen;
+
+  /// Hides and clears the search field.
   final VoidCallback onSearchClose;
 
+  /// Methods currently filtered on.
   final Set<String> selectedMethods;
+
+  /// Called when a method is picked or unpicked.
   final ValueChanged<String> onMethodToggled;
+
+  /// Clears the method filter.
   final VoidCallback onMethodsCleared;
 
+  /// Opens the settings sheet.
   final VoidCallback? onOpenSettings;
+
+  /// Exports in the chosen format; null disables export.
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  /// Removes every request.
   final VoidCallback? onClearAll;
+
+  /// Closes Dio Lens.
   final VoidCallback? onMinimize;
 
   @override

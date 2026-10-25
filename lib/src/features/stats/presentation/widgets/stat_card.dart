@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Summary card: a label and a large value.
 class StatCard extends StatelessWidget {
+  /// Creates the card.
   const StatCard({
     super.key,
     required this.label,
@@ -11,8 +13,13 @@ class StatCard extends StatelessWidget {
     this.valueColor,
   });
 
+  /// Card label.
   final String label;
+
+  /// Card value.
   final String value;
+
+  /// Optional color of the value.
   final Color? valueColor;
 
   @override
@@ -62,9 +69,12 @@ class StatCard extends StatelessWidget {
   }
 }
 
+/// Two-column grid of [StatCard]s.
 class StatCardGrid extends StatelessWidget {
+  /// Creates the grid.
   const StatCardGrid({super.key, required this.cards});
 
+  /// The cards, in order.
   final List<StatCard> cards;
 
   @override

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Collapsible, syntax-colored view of a decoded JSON value.
 class JsonTreeView extends StatefulWidget {
+  /// Creates the tree view.
   const JsonTreeView({super.key, required this.value});
 
+  /// Decoded JSON: maps, lists, strings, numbers, booleans and null.
   final Object? value;
 
   @override

@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Preview of an image response, or a placeholder when its bytes were not kept.
 class ImagePreview extends StatelessWidget {
+  /// Creates the preview.
   const ImagePreview({
     super.key,
     required this.bytes,
@@ -13,8 +15,13 @@ class ImagePreview extends StatelessWidget {
     required this.size,
   });
 
+  /// Image bytes; null shows the placeholder.
   final Uint8List? bytes;
+
+  /// MIME type of the image.
   final String? contentType;
+
+  /// Image size in bytes.
   final int? size;
 
   @override

@@ -30,7 +30,10 @@ import '../features/stats/domain/repositories/stats_repository.dart';
 import '../features/stats/domain/use_cases/watch_stats_use_case.dart';
 import '../features/stats/presentation/controllers/stats_controller.dart';
 
+/// Wires Dio Lens' layers together. Every dependency is lazy: created on first
+/// access, once per instance.
 class DioLensDependencies {
+  /// Creates the dependencies over the given data source factories.
   DioLensDependencies({
     required RequestHomeDataSource Function() requestHomeDataSource,
     required StatsDataSource Function() statsDataSource,
@@ -50,30 +53,38 @@ class DioLensDependencies {
 
   final RequestDetailDataSource Function() _requestDetailDataSourceFactory;
 
+  /// Captured requests for the home list.
   late final RequestHomeDataSource requestHomeDataSource =
       _requestHomeDataSourceFactory();
 
+  /// Repository of the home list.
   late final RequestHomeRepository requestHomeRepository =
       RequestHomeRepositoryImpl(requestHomeDataSource);
 
+  /// Watches the home list.
   late final WatchRequestsUseCase watchRequestsUseCase = WatchRequestsUseCase(
     requestHomeRepository,
   );
 
+  /// Reads the home list once.
   late final GetRequestsUseCase getRequestsUseCase = GetRequestsUseCase(
     requestHomeRepository,
   );
 
+  /// Deletes one request.
   late final DeleteRequestUseCase deleteRequestUseCase = DeleteRequestUseCase(
     requestHomeRepository,
   );
 
+  /// Deletes every request.
   late final ClearAllRequestsUseCase clearAllRequestsUseCase =
       ClearAllRequestsUseCase(requestHomeRepository);
 
+  /// Removes requests past the retention.
   late final RemoveExpiredRequestsUseCase removeExpiredRequestsUseCase =
       RemoveExpiredRequestsUseCase(requestHomeRepository);
 
+  /// A new controller for one request home page; the caller disposes it.
   RequestHomeController createRequestHomeController() => RequestHomeController(
     watchRequests: watchRequestsUseCase,
     deleteRequest: deleteRequestUseCase,
@@ -81,28 +92,36 @@ class DioLensDependencies {
     removeExpiredRequests: removeExpiredRequestsUseCase,
   );
 
+  /// Captured requests that stats are computed from.
   late final StatsDataSource statsDataSource = _statsDataSourceFactory();
 
+  /// Repository of the stats.
   late final StatsRepository statsRepository = StatsRepositoryImpl(
     statsDataSource,
   );
 
+  /// Watches the stats.
   late final WatchStatsUseCase watchStatsUseCase = WatchStatsUseCase(
     statsRepository,
   );
 
+  /// A new controller for one stats page; the caller disposes it.
   StatsController createStatsController() =>
       StatsController(watchStats: watchStatsUseCase);
 
+  /// Full requests for the detail page.
   late final RequestDetailDataSource requestDetailDataSource =
       _requestDetailDataSourceFactory();
 
+  /// Repository of the detail page.
   late final RequestDetailRepository requestDetailRepository =
       RequestDetailRepositoryImpl(requestDetailDataSource);
 
+  /// Watches one request.
   late final WatchRequestDetailUseCase watchRequestDetailUseCase =
       WatchRequestDetailUseCase(requestDetailRepository);
 
+  /// A new controller for the detail page of [requestId]; the page disposes it.
   RequestDetailController createRequestDetailController(String requestId) =>
       RequestDetailController(
         requestId: requestId,
@@ -111,27 +130,34 @@ class DioLensDependencies {
         buildShareContent: buildShareContentUseCase,
       );
 
+  /// Builds the shared text report of a request.
   late final BuildShareContentUseCase buildShareContentUseCase =
       const BuildShareContentUseCase();
 
+  /// Where settings live.
   late final SettingsDataSource settingsDataSource =
       _settingsDataSourceFactory();
 
+  /// Repository of the settings.
   late final SettingsRepository settingsRepository = SettingsRepositoryImpl(
     settingsDataSource,
   );
 
+  /// Watches the settings.
   late final WatchSettingsUseCase watchSettingsUseCase = WatchSettingsUseCase(
     settingsRepository,
   );
 
+  /// Applies and stores new settings.
   late final UpdateSettingsUseCase updateSettingsUseCase =
       UpdateSettingsUseCase(settingsRepository);
 
+  /// Goes back to the initial settings.
   late final ResetSettingsUseCase resetSettingsUseCase = ResetSettingsUseCase(
     settingsRepository,
   );
 
+  /// A new controller for the settings sheet; the sheet disposes it.
   SettingsController createSettingsController() => SettingsController(
     watchSettings: watchSettingsUseCase,
     updateSettings: updateSettingsUseCase,
@@ -139,12 +165,15 @@ class DioLensDependencies {
     watchRequests: watchRequestsUseCase,
   );
 
+  /// What exports are built from.
   late final ExportDataSource exportDataSource = _exportDataSourceFactory();
 
+  /// Repository of the exports.
   late final ExportRepository exportRepository = ExportRepositoryImpl(
     exportDataSource,
   );
 
+  /// Builds an export file.
   late final ExportRequestsUseCase exportRequestsUseCase =
       ExportRequestsUseCase(exportRepository);
 }

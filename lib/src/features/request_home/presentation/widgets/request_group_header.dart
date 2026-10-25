@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Sticky header of a group of requests, e.g. "Just now".
 class RequestGroupHeader extends StatelessWidget {
+  /// Creates the header.
   const RequestGroupHeader({super.key, required this.label});
 
+  /// Group label.
   final String label;
 
   @override

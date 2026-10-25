@@ -7,7 +7,10 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 
+/// Card announcing that a request finished: method, status, path and host, with
+/// View and dismiss actions.
 class RequestFinishedBanner extends StatelessWidget {
+  /// Creates the banner.
   const RequestFinishedBanner({
     super.key,
     required this.request,
@@ -15,8 +18,13 @@ class RequestFinishedBanner extends StatelessWidget {
     this.onDismiss,
   });
 
+  /// The finished request.
   final RequestDetailEntity request;
+
+  /// Opens the request's detail page.
   final VoidCallback? onView;
+
+  /// Hides the banner.
   final VoidCallback? onDismiss;
 
   @override

@@ -8,7 +8,11 @@ import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 
+/// Builds export files from captured requests. Pure, so it can run in an
+/// isolate.
 abstract final class ExportBuilder {
+  /// Every request in the given format, UTF-8 encoded, with values masked as
+  /// the settings say.
   static Uint8List build(
     DioLensExportFormat format,
     List<RequestDetailEntity> requests,
@@ -30,6 +34,7 @@ abstract final class ExportBuilder {
     return utf8.encode(const JsonEncoder.withIndent('  ').convert(json));
   }
 
+  /// HTTP Archive 1.2 of [requests].
   static Map<String, Object?> har(List<RequestDetailEntity> requests) => {
     'log': {
       'version': '1.2',

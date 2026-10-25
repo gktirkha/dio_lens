@@ -7,20 +7,31 @@ import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import 'overview_widgets.dart';
 
+/// One row of a [KeyValueBox].
 class KeyValueEntry {
+  /// Creates a row, optionally [redacted].
   const KeyValueEntry(this.key, this.value, {this.redacted = false});
 
+  /// The row's key, e.g. a header name.
   final String key;
+
+  /// The row's value.
   final String value;
 
+  /// Whether the value is hidden behind [mask].
   final bool redacted;
 
+  /// Shown instead of redacted values.
   static const String mask = '••••••• (redacted)';
 
+  /// What is shown and copied for this row.
   String get displayValue => redacted ? mask : value;
 }
 
+/// Bordered box of key/value rows with a title and "Copy all". Rows copy their
+/// value on tap; "Copy all" copies every row as a JSON object.
 class KeyValueBox extends StatelessWidget {
+  /// Creates the box.
   const KeyValueBox({
     super.key,
     required this.title,
@@ -28,11 +39,16 @@ class KeyValueBox extends StatelessWidget {
     this._copyAllLabel,
   });
 
+  /// Title shown in the header.
   final String title;
+
+  /// The rows, in order.
   final List<KeyValueEntry> entries;
 
   final String? _copyAllLabel;
 
+  /// Every row as a pretty-printed JSON object; a repeated key becomes an array
+  /// of its values.
   String get copyAllText {
     final map = <String, Object>{};
     for (final e in entries) {

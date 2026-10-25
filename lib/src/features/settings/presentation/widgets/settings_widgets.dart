@@ -5,14 +5,19 @@ import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Titled group of settings rows, e.g. "Capture".
 class SettingsSection extends StatelessWidget {
+  /// Creates the section.
   const SettingsSection({
     super.key,
     required this.title,
     required this.children,
   });
 
+  /// Section title.
   final String title;
+
+  /// The rows, separated by dividers.
   final List<Widget> children;
 
   @override
@@ -48,7 +53,9 @@ class SettingsSection extends StatelessWidget {
   }
 }
 
+/// A setting: title, optional description and its control.
 class SettingsRow extends StatelessWidget {
+  /// Creates the row.
   const SettingsRow({
     super.key,
     required this.title,
@@ -57,9 +64,16 @@ class SettingsRow extends StatelessWidget {
     this.stacked = false,
   });
 
+  /// Setting title.
   final String title;
+
+  /// Optional description under the title.
   final String? description;
+
+  /// The control, e.g. a switch.
   final Widget control;
+
+  /// Puts the control under the label instead of beside it.
   final bool stacked;
 
   @override
@@ -103,7 +117,9 @@ class SettingsRow extends StatelessWidget {
   }
 }
 
+/// On/off pill switch.
 class DioLensSwitch extends StatelessWidget {
+  /// Creates the switch.
   const DioLensSwitch({
     super.key,
     required this.value,
@@ -111,8 +127,13 @@ class DioLensSwitch extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// Whether the switch is on.
   final bool value;
+
+  /// Called with the new value on tap.
   final ValueChanged<bool> onChanged;
+
+  /// Screen reader label.
   final String? semanticLabel;
 
   @override
@@ -160,7 +181,9 @@ class DioLensSwitch extends StatelessWidget {
   }
 }
 
+/// Selectable card, e.g. a theme mode or a bubble corner.
 class SettingsOption extends StatelessWidget {
+  /// Creates the option.
   const SettingsOption({
     super.key,
     required this.label,
@@ -170,11 +193,19 @@ class SettingsOption extends StatelessWidget {
     this.compact = false,
   });
 
+  /// Option label.
   final String label;
+
+  /// Optional icon.
   final IconData? icon;
+
+  /// Whether the option is selected.
   final bool selected;
+
+  /// Called on tap.
   final VoidCallback onTap;
 
+  /// Icon beside the label in a short pill instead of above it.
   final bool compact;
 
   @override
@@ -236,7 +267,9 @@ class SettingsOption extends StatelessWidget {
   }
 }
 
+/// Compact dropdown showing the label of the selected option.
 class SettingsSelect<T> extends StatelessWidget {
+  /// Creates the select.
   const SettingsSelect({
     super.key,
     required this.value,
@@ -246,10 +279,19 @@ class SettingsSelect<T> extends StatelessWidget {
     this.semanticLabel,
   });
 
+  /// The selected option.
   final T value;
+
+  /// Every option, in order.
   final List<T> options;
+
+  /// Label of an option.
   final String Function(T value) labelOf;
+
+  /// Called with the picked option.
   final ValueChanged<T> onChanged;
+
+  /// Screen reader label.
   final String? semanticLabel;
 
   @override
@@ -307,7 +349,9 @@ class SettingsSelect<T> extends StatelessWidget {
   }
 }
 
+/// `−  value  +` stepper for small numbers.
 class SettingsMiniStepper extends StatelessWidget {
+  /// Creates the stepper.
   const SettingsMiniStepper({
     super.key,
     required this.label,
@@ -316,10 +360,16 @@ class SettingsMiniStepper extends StatelessWidget {
     this.semanticName = '',
   });
 
+  /// The value shown.
   final String label;
+
+  /// Decreases the value; null disables the button.
   final VoidCallback? onDecrease;
+
+  /// Increases the value; null disables the button.
   final VoidCallback? onIncrease;
 
+  /// Names the value for screen readers, e.g. "notification duration".
   final String semanticName;
 
   @override
@@ -354,7 +404,9 @@ class SettingsMiniStepper extends StatelessWidget {
   }
 }
 
+/// Square `−` or `+` button of a stepper.
 class SettingsStepButton extends StatelessWidget {
+  /// Creates the button.
   const SettingsStepButton({
     super.key,
     required this.symbol,
@@ -363,9 +415,16 @@ class SettingsStepButton extends StatelessWidget {
     required this.tooltip,
   });
 
+  /// The symbol shown.
   final String symbol;
+
+  /// Called on tap; null disables the button.
   final VoidCallback? onTap;
+
+  /// Side length.
   final double size;
+
+  /// Tooltip and screen reader label.
   final String tooltip;
 
   @override
@@ -401,6 +460,7 @@ class SettingsStepButton extends StatelessWidget {
   }
 }
 
+/// Input decoration matching the settings sheet's other controls.
 InputDecoration settingsInputDecoration(
   DioLensTheme theme, {
   String? hint,
@@ -426,7 +486,10 @@ InputDecoration settingsInputDecoration(
   );
 }
 
+/// Comma-separated list of keys, stored lower case; saves shortly after typing
+/// stops.
 class SettingsKeyListField extends StatefulWidget {
+  /// Creates the field.
   const SettingsKeyListField({
     super.key,
     required this.label,
@@ -435,9 +498,16 @@ class SettingsKeyListField extends StatefulWidget {
     required this.onChanged,
   });
 
+  /// Label above the field.
   final String label;
+
+  /// Current keys.
   final List<String> keys;
+
+  /// Hint shown while empty.
   final String hint;
+
+  /// Called with the parsed keys.
   final ValueChanged<List<String>> onChanged;
 
   @override

@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'dio_lens_interceptor.dart';
 
+/// Re-sends captured requests: the original request when it is from this run,
+/// otherwise a rebuild from what was captured, through the right Dio.
 class RequestReplayer {
   final LinkedHashMap<String, Dio> _clients = LinkedHashMap();
 
@@ -21,10 +23,14 @@ class RequestReplayer {
     return dio;
   }();
 
+  /// Most remembered request to Dio links; the oldest are forgotten.
   static const int maxRemembered = 10000;
 
+  /// Most original requests kept for exact replays.
   static const int maxOriginals = 100;
 
+  /// Remembers that the request went through a Dio, its original options and
+  /// the Dio's name.
   void register(
     String requestId,
     Dio dio, {
@@ -43,6 +49,7 @@ class RequestReplayer {
     }
   }
 
+  /// Why the request can't be replayed faithfully, or null when it can.
   String? unavailableReason(RequestDetailEntity request) {
     if (_originals.containsKey(request.id)) return null;
     if (request.hasFileUpload) return "the file upload wasn't captured";
@@ -79,6 +86,8 @@ class RequestReplayer {
     onReceiveProgress: (_, _) {},
   );
 
+  /// Sends the request again; any status or error is captured like a normal
+  /// request.
   Future<void> replay(RequestDetailEntity request) async {
     if (unavailableReason(request) case final reason?) {
       debugPrint("DioLens: can't replay ${request.uri}: $reason");

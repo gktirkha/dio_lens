@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../dio_lens_theme.dart';
 
+/// The light Dio Lens theme.
 const DioLensTheme dioLensLightTheme = DioLensTheme(
   brightness: Brightness.light,
   background: Color(0xFFF3F4F7),

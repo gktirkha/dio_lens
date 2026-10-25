@@ -9,7 +9,10 @@ import '../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../settings/domain/enums/dio_lens_notification_position.dart';
 import 'widgets/request_finished_banner.dart';
 
+/// Shows the request-finished banner over the host app, in the overlay of the
+/// host's navigator. One banner at a time.
 class RequestBannerPresenter {
+  /// Creates the presenter.
   RequestBannerPresenter({
     required this._navigatorKey,
     required this._themeController,
@@ -23,6 +26,8 @@ class RequestBannerPresenter {
   OverlayEntry? _entry;
   GlobalKey<_AnimatedBannerState>? _bannerKey;
 
+  /// Shows the banner for request for duration at position; skipped while the
+  /// navigator is not mounted.
   void show(
     RequestDetailEntity request, {
     required Duration duration,
@@ -67,6 +72,7 @@ class RequestBannerPresenter {
     overlay.insert(entry);
   }
 
+  /// Hides the current banner, if any.
   void dismiss() => _bannerKey?.currentState?.close();
 
   void _remove() {

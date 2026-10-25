@@ -8,15 +8,20 @@ import '../../domain/entities/request_detail_entity.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
+/// Overview tab: URL parts, status, timing, sizes, query params and the cURL
+/// command.
 class OverviewTab extends StatelessWidget {
+  /// Creates the tab.
   const OverviewTab({
     super.key,
     required this.request,
     this.settings = const DioLensSettings(),
   });
 
+  /// The request shown.
   final RequestDetailEntity request;
 
+  /// Decides which query params are masked.
   final DioLensSettings settings;
 
   @override

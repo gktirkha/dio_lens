@@ -16,10 +16,14 @@ Object? _readMaxBodyBytes(Map<dynamic, dynamic> json, String key) =>
 int? _maxBodyBytesFromJson(Object? value) =>
     value == _unlimitedBodyBytes ? null : (value as num?)?.toInt();
 
+/// User-adjustable Dio Lens settings, persisted through `DioLensStorage`.
+/// Values passed to `DioLens.init` are only the starting point: once the user
+/// changes something in the settings screen, the stored copy wins.
 @freezed
 abstract class DioLensSettings with _$DioLensSettings {
   const DioLensSettings._();
 
+  /// Creates settings; every value has a default.
   @Assert(
     'maxRequests >= DioLensSettings.minRequests && '
         'maxRequests <= DioLensSettings.maxRequestsLimit',
@@ -74,9 +78,11 @@ abstract class DioLensSettings with _$DioLensSettings {
     @JsonKey(name: 'theme_mode') @Default(ThemeMode.dark) ThemeMode themeMode,
   }) = _DioLensSettings;
 
+  /// Reads settings stored by `toJson`.
   factory DioLensSettings.fromJson(Map<String, dynamic> json) =>
       _$DioLensSettingsFromJson(json);
 
+  /// Header names masked by default.
   static const List<String> defaultRedactedHeaders = [
     'authorization',
     'cookie',
@@ -84,15 +90,18 @@ abstract class DioLensSettings with _$DioLensSettings {
     'x-api-key',
   ];
 
+  /// Query parameter names masked by default.
   static const List<String> defaultRedactedQueryParams = [
     'token',
     'apikey',
     'password',
   ];
 
+  /// Whether the header [name] is masked, case-insensitively.
   bool isHeaderRedacted(String name) =>
       redactHeaders && _matches(redactedHeaders, name);
 
+  /// Whether the query parameter [name] is masked, case-insensitively.
   bool isQueryParamRedacted(String name) =>
       redactQuery && _matches(redactedQueryParams, name);
 
@@ -101,13 +110,21 @@ abstract class DioLensSettings with _$DioLensSettings {
     return keys.any((key) => key.toLowerCase() == lower);
   }
 
+  /// Default largest body kept: 1 MB.
   static const int defaultMaxBodyBytes = 1024 * 1024;
 
+  /// Lowest allowed max requests.
   static const int minRequests = 10;
+
+  /// Highest allowed max requests.
   static const int maxRequestsLimit = 10000;
 
+  /// Quick picks offered next to the max requests input.
   static const List<int> maxRequestsPresets = [100, 200, 500, 1000];
 
+  /// Shortest allowed banner duration.
   static const Duration minNotificationDuration = Duration(seconds: 2);
+
+  /// Longest allowed banner duration.
   static const Duration maxNotificationDuration = Duration(seconds: 15);
 }

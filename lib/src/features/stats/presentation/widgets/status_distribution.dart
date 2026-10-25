@@ -7,14 +7,19 @@ import '../../../../core/enums/request_status_class.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/status_share_entity.dart';
 
+/// Donut chart and legend of requests per status class.
 class StatusDistribution extends StatelessWidget {
+  /// Creates the chart.
   const StatusDistribution({
     super.key,
     required this.shares,
     required this.total,
   });
 
+  /// Requests per status class.
   final List<StatusShareEntity> shares;
+
+  /// Total request count, shown under the legend.
   final int total;
 
   @override

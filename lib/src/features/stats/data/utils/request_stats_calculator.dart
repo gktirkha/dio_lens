@@ -7,7 +7,9 @@ import '../../domain/entities/named_count_entity.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../../domain/entities/status_share_entity.dart';
 
+/// Turns captured requests into stats. Pure and synchronous.
 abstract final class RequestStatsCalculator {
+  /// Display order of the status distribution.
   static const List<RequestStatusClass> distributionOrder = [
     RequestStatusClass.success,
     RequestStatusClass.redirect,
@@ -18,6 +20,7 @@ abstract final class RequestStatsCalculator {
     RequestStatusClass.informational,
   ];
 
+  /// The stats of [requests].
   static RequestStatsEntity calculate(List<RequestListItemEntity> requests) {
     if (requests.isEmpty) return RequestStatsEntity.empty;
 

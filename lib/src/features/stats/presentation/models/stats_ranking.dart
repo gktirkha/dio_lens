@@ -2,20 +2,32 @@ import '../../../../core/utils/format_utils.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../widgets/ranked_list.dart';
 
+/// The ranked lists of the stats page; each opens a full-list page.
 enum StatsRanking {
+  /// Endpoints by average latency.
   slowestEndpoints('Slowest endpoints'),
+
+  /// Endpoints by largest response.
   largestResponses('Largest responses'),
+
+  /// Endpoints by number of calls.
   mostCalledEndpoints('Most-called endpoints'),
+
+  /// Hosts by number of calls.
   topHosts('Top hosts');
 
   const StatsRanking(this.title);
 
+  /// Panel title.
   final String title;
 
+  /// Rows shown on the stats page; the full list is one tap away.
   static const int previewCount = 5;
 
+  /// Average latency above this is highlighted.
   static const Duration slowThreshold = Duration(milliseconds: 400);
 
+  /// Every row of this ranking, highest first.
   List<RankedItem> items(RequestStatsEntity stats) {
     switch (this) {
       case StatsRanking.slowestEndpoints:

@@ -6,7 +6,10 @@ import '../../../../core/domain/unit.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../../domain/use_cases/watch_stats_use_case.dart';
 
+/// State of the stats page. Lazy: nothing is watched until the first listener
+/// attaches.
 class StatsController extends ChangeNotifier {
+  /// Creates the controller.
   StatsController({required this._watchStats});
 
   final WatchStatsUseCase _watchStats;
@@ -14,10 +17,13 @@ class StatsController extends ChangeNotifier {
   StreamSubscription<RequestStatsEntity>? _subscription;
 
   RequestStatsEntity _stats = RequestStatsEntity.empty;
+
+  /// The current stats.
   RequestStatsEntity get stats => _stats;
 
   bool _loading = true;
 
+  /// True until the first result arrives.
   bool get isLoading => _loading;
 
   @override
@@ -26,6 +32,7 @@ class StatsController extends ChangeNotifier {
     if (_subscription == null) _subscribe();
   }
 
+  /// Recomputes the stats; completes once fresh data arrived.
   Future<void> refresh() => _subscribe();
 
   Future<void> _subscribe() {

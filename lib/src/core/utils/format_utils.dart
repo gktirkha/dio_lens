@@ -1,4 +1,6 @@
+/// Formatting shared by the Dio Lens screens.
 abstract final class FormatUtils {
+  /// A duration for display, e.g. `96 ms` or `1.24 s`; `—` when null.
   static String duration(Duration? value) {
     if (value == null) return '—';
     final ms = value.inMilliseconds;
@@ -6,6 +8,7 @@ abstract final class FormatUtils {
     return '$ms ms';
   }
 
+  /// A byte count for display, e.g. `512 B`, `1.8 KB`; `—` when null.
   static String bytes(int? value) {
     if (value == null) return '—';
     if (value < 1024) return '$value B';
@@ -13,6 +16,8 @@ abstract final class FormatUtils {
     return '${(value / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
+  /// A MIME type as a short file-style label, e.g. `.json`, `.jpg`, `form`; `—`
+  /// when null or empty.
   static String shortContentType(String? mime) {
     if (mime == null || mime.trim().isEmpty) return '—';
     final type = mime.split(';').first.trim().toLowerCase();
@@ -46,12 +51,14 @@ abstract final class FormatUtils {
     'video/quicktime': '.mov',
   };
 
+  /// A wall-clock time for display, e.g. `14:02:11`.
   static String clockTime(DateTime time) {
     String two(int n) => n.toString().padLeft(2, '0');
     final ms = time.millisecond.toString().padLeft(3, '0');
     return '${two(time.hour)}:${two(time.minute)}:${two(time.second)}.$ms';
   }
 
+  /// A relative time for display, e.g. `Just now`, `5 min ago`.
   static String relativeTime(DateTime time, {DateTime? now}) {
     final current = now ?? DateTime.now();
     final diff = current.difference(time);

@@ -11,7 +11,10 @@ import '../widgets/request_home_header.dart';
 import '../widgets/request_list_tile.dart';
 import '../widgets/status_filter_bar.dart';
 
+/// Request list of the Dio Lens home: header with search and filters, status
+/// chips and requests grouped by time.
 class RequestHomePage extends StatefulWidget {
+  /// Creates the page.
   const RequestHomePage({
     super.key,
     required this.controller,
@@ -21,13 +24,22 @@ class RequestHomePage extends StatefulWidget {
     this.onMinimize,
   });
 
+  /// Owned by the caller, which also disposes it.
   final RequestHomeController controller;
 
+  /// Opens a request's detail page.
   final ValueChanged<RequestListItemEntity>? onRequestTap;
+
+  /// Opens the settings sheet.
   final VoidCallback? onOpenSettings;
+
+  /// Exports in the chosen format; null disables export.
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  /// Closes Dio Lens.
   final VoidCallback? onMinimize;
 
+  /// Requests newer than this are grouped as "Just now".
   static const Duration recentWindow = Duration(minutes: 5);
 
   @override

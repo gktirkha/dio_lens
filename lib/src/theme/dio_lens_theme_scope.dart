@@ -4,7 +4,10 @@ import 'dio_lens_theme_mode_controller.dart';
 import 'theme_data/dio_lens_dark_theme.dart';
 import 'theme_data/dio_lens_light_theme.dart';
 
+/// Applies the Dio Lens theme to its subtree without touching the host app's
+/// theme.
 class DioLensThemeScope extends StatelessWidget {
+  /// Creates the scope.
   const DioLensThemeScope({
     super.key,
     this.controller,
@@ -12,18 +15,23 @@ class DioLensThemeScope extends StatelessWidget {
     required this.child,
   });
 
+  /// Shared theme mode; takes precedence over [mode].
   final DioLensThemeModeController? controller;
 
+  /// Fixed mode used when there is no [controller].
   final ThemeMode mode;
 
+  /// The themed subtree.
   final Widget child;
 
   static final ThemeData _dark = dioLensDarkTheme.toFlutterTheme();
   static final ThemeData _light = dioLensLightTheme.toFlutterTheme();
 
+  /// The controller of the nearest scope, if it has one.
   static DioLensThemeModeController? controllerOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_ModeScope>()?.controller;
 
+  /// The mode of the nearest scope.
   static ThemeMode modeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_ModeScope>()?.mode ??
       ThemeMode.dark;

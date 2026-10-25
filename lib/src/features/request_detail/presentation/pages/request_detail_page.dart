@@ -11,7 +11,10 @@ import '../widgets/request_detail_header.dart';
 import '../widgets/request_tab.dart';
 import '../widgets/response_tab.dart';
 
+/// Detail page of one request: header with actions, and Overview, Request and
+/// Response tabs.
 class RequestDetailPage extends StatefulWidget {
+  /// Creates the detail page.
   const RequestDetailPage({
     super.key,
     required this.createController,
@@ -21,13 +24,21 @@ class RequestDetailPage extends StatefulWidget {
     this.onOpenHome,
   });
 
+  /// Creates the page's controller; the page disposes it.
   final RequestDetailController Function() createController;
 
+  /// Set when the page was opened on its own (from the banner): the header then
+  /// offers a way to the Dio Lens home.
   final VoidCallback? onOpenHome;
 
+  /// Receives the request to share; without it, the report is copied to the
+  /// clipboard.
   final DioLensShareCallback? onShare;
+
+  /// Re-sends the request.
   final ValueChanged<RequestDetailEntity>? onReplay;
 
+  /// Why the request can't be replayed, or null when it can.
   final String? Function(RequestDetailEntity request)? replayUnavailableReason;
 
   @override

@@ -15,7 +15,10 @@ import '../widgets/stats_header.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/status_distribution.dart';
 
+/// Stats of the captured requests: summary cards, status distribution and
+/// ranked lists.
 class StatsPage extends StatelessWidget {
+  /// Creates the page.
   const StatsPage({
     super.key,
     required this.controller,
@@ -25,11 +28,19 @@ class StatsPage extends StatelessWidget {
     this.onMinimize,
   });
 
+  /// Owned by the caller, which also disposes it.
   final StatsController controller;
 
+  /// Opens the settings sheet.
   final VoidCallback? onOpenSettings;
+
+  /// Exports in the chosen format; null disables export.
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  /// Removes every request.
   final VoidCallback? onClearAll;
+
+  /// Closes Dio Lens.
   final VoidCallback? onMinimize;
 
   @override

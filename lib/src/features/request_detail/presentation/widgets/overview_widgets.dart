@@ -4,9 +4,12 @@ import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Small upper-case label above an overview field.
 class OverviewLabel extends StatelessWidget {
+  /// Creates the label.
   const OverviewLabel(this.text, {super.key});
 
+  /// The label text.
   final String text;
 
   @override
@@ -22,7 +25,9 @@ class OverviewLabel extends StatelessWidget {
   }
 }
 
+/// One overview field: label and value, copyable on tap.
 class OverviewField extends StatelessWidget {
+  /// Creates the field.
   const OverviewField({
     super.key,
     required this.label,
@@ -31,10 +36,16 @@ class OverviewField extends StatelessWidget {
     this.valueColor,
   });
 
+  /// Field label.
   final String label;
 
+  /// Field value; `—` when null.
   final String? value;
+
+  /// Whether tapping copies the value.
   final bool copyable;
+
+  /// Optional color of the value.
   final Color? valueColor;
 
   @override
@@ -100,9 +111,12 @@ class OverviewField extends StatelessWidget {
   }
 }
 
+/// The cURL command with a copy button.
 class CurlSection extends StatelessWidget {
+  /// Creates the section.
   const CurlSection({super.key, required this.command});
 
+  /// The cURL command.
   final String command;
 
   @override

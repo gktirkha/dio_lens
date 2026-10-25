@@ -4,6 +4,7 @@ import '../../theme/dio_lens_theme.dart';
 import '../enums/export_format.dart';
 import 'dio_lens_icon_button.dart';
 
+/// Style of Dio Lens popup menus, at least [minWidth] wide.
 MenuStyle dioLensMenuStyle(DioLensTheme theme, {double minWidth = 198}) {
   return MenuStyle(
     backgroundColor: WidgetStatePropertyAll(theme.surface2),
@@ -22,6 +23,7 @@ MenuStyle dioLensMenuStyle(DioLensTheme theme, {double minWidth = 198}) {
   );
 }
 
+/// Style of a Dio Lens menu item, optionally tinted [foreground].
 ButtonStyle dioLensMenuItemStyle(BuildContext context, {Color? foreground}) {
   final theme = DioLensTheme.of(context);
   final textStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
@@ -36,7 +38,9 @@ ButtonStyle dioLensMenuItemStyle(BuildContext context, {Color? foreground}) {
   );
 }
 
+/// Thin line between groups of menu items.
 class DioLensMenuDivider extends StatelessWidget {
+  /// Creates a menu divider.
   const DioLensMenuDivider({super.key});
 
   @override
@@ -48,7 +52,10 @@ class DioLensMenuDivider extends StatelessWidget {
   }
 }
 
+/// The "More options" menu of the Dio Lens headers: settings, export, clear and
+/// minimize.
 class DioLensOverflowMenu extends StatelessWidget {
+  /// Creates the overflow menu.
   const DioLensOverflowMenu({
     super.key,
     this.onOpenSettings,
@@ -57,9 +64,16 @@ class DioLensOverflowMenu extends StatelessWidget {
     this.onMinimize,
   });
 
+  /// Opens the settings sheet; null disables the item.
   final VoidCallback? onOpenSettings;
+
+  /// Exports in the chosen format; null disables the export items.
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  /// Removes every captured request; null disables the item.
   final VoidCallback? onClearAll;
+
+  /// Closes Dio Lens; null disables the item.
   final VoidCallback? onMinimize;
 
   @override

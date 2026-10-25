@@ -7,13 +7,19 @@ import '../../features/request_detail/domain/entities/request_detail_entity.dart
 import 'dio_lens_storage.dart';
 import 'stored_requests_parser.dart';
 
+/// Default [DioLensStorage], backed by `shared_preferences`. Each request is
+/// stored as a full record and a summary entry, plus one entry listing the ids.
+/// JSON encoding, decoding and parsing run in background isolates.
 class SharedPreferencesDioLensStorage extends DioLensStorage
     implements ParsingDioLensStorage {
+  /// Creates the storage, optionally over [preferences] and with a custom
+  /// [keyPrefix].
   SharedPreferencesDioLensStorage({
     SharedPreferencesAsync? preferences,
     this.keyPrefix = 'dio_lens',
   }) : _injectedPreferences = preferences;
 
+  /// Prefix of every key written, so entries never clash with the app's.
   final String keyPrefix;
 
   final SharedPreferencesAsync? _injectedPreferences;

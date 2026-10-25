@@ -15,7 +15,10 @@ import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../../stats/presentation/controllers/stats_controller.dart';
 import '../../../stats/presentation/pages/stats_page.dart';
 
+/// The Dio Lens home: Requests and Stats tabs over a bottom bar. Stats is built
+/// on first visit, then kept alive.
 class DioLensHomePage extends StatefulWidget {
+  /// Creates the home page.
   const DioLensHomePage({
     super.key,
     required this.dependencies,
@@ -25,17 +28,23 @@ class DioLensHomePage extends StatefulWidget {
     this.onShare,
   });
 
+  /// Creates the controllers of the tabs and pages.
   final DioLensDependencies dependencies;
 
+  /// Re-sends a request from its detail page.
   final ValueChanged<RequestDetailEntity>? onReplay;
 
+  /// Why a request can't be replayed, or null when it can.
   final String? Function(RequestDetailEntity request)? replayUnavailableReason;
 
+  /// Receives requests shared from detail pages.
   final DioLensShareCallback? onShare;
 
+  /// Builds an export and hands it to the app; null disables export.
   final Future<DioLensExportFile> Function(DioLensExportFormat format)?
   onExport;
 
+  /// The bottom bar destinations.
   static const List<DioLensNavItem> tabs = [
     DioLensNavItem(icon: Icons.bolt_rounded, label: 'Requests'),
     DioLensNavItem(icon: Icons.bar_chart_rounded, label: 'Stats'),

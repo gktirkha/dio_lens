@@ -4,7 +4,9 @@ import '../../../../core/storage/dio_lens_store.dart';
 import '../../domain/entities/dio_lens_settings.dart';
 import 'settings_data_source.dart';
 
+/// [SettingsDataSource] over the stored settings.
 class SettingsLocalDataSource implements SettingsDataSource {
+  /// Creates the data source over the store.
   SettingsLocalDataSource(this._store);
 
   final DioLensStore _store;

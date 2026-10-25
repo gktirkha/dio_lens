@@ -7,10 +7,13 @@ import '../../../../core/enums/request_status_class.dart';
 part 'request_list_item_entity.freezed.dart';
 part 'request_list_item_entity.g.dart';
 
+/// One row of the request list: the summary of a captured request, without
+/// headers or bodies.
 @freezed
 abstract class RequestListItemEntity with _$RequestListItemEntity {
   const RequestListItemEntity._();
 
+  /// Creates a list row.
   const factory RequestListItemEntity({
     @JsonKey(name: 'id') required String id,
 
@@ -32,15 +35,20 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
     @JsonKey(name: 'response_content_type') String? responseContentType,
   }) = _RequestListItemEntity;
 
+  /// Reads a row stored by `toJson`.
   factory RequestListItemEntity.fromJson(Map<String, dynamic> json) =>
       _$RequestListItemEntityFromJson(json);
 
+  /// Host of [uri].
   String get host => uri.host;
 
+  /// Path of [uri]; `/` when empty.
   String get path => uri.path.isEmpty ? '/' : uri.path;
 
+  /// Query string without the leading `?`; null when there is none.
   String? get query => uri.hasQuery && uri.query.isNotEmpty ? uri.query : null;
 
+  /// Category used for badges, filters and stats.
   RequestStatusClass get statusClass =>
       RequestStatusClass.resolve(state, statusCode);
 }

@@ -5,7 +5,11 @@ import '../core/runtime/dio_lens_runtime.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'request_capture.dart';
 
+/// Records every request made through the Dio it is added to, stores it and
+/// shows the request-finished banner. Add it last; pass the Dio so Replay can
+/// re-send through it, and a name to tell Dios with the same base URL apart.
 class DioLensInterceptor extends Interceptor {
+  /// Creates the interceptor for an optional Dio and name.
   DioLensInterceptor({this._dio, this._name});
 
   final Dio? _dio;

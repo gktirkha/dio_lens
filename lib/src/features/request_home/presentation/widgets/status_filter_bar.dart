@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_status_filter.dart';
 
+/// Row of status filter chips.
 class StatusFilterBar extends StatelessWidget {
+  /// Creates the bar.
   const StatusFilterBar({
     super.key,
     required this.selected,
     required this.onSelected,
   });
 
+  /// The selected chip.
   final RequestStatusFilter selected;
+
+  /// Called when a chip is picked.
   final ValueChanged<RequestStatusFilter> onSelected;
 
   @override

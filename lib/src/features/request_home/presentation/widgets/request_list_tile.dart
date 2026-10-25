@@ -8,7 +8,10 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 
+/// One row of the request list: method, status, path, host and timing. Swipe to
+/// delete.
 class RequestListTile extends StatelessWidget {
+  /// Creates the row.
   const RequestListTile({
     super.key,
     required this.item,
@@ -16,8 +19,13 @@ class RequestListTile extends StatelessWidget {
     this.onDelete,
   });
 
+  /// The request shown.
   final RequestListItemEntity item;
+
+  /// Opens the request's detail page.
   final VoidCallback? onTap;
+
+  /// Deletes the request; null disables swipe to delete.
   final VoidCallback? onDelete;
 
   @override

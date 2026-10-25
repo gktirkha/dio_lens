@@ -5,7 +5,9 @@ import '../../../../core/widgets/dio_lens_icon_button.dart';
 import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Header of the stats page: title, theme toggle and the overflow menu.
 class StatsHeader extends StatelessWidget {
+  /// Creates the header.
   const StatsHeader({
     super.key,
     this.onOpenSettings,
@@ -14,9 +16,16 @@ class StatsHeader extends StatelessWidget {
     this.onMinimize,
   });
 
+  /// Opens the settings sheet.
   final VoidCallback? onOpenSettings;
+
+  /// Exports in the chosen format; null disables export.
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  /// Removes every request.
   final VoidCallback? onClearAll;
+
+  /// Closes Dio Lens.
   final VoidCallback? onMinimize;
 
   @override

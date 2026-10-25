@@ -4,7 +4,9 @@ import '../../theme/dio_lens_theme.dart';
 import '../../theme/dio_lens_theme_mode_controller.dart';
 import '../../theme/dio_lens_theme_scope.dart';
 
+/// Round icon button used in Dio Lens headers.
 class DioLensIconButton extends StatelessWidget {
+  /// Creates an icon button.
   const DioLensIconButton({
     super.key,
     required this.icon,
@@ -14,12 +16,19 @@ class DioLensIconButton extends StatelessWidget {
     this.showDot = false,
   });
 
+  /// The icon shown.
   final IconData icon;
+
+  /// Tooltip and screen reader label.
   final String tooltip;
+
+  /// Called on tap; null disables the button.
   final VoidCallback? onPressed;
 
+  /// Highlights the button, e.g. while a filter is active.
   final bool active;
 
+  /// Shows a small dot, e.g. when filters are applied.
   final bool showDot;
 
   @override
@@ -45,7 +54,10 @@ class DioLensIconButton extends StatelessWidget {
   }
 }
 
+/// Button cycling the Dio Lens theme mode (light, dark, system). Hidden when
+/// the surrounding theme scope has no controller.
 class DioLensThemeToggleButton extends StatelessWidget {
+  /// Creates the theme toggle.
   const DioLensThemeToggleButton({super.key});
 
   static String _label(ThemeMode mode) => switch (mode) {

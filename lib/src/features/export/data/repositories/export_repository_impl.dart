@@ -9,7 +9,9 @@ import '../../domain/repositories/export_repository.dart';
 import '../data_sources/export_data_source.dart';
 import '../utils/export_builder.dart';
 
+/// Builds exports in a background isolate.
 class ExportRepositoryImpl implements ExportRepository {
+  /// Creates the repository over [ExportDataSource].
   const ExportRepositoryImpl(this._dataSource);
 
   final ExportDataSource _dataSource;

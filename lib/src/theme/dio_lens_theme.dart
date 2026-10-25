@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+/// Colors, radii and type of the Dio Lens UI, as a theme extension.
 @immutable
 class DioLensTheme extends ThemeExtension<DioLensTheme> {
+  /// Creates a theme.
   const DioLensTheme({
     required this.brightness,
     required this.background,
@@ -50,58 +52,136 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     this.radiusLarge = 20,
   });
 
+  /// Light or dark.
   final Brightness brightness;
 
+  /// Page background.
   final Color background;
+
+  /// Card surface.
   final Color surface;
+
+  /// Raised surface, e.g. inputs and chips.
   final Color surface2;
+
+  /// Most raised surface, e.g. tracks.
   final Color surface3;
+
+  /// Default border.
   final Color border;
+
+  /// Stronger border, e.g. focused or emphasized.
   final Color borderStrong;
 
+  /// Primary text.
   final Color text;
+
+  /// Secondary text.
   final Color textMuted;
+
+  /// Tertiary text, e.g. captions.
   final Color textFaint;
 
+  /// Accent, e.g. selected states and primary buttons.
   final Color accent;
+
+  /// Stronger accent.
   final Color accentStrong;
+
+  /// Content on [accent].
   final Color onAccent;
 
+  /// 2xx color.
   final Color success;
+
+  /// 2xx background.
   final Color successBackground;
+
+  /// 3xx color.
   final Color redirect;
+
+  /// 3xx background.
   final Color redirectBackground;
+
+  /// 4xx color.
   final Color warning;
+
+  /// 4xx background.
   final Color warningBackground;
+
+  /// 5xx and error color.
   final Color danger;
+
+  /// 5xx and error background.
   final Color dangerBackground;
+
+  /// Pending color.
   final Color pending;
+
+  /// Pending background.
   final Color pendingBackground;
 
+  /// Requests that failed without a response.
   final Color networkError;
 
+  /// GET color.
   final Color methodGet;
+
+  /// GET background.
   final Color methodGetBackground;
+
+  /// POST color.
   final Color methodPost;
+
+  /// POST background.
   final Color methodPostBackground;
+
+  /// PUT color.
   final Color methodPut;
+
+  /// PUT background.
   final Color methodPutBackground;
+
+  /// PATCH color.
   final Color methodPatch;
+
+  /// PATCH background.
   final Color methodPatchBackground;
+
+  /// DELETE color.
   final Color methodDelete;
+
+  /// DELETE background.
   final Color methodDeleteBackground;
+
+  /// QUERY color.
   final Color methodQuery;
+
+  /// QUERY background.
   final Color methodQueryBackground;
 
+  /// JSON keys.
   final Color jsonKey;
+
+  /// JSON strings.
   final Color jsonString;
+
+  /// JSON numbers.
   final Color jsonNumber;
+
+  /// JSON booleans and null.
   final Color jsonBoolNull;
+
+  /// JSON brackets and punctuation.
   final Color jsonPunctuation;
 
+  /// Shadow of floating elements.
   final BoxShadow shadow;
 
+  /// Monospace font family: the platform's own.
   static const String monoFontFamily = 'monospace';
+
+  /// Monospace fallbacks when [monoFontFamily] is missing.
   static const List<String> monoFontFamilyFallback = [
     'Menlo',
     'SF Mono',
@@ -110,22 +190,30 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     'DejaVu Sans Mono',
   ];
 
+  /// Small corner radius.
   final double radiusSmall;
+
+  /// Medium corner radius.
   final double radiusMedium;
+
+  /// Large corner radius.
   final double radiusLarge;
 
+  /// The Dio Lens theme of [context]; dark when none is installed.
   static DioLensTheme of(BuildContext context) {
     final theme = Theme.of(context).extension<DioLensTheme>();
     assert(theme != null, 'No DioLensThemeScope found above this widget.');
     return theme!;
   }
 
+  /// Monospace text style for technical text.
   TextStyle get monoTextStyle => TextStyle(
     fontFamily: monoFontFamily,
     fontFamilyFallback: monoFontFamilyFallback,
     color: text,
   );
 
+  /// A Flutter theme built from this one, applied inside Dio Lens only.
   ThemeData toFlutterTheme() {
     final colorScheme = ColorScheme(
       brightness: brightness,

@@ -22,9 +22,13 @@ import '../enums/export_format.dart';
 import '../storage/dio_lens_storage.dart';
 import '../storage/dio_lens_store.dart';
 
+/// Receives an export built by Dio Lens; the app decides what to do with it
+/// (save, share, upload). Dio Lens never stores the file.
 typedef DioLensExportCallback = FutureOr<void> Function(DioLensExportFile file);
 
+/// Everything one `DioLens.init` sets up. Each part is created on first use.
 class DioLensRuntime {
+  /// Creates the runtime for one `DioLens.init` call.
   DioLensRuntime({
     required this.navigatorKey,
     required this.enabled,
@@ -34,24 +38,32 @@ class DioLensRuntime {
     this.onShare,
   }) : _storageFactory = storage;
 
+  /// The app's share handler; null copies the report to the clipboard.
   final DioLensShareCallback? onShare;
 
+  /// The app's export handler; null disables export in the UI.
   final DioLensExportCallback? onExport;
 
+  /// The runtime of the last `DioLens.init`; null before it.
   static DioLensRuntime? current;
 
+  /// The host app's navigator: Dio Lens pages, banners and the bubble are shown
+  /// through it.
   final GlobalKey<NavigatorState> navigatorKey;
 
+  /// Whether requests are recorded (from the `DioLensMode`).
   final bool enabled;
 
   final DioLensSettings _initialSettings;
   final DioLensStorage Function() _storageFactory;
 
+  /// Captured requests and settings, in memory and in storage.
   late final DioLensStore store = DioLensStore(
     storage: _storageFactory,
     initialSettings: _initialSettings,
   );
 
+  /// Wires the data sources, repositories and use cases of every feature.
   late final DioLensDependencies dependencies = DioLensDependencies(
     requestHomeDataSource: () => RequestHomeLocalDataSource(store),
     statsDataSource: () => StatsLocalDataSource(store),
@@ -60,6 +72,8 @@ class DioLensRuntime {
     exportDataSource: () => ExportLocalDataSource(store),
   );
 
+  /// Theme mode shared by every Dio Lens page, kept in sync with the theme mode
+  /// setting both ways.
   late final DioLensThemeModeController themeController = () {
     final controller = DioLensThemeModeController(
       store.settings.value.themeMode,
@@ -76,14 +90,17 @@ class DioLensRuntime {
     return controller;
   }();
 
+  /// Shows the request-finished banner.
   late final RequestBannerPresenter banner = RequestBannerPresenter(
     navigatorKey: navigatorKey,
     themeController: themeController,
     onView: openRequest,
   );
 
+  /// Re-sends captured requests (the detail page's Replay).
   late final RequestReplayer replayer = RequestReplayer();
 
+  /// Shows the floating bubble that opens Dio Lens.
   late final BubblePresenter bubble = BubblePresenter(
     navigatorKey: navigatorKey,
     settings: store.settings,
@@ -96,12 +113,16 @@ class DioLensRuntime {
 
   int _sequence = 0;
 
+  /// A new request id, unique within this app run and across runs.
   String nextRequestId() =>
       '${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}'
       '-${(_sequence++).toRadixString(36)}';
 
+  /// Pushes the Dio Lens home page on the host's navigator.
   Future<void> open() => _push(_home);
 
+  /// Pushes the detail page of the request with [id] on its own, as from the
+  /// banner. Its header offers a way to the home page.
   Future<void> openRequest(String id) => _push(
     (_) => RequestDetailPage(
       createController: () => dependencies.createRequestDetailController(id),
@@ -120,9 +141,11 @@ class DioLensRuntime {
     onShare: onShare,
   );
 
+  /// Every stored request in [format], built in memory.
   Future<DioLensExportFile> export(DioLensExportFormat format) =>
       dependencies.exportRequestsUseCase(format);
 
+  /// Builds an export in [format] and hands it to [onExport].
   Future<DioLensExportFile> exportToApp(DioLensExportFormat format) async {
     final file = await export(format);
     await onExport?.call(file);

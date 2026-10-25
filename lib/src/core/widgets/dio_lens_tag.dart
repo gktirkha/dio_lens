@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../theme/dio_lens_theme.dart';
 
+/// Small rounded label, the base of method chips and status badges.
 class DioLensTag extends StatelessWidget {
+  /// Creates a tag.
   const DioLensTag({
     super.key,
     required this.label,
@@ -14,14 +16,25 @@ class DioLensTag extends StatelessWidget {
     this.letterSpacing,
   });
 
+  /// The text shown.
   final String label;
+
+  /// Text and icon color.
   final Color foreground;
+
+  /// Fill color.
   final Color background;
 
+  /// Optional widget before the label, e.g. a spinner.
   final Widget? leading;
 
+  /// Label font size.
   final double fontSize;
+
+  /// Label font weight.
   final FontWeight fontWeight;
+
+  /// Label letter spacing.
   final double? letterSpacing;
 
   @override

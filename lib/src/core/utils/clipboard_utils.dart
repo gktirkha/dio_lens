@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Copies [text] and confirms with a short snackbar, e.g. "Host copied".
 Future<void> copyToClipboard(
   BuildContext context,
   String text, {

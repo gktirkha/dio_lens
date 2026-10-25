@@ -1,9 +1,13 @@
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../entities/dio_lens_settings.dart';
 
+/// Masks sensitive values in a captured request before it leaves Dio Lens
+/// (export, share), as the redaction settings say.
 abstract final class RequestRedactor {
+  /// Replaces masked header and query values.
   static const String mask = '[REDACTED]';
 
+  /// The request with redacted headers and query values masked.
   static RequestDetailEntity redact(
     RequestDetailEntity request,
     DioLensSettings settings,

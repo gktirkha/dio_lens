@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
+/// Card grouping one stats section, optionally titled and tappable.
 class StatsPanel extends StatelessWidget {
+  /// Creates the panel.
   const StatsPanel({super.key, this.title, required this.child, this.onTap});
 
+  /// Optional title.
   final String? title;
+
+  /// Panel content.
   final Widget child;
+
+  /// Called on tap; shows a chevron when set.
   final VoidCallback? onTap;
 
   @override
