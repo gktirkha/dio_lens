@@ -43,7 +43,7 @@ class RequestHomeHeader extends StatelessWidget {
   final VoidCallback onMethodsCleared;
 
   final VoidCallback? onOpenSettings;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
   final VoidCallback? onClearAll;
   final VoidCallback? onMinimize;
 

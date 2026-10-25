@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/navigation/dio_lens_navigator.dart';
 import '../../../../core/widgets/dio_lens_bottom_nav.dart';
+import '../../../../theme/dio_lens_theme.dart';
 import '../../../../di/dio_lens_dependencies.dart';
+import '../../../../core/enums/export_format.dart';
+import '../../../export/domain/entities/dio_lens_export_file.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../request_detail/presentation/pages/request_detail_page.dart';
 import '../../../request_home/presentation/controllers/request_home_controller.dart';
@@ -17,12 +20,21 @@ import '../../../stats/presentation/pages/stats_page.dart';
 /// Tabs are lazy: Stats (and its controller) is built on first visit, then
 /// kept alive so switching back keeps its scroll position.
 class DioLensHomePage extends StatefulWidget {
-  const DioLensHomePage({super.key, required this.dependencies, this.onReplay});
+  const DioLensHomePage({
+    super.key,
+    required this.dependencies,
+    this.onReplay,
+    this.onExport,
+  });
 
   final DioLensDependencies dependencies;
 
   /// Re-sends a request from its detail page.
   final ValueChanged<RequestDetailEntity>? onReplay;
+
+  /// Builds an export and hands it to the app; null hides export.
+  final Future<DioLensExportFile> Function(DioLensExportFormat format)?
+  onExport;
 
   static const List<DioLensNavItem> tabs = [
     DioLensNavItem(icon: Icons.bolt_rounded, label: 'Requests'),
@@ -55,48 +67,71 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
   void _openSettings() => showDioLensSettings(
     context,
     createController: widget.dependencies.createSettingsController,
+    onExport: widget.onExport == null ? null : _export,
   );
+
+  Future<void> _export(DioLensExportFormat format) async {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final label = format.extension.toUpperCase();
+    String message;
+    try {
+      final file = await widget.onExport!(format);
+      final count = file.requestCount;
+      message = 'Exported $count request${count == 1 ? '' : 's'} as $label';
+    } catch (error, stack) {
+      debugPrint('DioLens: export failed: $error\n$stack');
+      message = 'Export failed';
+    }
+    messenger
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          duration: const Duration(milliseconds: 1600),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: IndexedStack(
-            index: _tab,
-            children: [
-              RequestHomePage(
-                controller: _homeController,
-                onRequestTap: (item) => pushDioLensPage<void>(
-                  context,
-                  builder: (_) => RequestDetailPage(
-                    createController: () => widget.dependencies
-                        .createRequestDetailController(item.id),
-                    onReplay: widget.onReplay,
-                  ),
-                ),
-                onOpenSettings: _openSettings,
-                onMinimize: _minimize,
+    // A Scaffold, so snackbars (export, copy) have somewhere to show,
+    // above the tab bar.
+    return Scaffold(
+      backgroundColor: DioLensTheme.of(context).background,
+      body: IndexedStack(
+        index: _tab,
+        children: [
+          RequestHomePage(
+            controller: _homeController,
+            onRequestTap: (item) => pushDioLensPage<void>(
+              context,
+              builder: (_) => RequestDetailPage(
+                createController: () =>
+                    widget.dependencies.createRequestDetailController(item.id),
+                onReplay: widget.onReplay,
               ),
-              if (_tab == 1 || _statsController != null)
-                StatsPage(
-                  controller: _stats,
-                  onClearAll: _homeController.clearAll,
-                  onOpenSettings: _openSettings,
-                  onMinimize: _minimize,
-                )
-              else
-                const SizedBox.shrink(),
-            ],
+            ),
+            onOpenSettings: _openSettings,
+            onExport: widget.onExport == null ? null : _export,
+            onMinimize: _minimize,
           ),
-        ),
-        DioLensBottomNav(
-          items: DioLensHomePage.tabs,
-          selectedIndex: _tab,
-          onSelected: (i) => setState(() => _tab = i),
-        ),
-      ],
+          if (_tab == 1 || _statsController != null)
+            StatsPage(
+              controller: _stats,
+              onClearAll: _homeController.clearAll,
+              onOpenSettings: _openSettings,
+              onExport: widget.onExport == null ? null : _export,
+              onMinimize: _minimize,
+            )
+          else
+            const SizedBox.shrink(),
+        ],
+      ),
+      bottomNavigationBar: DioLensBottomNav(
+        items: DioLensHomePage.tabs,
+        selectedIndex: _tab,
+        onSelected: (i) => setState(() => _tab = i),
+      ),
     );
   }
 }

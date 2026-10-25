@@ -16,7 +16,7 @@ class StatsHeader extends StatelessWidget {
   });
 
   final VoidCallback? onOpenSettings;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
   final VoidCallback? onClearAll;
   final VoidCallback? onMinimize;
 

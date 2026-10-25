@@ -17,7 +17,7 @@ import '../widgets/settings_widgets.dart';
 Future<void> showDioLensSettings(
   BuildContext context, {
   required SettingsController Function() createController,
-  ValueChanged<ExportFormat>? onExport,
+  ValueChanged<DioLensExportFormat>? onExport,
 }) {
   final themeController = DioLensThemeScope.controllerOf(context);
   final mode = DioLensThemeScope.modeOf(context);
@@ -50,7 +50,7 @@ class SettingsSheet extends StatefulWidget {
   });
 
   final SettingsController Function() createController;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
 
   @override
   State<SettingsSheet> createState() => _SettingsSheetState();
@@ -181,7 +181,7 @@ class _SettingsBody extends StatelessWidget {
     DioLensSettings Function(DioLensSettings settings) change,
   )
   onChanged;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
 
   static const Map<DioLensRetention, String> _retentionLabels = {
     DioLensRetention.session: 'This session',
@@ -432,8 +432,8 @@ class _SettingsBody extends StatelessWidget {
           children: [
             Row(
               children: [
-                for (final format in ExportFormat.values) ...[
-                  if (format != ExportFormat.values.first)
+                for (final format in DioLensExportFormat.values) ...[
+                  if (format != DioLensExportFormat.values.first)
                     const SizedBox(width: 8),
                   Expanded(
                     child: _ExportButton(
@@ -523,7 +523,7 @@ class _ResetDialog extends StatelessWidget {
 class _ExportButton extends StatelessWidget {
   const _ExportButton({required this.format, required this.onPressed});
 
-  final ExportFormat format;
+  final DioLensExportFormat format;
   final VoidCallback? onPressed;
 
   @override

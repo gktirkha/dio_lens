@@ -1,3 +1,8 @@
+import '../features/export/data/data_sources/export_data_source.dart';
+import '../features/export/data/data_sources/export_mock_data_source.dart';
+import '../features/export/data/repositories/export_repository_impl.dart';
+import '../features/export/domain/repositories/export_repository.dart';
+import '../features/export/domain/use_cases/export_requests_use_case.dart';
 import '../features/request_detail/data/data_sources/request_detail_data_source.dart';
 import '../features/request_detail/data/data_sources/request_detail_mock_data_source.dart';
 import '../features/request_detail/data/repositories/request_detail_repository_impl.dart';
@@ -38,7 +43,9 @@ class DioLensDependencies {
     StatsDataSource Function()? statsDataSource,
     RequestDetailDataSource Function()? requestDetailDataSource,
     SettingsDataSource Function()? settingsDataSource,
+    ExportDataSource Function()? exportDataSource,
   }) : _requestDetailDataSourceFactory = requestDetailDataSource,
+       _exportDataSourceFactory = exportDataSource ?? ExportMockDataSource.new,
        _settingsDataSourceFactory =
            settingsDataSource ?? SettingsMockDataSource.new,
        _requestHomeDataSourceFactory =
@@ -48,6 +55,7 @@ class DioLensDependencies {
   final RequestHomeDataSource Function() _requestHomeDataSourceFactory;
   final StatsDataSource Function() _statsDataSourceFactory;
   final SettingsDataSource Function() _settingsDataSourceFactory;
+  final ExportDataSource Function() _exportDataSourceFactory;
 
   /// Null: derive details from [requestHomeDataSource] (mock).
   final RequestDetailDataSource Function()? _requestDetailDataSourceFactory;
@@ -145,4 +153,15 @@ class DioLensDependencies {
     resetSettings: resetSettingsUseCase,
     watchRequests: watchRequestsUseCase,
   );
+
+  // ---- Export ----
+
+  late final ExportDataSource exportDataSource = _exportDataSourceFactory();
+
+  late final ExportRepository exportRepository = ExportRepositoryImpl(
+    exportDataSource,
+  );
+
+  late final ExportRequestsUseCase exportRequestsUseCase =
+      ExportRequestsUseCase(exportRepository);
 }

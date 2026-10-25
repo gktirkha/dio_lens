@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../di/dio_lens_dependencies.dart';
+import '../../features/export/data/data_sources/export_local_data_source.dart';
+import '../../features/export/domain/entities/dio_lens_export_file.dart';
 import '../../features/bubble/presentation/bubble_presenter.dart';
 import '../../features/home/presentation/pages/dio_lens_home_page.dart';
 import '../../features/notification/presentation/request_banner_presenter.dart';
@@ -13,8 +17,13 @@ import '../../features/stats/data/data_sources/stats_local_data_source.dart';
 import '../../theme/dio_lens_theme_mode_controller.dart';
 import '../../theme/dio_lens_theme_scope.dart';
 import '../../interceptor/request_replayer.dart';
+import '../enums/export_format.dart';
 import '../storage/dio_lens_storage.dart';
 import '../storage/dio_lens_store.dart';
+
+/// Receives an export built by Dio Lens; the app decides what to do with
+/// it (save, share, upload). Dio Lens never stores the file.
+typedef DioLensExportCallback = FutureOr<void> Function(DioLensExportFile file);
 
 /// Everything one `DioLens.init` sets up. Each part is created on first
 /// use, so an app that never makes a request never touches storage.
@@ -24,7 +33,11 @@ class DioLensRuntime {
     required this.enabled,
     required this._initialSettings,
     required DioLensStorage Function() storage,
+    this.onExport,
   }) : _storageFactory = storage;
+
+  /// The app's export handler; null hides export in the UI.
+  final DioLensExportCallback? onExport;
 
   /// The runtime of the last `DioLens.init`; null before it.
   static DioLensRuntime? current;
@@ -48,6 +61,7 @@ class DioLensRuntime {
     statsDataSource: () => StatsLocalDataSource(store),
     requestDetailDataSource: () => RequestDetailLocalDataSource(store),
     settingsDataSource: () => SettingsLocalDataSource(store),
+    exportDataSource: () => ExportLocalDataSource(store),
   );
 
   /// Appearance shared by every Dio Lens page and banner, kept in sync
@@ -109,8 +123,22 @@ class DioLensRuntime {
     ),
   );
 
-  Widget _home(BuildContext context) =>
-      DioLensHomePage(dependencies: dependencies, onReplay: replayer.replay);
+  Widget _home(BuildContext context) => DioLensHomePage(
+    dependencies: dependencies,
+    onReplay: replayer.replay,
+    onExport: onExport == null ? null : exportToApp,
+  );
+
+  /// Every stored request in [format], built in memory.
+  Future<DioLensExportFile> export(DioLensExportFormat format) =>
+      dependencies.exportRequestsUseCase(format);
+
+  /// Builds an export and hands it to [onExport].
+  Future<DioLensExportFile> exportToApp(DioLensExportFormat format) async {
+    final file = await export(format);
+    await onExport?.call(file);
+    return file;
+  }
 
   /// Pushes a Dio Lens page; with [replace], in place of the current one.
   Future<void> _push(WidgetBuilder builder, {bool replace = false}) async {

@@ -66,7 +66,7 @@ class DioLensOverflowMenu extends StatelessWidget {
   });
 
   final VoidCallback? onOpenSettings;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
   final VoidCallback? onClearAll;
   final VoidCallback? onMinimize;
 
@@ -89,7 +89,9 @@ class DioLensOverflowMenu extends StatelessWidget {
         MenuItemButton(
           style: itemStyle,
           leadingIcon: const Icon(Icons.download_rounded),
-          onPressed: onExport == null ? null : () => onExport(ExportFormat.har),
+          onPressed: onExport == null
+              ? null
+              : () => onExport(DioLensExportFormat.har),
           child: const Text('Export as HAR'),
         ),
         MenuItemButton(
@@ -97,7 +99,7 @@ class DioLensOverflowMenu extends StatelessWidget {
           leadingIcon: const Icon(Icons.download_rounded),
           onPressed: onExport == null
               ? null
-              : () => onExport(ExportFormat.json),
+              : () => onExport(DioLensExportFormat.json),
           child: const Text('Export as JSON'),
         ),
         const DioLensMenuDivider(),

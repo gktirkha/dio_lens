@@ -31,7 +31,7 @@ class RequestHomePage extends StatefulWidget {
 
   final ValueChanged<RequestListItemEntity>? onRequestTap;
   final VoidCallback? onOpenSettings;
-  final ValueChanged<ExportFormat>? onExport;
+  final ValueChanged<DioLensExportFormat>? onExport;
   final VoidCallback? onMinimize;
 
   /// Requests started within this window are grouped under "Just now".
