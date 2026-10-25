@@ -839,9 +839,11 @@
 
     /* ---- In-app request-finished notification banner ---- */
     #dl-notif-root {
-      position:absolute; left:0; right:0; top: var(--phone-safe-top, 50px); z-index: 55;
+      position:absolute; left:0; right:0; z-index: 55;
       padding: 8px 12px 0; pointer-events:none;
     }
+    #dl-notif-root.pos-top { top: var(--phone-safe-top, 50px); }
+    #dl-notif-root.pos-bottom { bottom: 82px; }
     .dl-notif {
       pointer-events:auto; display:flex; align-items:flex-start; gap:10px; padding: 12px 12px 12px 14px;
       border-radius: var(--dl-r-lg); background: var(--dl-surface-2); border:1px solid var(--dl-border-strong);
@@ -1129,7 +1131,7 @@
       bodyMode: {},                // key -> 'pretty' | 'raw'
       openJsonPaths: {},           // treeKey -> Set of expanded node paths
       settings: {
-        maxStored: 500, retention: '24h', notification: true, notificationDuration: 4, bubble: true, bubblePosition: 'br', redactHeaders: true, theme: 'dark'
+        maxStored: 500, retention: '24h', notification: true, notificationPosition: 'top', notificationDuration: 4, bubble: true, bubblePosition: 'br', redactHeaders: true, redactHeadersList: ['authorization', 'cookie', 'x-api-key'], redactQuery: true, redactQueryList: ['token', 'apikey', 'password'], theme: 'dark'
       },
       maxStoredDraft: '500',
       lastListFocusId: null,
@@ -1587,19 +1589,19 @@
         (open ? '<div class="dl-section-body">' + bodyHtml + '</div>' : '') +
       '</div>';
     }
-    function headerRows(obj, redactList, title) {
+    function headerRows(obj, redactList, title, isQuery) {
       if (!obj || !Object.keys(obj).length) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">None</p>';
-      redactList = redactList || [];
+      redactList = redactList || (isQuery ? (state.settings.redactQueryList || []) : (state.settings.redactHeadersList || []));
       var keys = Object.keys(obj);
       var allText = keys.map(function (k) {
-        var redact = state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1;
+        var redact = isQuery ? (state.settings.redactQuery && redactList.indexOf(k.toLowerCase()) !== -1) : (state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1);
         return k + ': ' + (redact ? '••••••• (redacted)' : obj[k]);
       }).join('\n');
       return '<div class="dl-ov-box">' +
         '<div class="dl-ov-box-header"><span>' + esc(title || 'Headers') + '</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allText) + '" data-label="' + esc(title || 'Headers') + ' copied">' + icon('copy') + ' Copy all</button></div>' +
         '<div class="dl-ov-kv-list">' +
           keys.map(function (k) {
-            var redact = state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1;
+            var redact = isQuery ? (state.settings.redactQuery && redactList.indexOf(k.toLowerCase()) !== -1) : (state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1);
             var val = redact ? '••••••• (redacted)' : String(obj[k]);
             return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(val) + '" data-label="' + esc(k) + ' copied">' +
               '<span class="dl-ov-kv-key">' + esc(k) + '</span>' +
@@ -1735,14 +1737,14 @@
     }
     function tabRequest(req) {
       return '<div class="dl-tabstack">' +
-        headerRows(req.reqHeaders, ['authorization', 'cookie'], 'Headers') +
-        (Object.keys(req.reqQuery || {}).length ? headerRows(req.reqQuery, [], 'Query params') : '') +
+        headerRows(req.reqHeaders, state.settings.redactHeadersList, 'Headers', false) +
+        (Object.keys(req.reqQuery || {}).length ? headerRows(req.reqQuery, state.settings.redactQueryList, 'Query params', true) : '') +
         '<div class="dl-ov-item"><div class="dl-ov-label">Body</div><div class="dl-body-wrap">' + bodyBlock(req, 'request') + '</div></div>' +
       '</div>';
     }
     function tabResponse(req) {
       return '<div class="dl-tabstack">' +
-        headerRows(req.resHeaders, ['set-cookie'], 'Headers') +
+        headerRows(req.resHeaders, state.settings.redactHeadersList, 'Headers', false) +
         '<div class="dl-ov-item"><div class="dl-ov-label">Body</div><div class="dl-body-wrap">' + bodyBlock(req, 'response') + '</div></div>' +
       '</div>';
     }
@@ -1968,6 +1970,9 @@
         '</div>' +
         '<div class="dl-set-section"><h3>Entry point</h3>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Show notification</div><div class="set-desc">Persistent notification while capturing in the background</div></div>' + switchEl('notification', s.notification) + '</div>' +
+          (s.notification ? '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification position</div><div class="set-desc">Top or bottom of screen</div></div>' +
+            '<div class="dl-theme-group"><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='top') + '" data-action="set-notif-pos" data-pos="top">' + icon('arrowUp') + '<span>Top</span></button><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='bottom') + '" data-action="set-notif-pos" data-pos="bottom">' + icon('arrowDown') + '<span>Bottom</span></button></div>' +
+          '</div>' : '') +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification duration</div><div class="set-desc">How long the finished-request alert stays on screen</div></div>' +
             '<div class="dl-mini-stepper">' +
               '<button type="button" class="dl-mini-step" data-action="notif-duration-step" data-dir="-1" aria-label="Decrease notification duration">−</button>' +
@@ -1986,7 +1991,10 @@
           '</div>' +
         '</div>' +
         '<div class="dl-set-section"><h3>Privacy</h3>' +
-          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive headers</div><div class="set-desc">Mask Authorization and Cookie header values in the UI</div></div>' + switchEl('redactHeaders', s.redactHeaders) + '</div>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive headers</div><div class="set-desc">Mask sensitive header values in the UI</div></div>' + switchEl('redactHeaders', s.redactHeaders) + '</div>' +
+          (s.redactHeaders ? '<div class="dl-set-field"><div class="dl-set-field-label">Header keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="headers" value="' + esc((s.redactHeadersList||[]).join(', ')) + '" placeholder="authorization, cookie, x-api-key"></div>' : '') +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive query params</div><div class="set-desc">Mask sensitive query parameter values</div></div>' + switchEl('redactQuery', s.redactQuery) + '</div>' +
+          (s.redactQuery ? '<div class="dl-set-field"><div class="dl-set-field-label">Query keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="query" value="' + esc((s.redactQueryList||[]).join(', ')) + '" placeholder="token, apikey, password"></div>' : '') +
         '</div>' +
         '<div class="dl-set-section"><h3>Export</h3><div class="dl-export-row">' +
           '<button type="button" class="dl-act-btn" data-action="export" data-format="HAR">' + icon('download') + ' HAR</button>' +
@@ -2258,6 +2266,10 @@
           state.settings.notificationDuration = Math.max(2, Math.min(15, state.settings.notificationDuration + parseInt(btn.dataset.dir, 10)));
           renderSettings();
           break;
+        case 'set-notif-pos':
+          state.settings.notificationPosition = btn.dataset.pos;
+          renderSettings();
+          break;
         case 'set-bubble-position':
           state.settings.bubblePosition = btn.dataset.position;
           renderSettings();
@@ -2267,7 +2279,7 @@
           var key = btn.dataset.key; state.settings[key] = !state.settings[key];
           renderSettings();
           if (key === 'notification' && !state.settings.notification) dismissNotification();
-          if (key === 'redactHeaders' || key === 'bubble') render();
+          if (key === 'redactHeaders' || key === 'redactQuery' || key === 'bubble') render();
           break;
         case 'export':
           toast('Exported session as ' + btn.dataset.format); state.popover = null; render(); break;
@@ -2275,9 +2287,17 @@
     });
 
     app.addEventListener('input', function (e) {
-      if (e.target.matches('[data-role="search-input"]')) {
-        state.search = e.target.value;
-        var scroller = app.querySelector('#dl-scroll');
+        if (e.target.matches('[data-action="set-redact-list"]')) {
+          var t = e.target.dataset.type;
+          var list = e.target.value.split(',').map(function(s){return s.trim().toLowerCase();}).filter(function(s){return s;});
+          if (t === 'headers') state.settings.redactHeadersList = list;
+          else if (t === 'query') state.settings.redactQueryList = list;
+          render();
+          return;
+        }
+        if (e.target.matches('[data-role="search-input"]')) {
+          state.search = e.target.value;
+          var scroller = app.querySelector('#dl-scroll');
         if (scroller) {
           // Replace only the scrollable list body (outerHTML reparses fresh
           // nodes, so swipe listeners must be rebound) — a full render()
