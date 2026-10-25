@@ -30,4 +30,7 @@ abstract class DioLensStorage {
   Future<Map<String, dynamic>?> readSettings();
 
   Future<void> writeSettings(Map<String, dynamic> json);
+
+  /// Removes the stored settings (requests are kept).
+  Future<void> clearSettings();
 }

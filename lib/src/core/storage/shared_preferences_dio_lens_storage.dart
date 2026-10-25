@@ -86,6 +86,9 @@ class SharedPreferencesDioLensStorage extends DioLensStorage {
   Future<void> writeSettings(Map<String, dynamic> json) =>
       _preferences.setString(_settingsKey, jsonEncode(json));
 
+  @override
+  Future<void> clearSettings() => _preferences.remove(_settingsKey);
+
   /// [raw] as a JSON object; null when it is corrupt.
   static Map<String, dynamic>? _decode(String raw) {
     try {

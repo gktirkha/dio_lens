@@ -20,7 +20,11 @@ class DioLensStore {
     required DioLensStorage Function() storage,
     required DioLensSettings initialSettings,
   }) : _storageFactory = storage,
+       _initialSettings = initialSettings,
        _settings = ValueNotifier(initialSettings);
+
+  /// Settings given to `DioLens.init`; what [resetSettings] goes back to.
+  final DioLensSettings _initialSettings;
 
   final DioLensStorage Function() _storageFactory;
   late final DioLensStorage _storage = _storageFactory();
@@ -103,6 +107,15 @@ class DioLensStore {
     if (settings == _settings.value) return;
     _settings.value = settings;
     _enqueue((s) => s.writeSettings(settings.toJson()));
+    if (_trim()) _emit();
+  }
+
+  /// Removes the stored settings and goes back to the initial ones.
+  Future<void> resetSettings() async {
+    await ready;
+    _enqueue((s) => s.clearSettings());
+    if (_settings.value == _initialSettings) return;
+    _settings.value = _initialSettings;
     if (_trim()) _emit();
   }
 

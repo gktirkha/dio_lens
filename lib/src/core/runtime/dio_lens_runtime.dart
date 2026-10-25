@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../di/dio_lens_dependencies.dart';
+import '../../features/bubble/presentation/bubble_presenter.dart';
 import '../../features/home/presentation/pages/dio_lens_home_page.dart';
 import '../../features/notification/presentation/request_banner_presenter.dart';
 import '../../features/request_detail/data/data_sources/request_detail_local_data_source.dart';
@@ -70,6 +71,17 @@ class DioLensRuntime {
     onView: openRequest,
   );
 
+  late final BubblePresenter bubble = BubblePresenter(
+    navigatorKey: navigatorKey,
+    settings: store.settings,
+    hidden: _pagesOpen,
+    onTap: open,
+  );
+
+  /// True while a Dio Lens page is on the navigator.
+  final ValueNotifier<bool> _pagesOpen = ValueNotifier(false);
+  int _openPageCount = 0;
+
   int _sequence = 0;
 
   /// A new id, unique within this app run and across runs.
@@ -98,13 +110,18 @@ class DioLensRuntime {
       return;
     }
     banner.dismiss();
-    await navigator.push<void>(
-      MaterialPageRoute(
-        builder: (_) => DioLensThemeScope(
-          controller: themeController,
-          child: Builder(builder: builder),
+    _pagesOpen.value = ++_openPageCount > 0;
+    try {
+      await navigator.push<void>(
+        MaterialPageRoute(
+          builder: (_) => DioLensThemeScope(
+            controller: themeController,
+            child: Builder(builder: builder),
+          ),
         ),
-      ),
-    );
+      );
+    } finally {
+      _pagesOpen.value = --_openPageCount > 0;
+    }
   }
 }

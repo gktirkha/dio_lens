@@ -38,7 +38,7 @@ abstract final class DioLens {
     DioLensStorage? storage,
     DioLensMode mode = DioLensMode.debug,
   }) {
-    DioLensRuntime.current = DioLensRuntime(
+    final runtime = DioLensRuntime.current = DioLensRuntime(
       navigatorKey: navigatorKey,
       enabled: mode.isEnabled,
       initialSettings: settings,
@@ -46,6 +46,10 @@ abstract final class DioLens {
           ? () => storage
           : SharedPreferencesDioLensStorage.new,
     );
+    if (runtime.enabled) {
+      runtime.store.ready;
+      runtime.bubble.attach();
+    }
   }
 
   /// Whether [init] was called.
@@ -67,6 +71,10 @@ abstract final class DioLens {
   /// Applies and stores [settings].
   static Future<void> updateSettings(DioLensSettings settings) =>
       _runtime.store.updateSettings(settings);
+
+  /// Deletes the stored settings and goes back to the ones passed to
+  /// [init]. Captured requests are kept.
+  static Future<void> resetSettings() => _runtime.store.resetSettings();
 
   /// Removes every captured request.
   static Future<void> clear() => _runtime.store.clear();
