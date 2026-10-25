@@ -21,7 +21,7 @@ abstract final class ShareContentBuilder {
     final out = StringBuffer();
 
     _section(out, 'Overview');
-    _field(out, 'URL', '${r.uri}');
+    _field(out, 'URL', _readableUrl(r.uri));
     _field(out, 'Method', r.method);
     _field(out, 'Status', status);
     _field(out, 'Started', _time(r.startedAt));
@@ -64,6 +64,14 @@ abstract final class ShareContentBuilder {
       subject: '${r.method} ${r.path} · $status',
       text: out.toString().trimRight(),
     );
+  }
+
+  static String _readableUrl(Uri uri) {
+    try {
+      return Uri.decodeFull('$uri');
+    } on ArgumentError {
+      return '$uri';
+    }
   }
 
   static void _section(StringBuffer out, String title) {
