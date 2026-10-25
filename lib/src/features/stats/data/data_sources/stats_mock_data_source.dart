@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:dio/dio.dart' show DioExceptionType;
+
 import '../../../../core/enums/request_state.dart';
 import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import 'stats_data_source.dart';
@@ -93,7 +95,7 @@ class StatsMockDataSource implements StatsDataSource {
                 ? 200 + random.nextInt(28000)
                 : null,
             errorType: state == RequestState.failed
-                ? 'connectionTimeout'
+                ? DioExceptionType.connectionTimeout
                 : null,
           ),
         );

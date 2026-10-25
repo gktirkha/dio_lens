@@ -54,6 +54,13 @@ abstract final class FormatUtils {
     'video/quicktime': '.mov',
   };
 
+  /// Wall-clock time with milliseconds: `14:32:07.182`.
+  static String clockTime(DateTime time) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    final ms = time.millisecond.toString().padLeft(3, '0');
+    return '${two(time.hour)}:${two(time.minute)}:${two(time.second)}.$ms';
+  }
+
   /// `Just now`, `5m ago`, `3h ago`, then `HH:mm` / `dd/MM HH:mm`.
   static String relativeTime(DateTime time, {DateTime? now}) {
     final current = now ?? DateTime.now();

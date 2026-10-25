@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' show DioExceptionType;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/enums/request_state.dart';
@@ -30,8 +31,8 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
     /// Response body size in bytes; null when unknown.
     @JsonKey(name: 'response_size') int? responseSize,
 
-    /// `DioExceptionType` name for failed requests, e.g. `connectionTimeout`.
-    @JsonKey(name: 'error_type') String? errorType,
+    /// Why the request failed without a response; null otherwise.
+    @JsonKey(name: 'error_type') DioExceptionType? errorType,
 
     /// MIME type of the request body, e.g. `application/json`; null when
     /// there is no body.

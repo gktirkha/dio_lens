@@ -21,8 +21,8 @@ mixin _$RequestListItemEntity {
 /// without a response.
 @JsonKey(name: 'status_code') int? get statusCode;/// Time from send to response/error; null while pending.
 @JsonKey(name: 'duration') Duration? get duration;/// Response body size in bytes; null when unknown.
-@JsonKey(name: 'response_size') int? get responseSize;/// `DioExceptionType` name for failed requests, e.g. `connectionTimeout`.
-@JsonKey(name: 'error_type') String? get errorType;/// MIME type of the request body, e.g. `application/json`; null when
+@JsonKey(name: 'response_size') int? get responseSize;/// Why the request failed without a response; null otherwise.
+@JsonKey(name: 'error_type') DioExceptionType? get errorType;/// MIME type of the request body, e.g. `application/json`; null when
 /// there is no body.
 @JsonKey(name: 'request_content_type') String? get requestContentType;/// MIME type of the response body; null when there is none.
 @JsonKey(name: 'response_content_type') String? get responseContentType;
@@ -63,7 +63,7 @@ abstract mixin class $RequestListItemEntityCopyWith<$Res>  {
   factory $RequestListItemEntityCopyWith(RequestListItemEntity value, $Res Function(RequestListItemEntity) _then) = _$RequestListItemEntityCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') String? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
+@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
 });
 
 
@@ -91,7 +91,7 @@ as RequestState,statusCode: freezed == statusCode ? _self.statusCode : statusCod
 as int?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as Duration?,responseSize: freezed == responseSize ? _self.responseSize : responseSize // ignore: cast_nullable_to_non_nullable
 as int?,errorType: freezed == errorType ? _self.errorType : errorType // ignore: cast_nullable_to_non_nullable
-as String?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
+as DioExceptionType?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
 as String?,responseContentType: freezed == responseContentType ? _self.responseContentType : responseContentType // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
@@ -178,7 +178,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  String? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity() when $default != null:
 return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
@@ -199,7 +199,7 @@ return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  String? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)  $default,) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity():
 return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
@@ -219,7 +219,7 @@ return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  String? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity() when $default != null:
 return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
@@ -250,8 +250,8 @@ class _RequestListItemEntity extends RequestListItemEntity {
 @override@JsonKey(name: 'duration') final  Duration? duration;
 /// Response body size in bytes; null when unknown.
 @override@JsonKey(name: 'response_size') final  int? responseSize;
-/// `DioExceptionType` name for failed requests, e.g. `connectionTimeout`.
-@override@JsonKey(name: 'error_type') final  String? errorType;
+/// Why the request failed without a response; null otherwise.
+@override@JsonKey(name: 'error_type') final  DioExceptionType? errorType;
 /// MIME type of the request body, e.g. `application/json`; null when
 /// there is no body.
 @override@JsonKey(name: 'request_content_type') final  String? requestContentType;
@@ -293,7 +293,7 @@ abstract mixin class _$RequestListItemEntityCopyWith<$Res> implements $RequestLi
   factory _$RequestListItemEntityCopyWith(_RequestListItemEntity value, $Res Function(_RequestListItemEntity) _then) = __$RequestListItemEntityCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') String? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
+@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
 });
 
 
@@ -321,7 +321,7 @@ as RequestState,statusCode: freezed == statusCode ? _self.statusCode : statusCod
 as int?,duration: freezed == duration ? _self.duration : duration // ignore: cast_nullable_to_non_nullable
 as Duration?,responseSize: freezed == responseSize ? _self.responseSize : responseSize // ignore: cast_nullable_to_non_nullable
 as int?,errorType: freezed == errorType ? _self.errorType : errorType // ignore: cast_nullable_to_non_nullable
-as String?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
+as DioExceptionType?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
 as String?,responseContentType: freezed == responseContentType ? _self.responseContentType : responseContentType // ignore: cast_nullable_to_non_nullable
 as String?,
   ));

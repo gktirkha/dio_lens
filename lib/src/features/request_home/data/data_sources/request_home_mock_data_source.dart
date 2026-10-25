@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart' show DioExceptionType;
+
 import '../../../../core/enums/request_state.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import 'request_home_data_source.dart';
@@ -64,7 +66,7 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
       int? code,
       int? ms,
       int? size,
-      String? error,
+      DioExceptionType? error,
       String? reqCt,
       String? resCt,
       Duration ago = Duration.zero,
@@ -156,7 +158,7 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         'https://api.example.com/v1/sync',
         RequestState.failed,
         ms: 30000,
-        error: 'connectionTimeout',
+        error: DioExceptionType.connectionTimeout,
         ago: const Duration(minutes: 6),
       ),
       item(

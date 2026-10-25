@@ -1,3 +1,9 @@
+import '../features/request_detail/data/data_sources/request_detail_data_source.dart';
+import '../features/request_detail/data/data_sources/request_detail_mock_data_source.dart';
+import '../features/request_detail/data/repositories/request_detail_repository_impl.dart';
+import '../features/request_detail/domain/repositories/request_detail_repository.dart';
+import '../features/request_detail/domain/use_cases/watch_request_detail_use_case.dart';
+import '../features/request_detail/presentation/controllers/request_detail_controller.dart';
 import '../features/request_home/data/data_sources/request_home_data_source.dart';
 import '../features/request_home/data/data_sources/request_home_mock_data_source.dart';
 import '../features/request_home/data/repositories/request_home_repository_impl.dart';
@@ -22,12 +28,17 @@ class DioLensDependencies {
   DioLensDependencies({
     RequestHomeDataSource Function()? requestHomeDataSource,
     StatsDataSource Function()? statsDataSource,
-  }) : _requestHomeDataSourceFactory =
+    RequestDetailDataSource Function()? requestDetailDataSource,
+  }) : _requestDetailDataSourceFactory = requestDetailDataSource,
+       _requestHomeDataSourceFactory =
            requestHomeDataSource ?? RequestHomeMockDataSource.new,
        _statsDataSourceFactory = statsDataSource ?? StatsMockDataSource.new;
 
   final RequestHomeDataSource Function() _requestHomeDataSourceFactory;
   final StatsDataSource Function() _statsDataSourceFactory;
+
+  /// Null: derive details from [requestHomeDataSource] (mock).
+  final RequestDetailDataSource Function()? _requestDetailDataSourceFactory;
 
   // ---- Request home ----
 
@@ -74,4 +85,23 @@ class DioLensDependencies {
   /// A new controller for one stats page; the caller disposes it.
   StatsController createStatsController() =>
       StatsController(watchStats: watchStatsUseCase);
+
+  // ---- Request detail ----
+
+  late final RequestDetailDataSource requestDetailDataSource =
+      _requestDetailDataSourceFactory?.call() ??
+      RequestDetailMockDataSource(requestHomeDataSource);
+
+  late final RequestDetailRepository requestDetailRepository =
+      RequestDetailRepositoryImpl(requestDetailDataSource);
+
+  late final WatchRequestDetailUseCase watchRequestDetailUseCase =
+      WatchRequestDetailUseCase(requestDetailRepository);
+
+  /// A new controller for one request's detail page; the page disposes it.
+  RequestDetailController createRequestDetailController(String requestId) =>
+      RequestDetailController(
+        requestId: requestId,
+        watchRequestDetail: watchRequestDetailUseCase,
+      );
 }

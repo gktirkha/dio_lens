@@ -164,7 +164,7 @@ class _Meta extends StatelessWidget {
         add('Waiting…');
       case RequestState.failed:
         add(
-          item.errorType ?? 'error',
+          item.errorType?.name ?? 'error',
           TextStyle(color: theme.danger, fontWeight: FontWeight.w600),
         );
         add(FormatUtils.duration(item.duration));

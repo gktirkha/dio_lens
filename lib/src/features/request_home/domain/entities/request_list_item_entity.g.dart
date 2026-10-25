@@ -19,7 +19,7 @@ _RequestListItemEntity _$RequestListItemEntityFromJson(
       ? null
       : Duration(microseconds: (json['duration'] as num).toInt()),
   responseSize: (json['response_size'] as num?)?.toInt(),
-  errorType: json['error_type'] as String?,
+  errorType: $enumDecodeNullable(_$DioExceptionTypeEnumMap, json['error_type']),
   requestContentType: json['request_content_type'] as String?,
   responseContentType: json['response_content_type'] as String?,
 );
@@ -35,7 +35,7 @@ Map<String, dynamic> _$RequestListItemEntityToJson(
   'status_code': instance.statusCode,
   'duration': instance.duration?.inMicroseconds,
   'response_size': instance.responseSize,
-  'error_type': instance.errorType,
+  'error_type': _$DioExceptionTypeEnumMap[instance.errorType],
   'request_content_type': instance.requestContentType,
   'response_content_type': instance.responseContentType,
 };
@@ -44,4 +44,16 @@ const _$RequestStateEnumMap = {
   RequestState.pending: 'pending',
   RequestState.completed: 'completed',
   RequestState.failed: 'failed',
+};
+
+const _$DioExceptionTypeEnumMap = {
+  DioExceptionType.connectionTimeout: 'connectionTimeout',
+  DioExceptionType.sendTimeout: 'sendTimeout',
+  DioExceptionType.receiveTimeout: 'receiveTimeout',
+  DioExceptionType.badCertificate: 'badCertificate',
+  DioExceptionType.badResponse: 'badResponse',
+  DioExceptionType.cancel: 'cancel',
+  DioExceptionType.connectionError: 'connectionError',
+  DioExceptionType.unknown: 'unknown',
+  DioExceptionType.transformTimeout: 'transformTimeout',
 };
