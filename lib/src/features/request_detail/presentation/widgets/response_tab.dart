@@ -13,8 +13,6 @@ import 'image_preview.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
-/// Response tab: headers and body; for failed requests the error card and
-/// stack trace instead.
 class ResponseTab extends StatelessWidget {
   const ResponseTab({
     super.key,
@@ -24,7 +22,6 @@ class ResponseTab extends StatelessWidget {
 
   final RequestDetailEntity request;
 
-  /// Decides which headers are masked.
   final DioLensSettings settings;
 
   @override
@@ -90,7 +87,6 @@ class ResponseTab extends StatelessWidget {
   }
 }
 
-/// Image bytes stored as base64 by the interceptor; null when invalid.
 Uint8List? _decodeBase64(String encoded) {
   try {
     return base64Decode(encoded);

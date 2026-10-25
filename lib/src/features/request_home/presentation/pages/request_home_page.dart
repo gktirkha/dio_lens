@@ -11,11 +11,6 @@ import '../widgets/request_home_header.dart';
 import '../widgets/request_list_tile.dart';
 import '../widgets/status_filter_bar.dart';
 
-/// The inspector's home screen: every captured request, newest first, with
-/// status/method filters and search.
-///
-/// Data, filters and delete/clear go through [controller]; navigation-style
-/// actions are reported through the callbacks.
 class RequestHomePage extends StatefulWidget {
   const RequestHomePage({
     super.key,
@@ -26,7 +21,6 @@ class RequestHomePage extends StatefulWidget {
     this.onMinimize,
   });
 
-  /// Owned by the caller, which also disposes it.
   final RequestHomeController controller;
 
   final ValueChanged<RequestListItemEntity>? onRequestTap;
@@ -34,7 +28,6 @@ class RequestHomePage extends StatefulWidget {
   final ValueChanged<DioLensExportFormat>? onExport;
   final VoidCallback? onMinimize;
 
-  /// Requests started within this window are grouped under "Just now".
   static const Duration recentWindow = Duration(minutes: 5);
 
   @override
@@ -174,8 +167,6 @@ class _RequestHomePageState extends State<RequestHomePage> {
     );
   }
 
-  /// One section of the list. The header stays pinned to the top while its
-  /// group scrolls, and the next group's header pushes it out.
   Widget _group(
     BuildContext context,
     String label,

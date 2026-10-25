@@ -5,29 +5,11 @@ import '../core/runtime/dio_lens_runtime.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'request_capture.dart';
 
-/// Records every request made through the [Dio] it is added to, stores it
-/// and shows the request-finished banner.
-///
-/// Add it last, so the recorded request carries the headers and body that
-/// earlier interceptors added:
-///
-/// ```dart
-/// dio.interceptors.add(DioLensInterceptor(dio));
-/// ```
-///
-/// Passing the [Dio] lets Replay re-send requests through it, so the app's
-/// own interceptors (auth, refresh) and adapter apply; without it, replays
-/// go through a plain Dio.
-///
-/// Does nothing until `DioLens.init` is called, or when Dio Lens is
-/// disabled. Never changes or delays a request, and a capture failure never
-/// reaches the app.
 class DioLensInterceptor extends Interceptor {
   DioLensInterceptor([this._dio]);
 
   final Dio? _dio;
 
-  /// The pending capture, once it is in the store.
   static const String _captureKey = 'dio_lens_capture';
 
   @override
@@ -88,9 +70,6 @@ class DioLensInterceptor extends Interceptor {
     handler.next(err);
   }
 
-  /// Completes the capture started in [onRequest], in the background: a
-  /// response (even an error status) completes it; an error without one
-  /// fails it.
   void _finish(
     RequestOptions options, {
     required DateTime finishedAt,
@@ -130,7 +109,6 @@ class DioLensInterceptor extends Interceptor {
 
   static bool _warnedMissingDio = false;
 
-  /// Tells the developer, once per run, how to get full Replay support.
   static void _warnMissingDio() {
     if (_warnedMissingDio) return;
     _warnedMissingDio = true;

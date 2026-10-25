@@ -3,7 +3,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'endpoint_latency_entity.freezed.dart';
 part 'endpoint_latency_entity.g.dart';
 
-/// Average response time of one endpoint (path).
 @freezed
 abstract class EndpointLatencyEntity with _$EndpointLatencyEntity {
   const factory EndpointLatencyEntity({

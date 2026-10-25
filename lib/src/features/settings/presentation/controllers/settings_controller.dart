@@ -11,11 +11,6 @@ import '../../domain/use_cases/reset_settings_use_case.dart';
 import '../../domain/use_cases/update_settings_use_case.dart';
 import '../../domain/use_cases/watch_settings_use_case.dart';
 
-/// State for the settings sheet: the settings and how many requests are
-/// stored (for the usage bar).
-///
-/// Lazy: nothing is watched until the first listener attaches. Changes
-/// apply at once and are stored in the background.
 class SettingsController extends ChangeNotifier {
   SettingsController({
     required this._watchSettings,
@@ -34,15 +29,12 @@ class SettingsController extends ChangeNotifier {
 
   DioLensSettings? _settings;
 
-  /// Defaults until the stored settings arrive (see [isLoading]).
   DioLensSettings get settings => _settings ?? const DioLensSettings();
 
-  /// True until the settings arrive.
   bool get isLoading => _settings == null;
 
   int _storedCount = 0;
 
-  /// Requests currently stored.
   int get storedCount => _storedCount;
 
   @override
@@ -61,7 +53,6 @@ class SettingsController extends ChangeNotifier {
         });
   }
 
-  /// Applies [change] to the current settings.
   Future<void> update(
     DioLensSettings Function(DioLensSettings settings) change,
   ) async {
@@ -72,7 +63,6 @@ class SettingsController extends ChangeNotifier {
     await _updateSettings(next);
   }
 
-  /// Back to the settings given to `DioLens.init`.
   Future<void> reset() => _resetSettings(unit);
 
   @override

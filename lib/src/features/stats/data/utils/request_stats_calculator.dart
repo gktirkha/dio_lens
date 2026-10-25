@@ -7,9 +7,7 @@ import '../../domain/entities/named_count_entity.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../../domain/entities/status_share_entity.dart';
 
-/// Turns captured requests into [RequestStatsEntity]. Pure and synchronous.
 abstract final class RequestStatsCalculator {
-  /// Display order of the status distribution.
   static const List<RequestStatusClass> distributionOrder = [
     RequestStatusClass.success,
     RequestStatusClass.redirect,
@@ -109,13 +107,11 @@ abstract final class RequestStatsCalculator {
     );
   }
 
-  /// Nearest-rank percentile of an ascending list.
   static int _percentile(List<int> sorted, double p) {
     final rank = (p * sorted.length).ceil().clamp(1, sorted.length);
     return sorted[rank - 1];
   }
 
-  /// Every item, highest score first.
   static List<T> _top<T>(Iterable<T> items, int Function(T) score) {
     final sorted = items.toList()..sort((a, b) => score(b).compareTo(score(a)));
     return List.unmodifiable(sorted);

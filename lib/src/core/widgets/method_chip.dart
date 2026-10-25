@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../theme/dio_lens_theme.dart';
 import 'dio_lens_tag.dart';
 
-/// Color-coded HTTP method label, e.g. `GET`, `POST`, `QUERY`.
 class MethodChip extends StatelessWidget {
   const MethodChip({super.key, required this.method});
 

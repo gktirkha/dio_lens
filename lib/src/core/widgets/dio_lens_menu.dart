@@ -4,8 +4,6 @@ import '../../theme/dio_lens_theme.dart';
 import '../enums/export_format.dart';
 import 'dio_lens_icon_button.dart';
 
-/// Popover style for Dio Lens [MenuAnchor]s. Anchored to the button's end
-/// edge; the menu layout keeps it on screen in both LTR and RTL.
 MenuStyle dioLensMenuStyle(DioLensTheme theme, {double minWidth = 198}) {
   return MenuStyle(
     backgroundColor: WidgetStatePropertyAll(theme.surface2),
@@ -24,11 +22,8 @@ MenuStyle dioLensMenuStyle(DioLensTheme theme, {double minWidth = 198}) {
   );
 }
 
-/// Item style for menus built with [dioLensMenuStyle].
 ButtonStyle dioLensMenuItemStyle(BuildContext context, {Color? foreground}) {
   final theme = DioLensTheme.of(context);
-  // styleFrom replaces the whole text style, so start from the theme's
-  // body style to keep its font family.
   final textStyle = Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
   return MenuItemButton.styleFrom(
     foregroundColor: foreground ?? theme.text,
@@ -41,7 +36,6 @@ ButtonStyle dioLensMenuItemStyle(BuildContext context, {Color? foreground}) {
   );
 }
 
-/// Thin separator between menu sections.
 class DioLensMenuDivider extends StatelessWidget {
   const DioLensMenuDivider({super.key});
 
@@ -54,8 +48,6 @@ class DioLensMenuDivider extends StatelessWidget {
   }
 }
 
-/// The ⋮ menu shared by Dio Lens screens: settings, export, clear all and
-/// minimize. Items whose callback is null are disabled.
 class DioLensOverflowMenu extends StatelessWidget {
   const DioLensOverflowMenu({
     super.key,

@@ -3,7 +3,6 @@ import '../entities/request_filter_params.dart';
 import '../entities/request_list_item_entity.dart';
 import '../repositories/request_home_repository.dart';
 
-/// Live list of requests matching the given filter.
 class WatchRequestsUseCase
     implements
         UseCaseBase<Stream<List<RequestListItemEntity>>, RequestFilterParams> {

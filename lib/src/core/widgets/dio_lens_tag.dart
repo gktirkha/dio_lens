@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/dio_lens_theme.dart';
 
-/// Small rounded monospace label: the base of [MethodChip], [StatusBadge]
-/// and any other compact tag (protocol, content type, …).
 class DioLensTag extends StatelessWidget {
   const DioLensTag({
     super.key,
@@ -20,7 +18,6 @@ class DioLensTag extends StatelessWidget {
   final Color foreground;
   final Color background;
 
-  /// Optional icon or spinner shown before [label].
   final Widget? leading;
 
   final double fontSize;

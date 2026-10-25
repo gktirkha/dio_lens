@@ -8,16 +8,6 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 
-/// One captured request in the home list.
-///
-/// ```
-/// [GET] [200]                  Just now
-/// /v1/orders?page=2
-/// api.example.com
-/// 96 ms · 1.8 KB · — → .json
-/// ```
-///
-/// When [onDelete] is set, the tile can be swiped left to delete it.
 class RequestListTile extends StatelessWidget {
   const RequestListTile({
     super.key,
@@ -137,10 +127,6 @@ class RequestListTile extends StatelessWidget {
   }
 }
 
-/// Bottom line: `Waiting…`, `connectionTimeout · 30.00 s`, or
-/// `96 ms · 1.8 KB · .json → .json`. The body types (request → response)
-/// only show when at least one side has a body; `…` marks a response that
-/// has not arrived yet.
 class _Meta extends StatelessWidget {
   const _Meta({required this.item});
 

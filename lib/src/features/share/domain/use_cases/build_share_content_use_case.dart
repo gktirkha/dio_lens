@@ -11,7 +11,6 @@ typedef BuildShareContentParams = ({
   DioLensSettings settings,
 });
 
-/// Builds the shared report of one request, in a background isolate.
 class BuildShareContentUseCase
     implements UseCaseBase<DioLensShareContent, BuildShareContentParams> {
   const BuildShareContentUseCase();
@@ -20,7 +19,6 @@ class BuildShareContentUseCase
   Future<DioLensShareContent> call(BuildShareContentParams params) =>
       _buildInIsolate(params.request, params.settings);
 
-  // Static, so the closure captures only its arguments.
   static Future<DioLensShareContent> _buildInIsolate(
     RequestDetailEntity request,
     DioLensSettings settings,

@@ -7,8 +7,6 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 
-/// Card announcing that [request] finished: method, status, path and host,
-/// with View and dismiss actions.
 class RequestFinishedBanner extends StatelessWidget {
   const RequestFinishedBanner({
     super.key,

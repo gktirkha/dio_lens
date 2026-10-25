@@ -7,8 +7,6 @@ import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 import '../entities/dio_lens_share_content.dart';
 
-/// Builds the shared report of one request. Pure, so it can run in an
-/// isolate.
 abstract final class ShareContentBuilder {
   static DioLensShareContent build(
     RequestDetailEntity request,
@@ -103,7 +101,6 @@ abstract final class ShareContentBuilder {
     });
   }
 
-  /// `2026-10-25 16:54:01.123`
   static String _time(DateTime t) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${t.year}-${two(t.month)}-${two(t.day)} '

@@ -6,7 +6,6 @@ import 'body_view.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
-/// Request tab: headers, query params and the request body.
 class RequestTab extends StatelessWidget {
   const RequestTab({
     super.key,
@@ -16,7 +15,6 @@ class RequestTab extends StatelessWidget {
 
   final RequestDetailEntity request;
 
-  /// Decides which headers and query params are masked.
   final DioLensSettings settings;
 
   @override

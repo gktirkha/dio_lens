@@ -3,7 +3,6 @@ import '../entities/request_filter_params.dart';
 import '../entities/request_list_item_entity.dart';
 import '../repositories/request_home_repository.dart';
 
-/// Snapshot of requests matching the given filter.
 class GetRequestsUseCase
     implements UseCaseBase<List<RequestListItemEntity>, RequestFilterParams> {
   const GetRequestsUseCase(this._repository);

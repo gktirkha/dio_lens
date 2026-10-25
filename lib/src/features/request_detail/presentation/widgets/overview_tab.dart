@@ -8,8 +8,6 @@ import '../../domain/entities/request_detail_entity.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
-/// Overview tab: every key fact as a tap-to-copy field, query params and
-/// the cURL command.
 class OverviewTab extends StatelessWidget {
   const OverviewTab({
     super.key,
@@ -19,7 +17,6 @@ class OverviewTab extends StatelessWidget {
 
   final RequestDetailEntity request;
 
-  /// Decides which query params are masked.
   final DioLensSettings settings;
 
   @override

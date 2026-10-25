@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_status_filter.dart';
 
-/// Horizontally scrolling status chips: `All  2xx  3xx  4xx  5xx  Errors`.
 class StatusFilterBar extends StatelessWidget {
   const StatusFilterBar({
     super.key,

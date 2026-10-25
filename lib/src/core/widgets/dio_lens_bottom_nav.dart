@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/dio_lens_theme.dart';
 
-/// One destination of a [DioLensBottomNav].
 class DioLensNavItem {
   const DioLensNavItem({required this.icon, required this.label});
 
@@ -10,7 +9,6 @@ class DioLensNavItem {
   final String label;
 }
 
-/// The inspector's bottom tab bar: icon over label, accent when selected.
 class DioLensBottomNav extends StatelessWidget {
   const DioLensBottomNav({
     super.key,

@@ -2,14 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Collapsible, syntax-coloured view of a decoded JSON value.
-///
-/// Starts with the root and its first level expanded. Always laid out
-/// left-to-right and scrolls sideways for long lines.
 class JsonTreeView extends StatefulWidget {
   const JsonTreeView({super.key, required this.value});
 
-  /// Decoded JSON: maps, lists, strings, numbers, booleans and null.
   final Object? value;
 
   @override
@@ -56,7 +51,6 @@ class _JsonTreeViewState extends State<JsonTreeView> {
     );
   }
 
-  /// Rows for [value] at [path]; [key] is its key in the parent object.
   List<Widget> _node(
     DioLensTheme theme,
     Object? value,
@@ -150,8 +144,6 @@ class _JsonTreeViewState extends State<JsonTreeView> {
     ];
   }
 
-  /// One line of the tree. With [onTap] (objects and arrays) the whole
-  /// line, key included, expands or collapses the node.
   Widget _row(
     Widget? leading,
     List<InlineSpan> spans, {
@@ -185,7 +177,6 @@ class _JsonTreeViewState extends State<JsonTreeView> {
   }
 }
 
-/// Chevron showing whether a node is expanded; the row handles taps.
 class _ExpandIcon extends StatelessWidget {
   const _ExpandIcon({required this.expanded});
 

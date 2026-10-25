@@ -1,6 +1,5 @@
 import 'request_state.dart';
 
-/// Status bucket used for the list filters and badge colors.
 enum RequestStatusClass {
   pending,
   informational,
@@ -10,7 +9,6 @@ enum RequestStatusClass {
   serverError,
   error;
 
-  /// Buckets a request by its [state] and HTTP [statusCode].
   static RequestStatusClass resolve(RequestState state, int? statusCode) {
     switch (state) {
       case RequestState.pending:

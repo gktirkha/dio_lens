@@ -4,7 +4,6 @@ import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Small uppercase caption above an overview value.
 class OverviewLabel extends StatelessWidget {
   const OverviewLabel(this.text, {super.key});
 
@@ -23,8 +22,6 @@ class OverviewLabel extends StatelessWidget {
   }
 }
 
-/// Label above a bordered monospace value. Tapping copies the value unless
-/// [copyable] is false.
 class OverviewField extends StatelessWidget {
   const OverviewField({
     super.key,
@@ -36,7 +33,6 @@ class OverviewField extends StatelessWidget {
 
   final String label;
 
-  /// Shown as `—` when null or empty.
   final String? value;
   final bool copyable;
   final Color? valueColor;
@@ -104,7 +100,6 @@ class OverviewField extends StatelessWidget {
   }
 }
 
-/// The cURL block: caption, horizontally scrollable command, copy button.
 class CurlSection extends StatelessWidget {
   const CurlSection({super.key, required this.command});
 
@@ -132,7 +127,6 @@ class CurlSection extends StatelessWidget {
               border: Border.all(color: theme.border),
               borderRadius: BorderRadius.circular(10),
             ),
-            // Commands read LTR and scroll sideways instead of wrapping.
             child: Directionality(
               textDirection: TextDirection.ltr,
               child: SingleChildScrollView(

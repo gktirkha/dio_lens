@@ -8,9 +8,6 @@ import '../models/stats_ranking.dart';
 import '../widgets/ranked_list.dart';
 import '../widgets/stats_panel.dart';
 
-/// Full list behind one of the stats page's ranked panels.
-///
-/// Reads the same [StatsController] as the dashboard, so it stays live.
 class StatsRankingPage extends StatelessWidget {
   const StatsRankingPage({
     super.key,
@@ -92,7 +89,6 @@ class _RankingHeader extends StatelessWidget {
         padding: const EdgeInsetsDirectional.fromSTEB(6, 10, 10, 10),
         child: Row(
           children: [
-            // arrow_back mirrors automatically in RTL.
             DioLensIconButton(
               icon: Icons.arrow_back_rounded,
               tooltip: 'Back',

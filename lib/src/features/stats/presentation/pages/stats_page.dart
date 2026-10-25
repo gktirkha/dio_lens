@@ -15,8 +15,6 @@ import '../widgets/stats_header.dart';
 import '../widgets/stats_panel.dart';
 import '../widgets/status_distribution.dart';
 
-/// Analytics dashboard: summary cards, status mix and ranked
-/// endpoints/hosts.
 class StatsPage extends StatelessWidget {
   const StatsPage({
     super.key,
@@ -27,7 +25,6 @@ class StatsPage extends StatelessWidget {
     this.onMinimize,
   });
 
-  /// Owned by the caller, which also disposes it.
   final StatsController controller;
 
   final VoidCallback? onOpenSettings;

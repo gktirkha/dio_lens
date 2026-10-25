@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Image response: the decoded image when [bytes] are available, otherwise
-/// a striped placeholder. A footer shows the type and size.
 class ImagePreview extends StatelessWidget {
   const ImagePreview({
     super.key,
@@ -105,7 +103,6 @@ class _Placeholder extends StatelessWidget {
   }
 }
 
-/// 45° stripes, 10px each, like the design's placeholder.
 class _StripesPainter extends CustomPainter {
   const _StripesPainter({required this.a, required this.b});
 

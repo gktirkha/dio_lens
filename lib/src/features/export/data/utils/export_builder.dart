@@ -8,11 +8,7 @@ import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 
-/// Builds export files from captured requests. Pure, so it can run in an
-/// isolate.
 abstract final class ExportBuilder {
-  /// [requests] in [format], UTF-8 encoded, with values masked as
-  /// [settings] say.
   static Uint8List build(
     DioLensExportFormat format,
     List<RequestDetailEntity> requests,
@@ -34,13 +30,11 @@ abstract final class ExportBuilder {
     return utf8.encode(const JsonEncoder.withIndent('  ').convert(json));
   }
 
-  /// HTTP Archive 1.2 (http://www.softwareishard.com/blog/har-12-spec/).
   static Map<String, Object?> har(List<RequestDetailEntity> requests) => {
     'log': {
       'version': '1.2',
       'creator': {'name': 'Dio Lens', 'version': dioLensVersion},
       'pages': <Object>[],
-      // HAR lists entries oldest first.
       'entries': [for (final r in requests.reversed) _harEntry(r)],
     },
   };
@@ -103,8 +97,6 @@ abstract final class ExportBuilder {
     for (final e in entries) {'name': e.key, 'value': e.value},
   ];
 
-  /// A decoded body as the text that was sent: form maps URL-encoded,
-  /// JSON encoded, text as is.
   static String? _bodyText(Object? body, String? contentType) {
     if (body == null) return null;
     if (body is String) return body;

@@ -35,10 +35,6 @@ import '../features/stats/domain/repositories/stats_repository.dart';
 import '../features/stats/domain/use_cases/watch_stats_use_case.dart';
 import '../features/stats/presentation/controllers/stats_controller.dart';
 
-/// Wires Dio Lens' layers together.
-///
-/// Every dependency is lazy: nothing is created until first accessed, and
-/// each is created once per [DioLensDependencies] instance.
 class DioLensDependencies {
   DioLensDependencies({
     RequestHomeDataSource Function()? requestHomeDataSource,
@@ -59,10 +55,7 @@ class DioLensDependencies {
   final SettingsDataSource Function() _settingsDataSourceFactory;
   final ExportDataSource Function() _exportDataSourceFactory;
 
-  /// Null: derive details from [requestHomeDataSource] (mock).
   final RequestDetailDataSource Function()? _requestDetailDataSourceFactory;
-
-  // ---- Request home ----
 
   late final RequestHomeDataSource requestHomeDataSource =
       _requestHomeDataSourceFactory();
@@ -88,15 +81,12 @@ class DioLensDependencies {
   late final RemoveExpiredRequestsUseCase removeExpiredRequestsUseCase =
       RemoveExpiredRequestsUseCase(requestHomeRepository);
 
-  /// A new controller for one request home page; the caller disposes it.
   RequestHomeController createRequestHomeController() => RequestHomeController(
     watchRequests: watchRequestsUseCase,
     deleteRequest: deleteRequestUseCase,
     clearAllRequests: clearAllRequestsUseCase,
     removeExpiredRequests: removeExpiredRequestsUseCase,
   );
-
-  // ---- Stats ----
 
   late final StatsDataSource statsDataSource = _statsDataSourceFactory();
 
@@ -108,11 +98,8 @@ class DioLensDependencies {
     statsRepository,
   );
 
-  /// A new controller for one stats page; the caller disposes it.
   StatsController createStatsController() =>
       StatsController(watchStats: watchStatsUseCase);
-
-  // ---- Request detail ----
 
   late final RequestDetailDataSource requestDetailDataSource =
       _requestDetailDataSourceFactory?.call() ??
@@ -124,7 +111,6 @@ class DioLensDependencies {
   late final WatchRequestDetailUseCase watchRequestDetailUseCase =
       WatchRequestDetailUseCase(requestDetailRepository);
 
-  /// A new controller for one request's detail page; the page disposes it.
   RequestDetailController createRequestDetailController(String requestId) =>
       RequestDetailController(
         requestId: requestId,
@@ -135,8 +121,6 @@ class DioLensDependencies {
 
   late final BuildShareContentUseCase buildShareContentUseCase =
       const BuildShareContentUseCase();
-
-  // ---- Settings ----
 
   late final SettingsDataSource settingsDataSource =
       _settingsDataSourceFactory();
@@ -156,15 +140,12 @@ class DioLensDependencies {
     settingsRepository,
   );
 
-  /// A new controller for the settings sheet; the sheet disposes it.
   SettingsController createSettingsController() => SettingsController(
     watchSettings: watchSettingsUseCase,
     updateSettings: updateSettingsUseCase,
     resetSettings: resetSettingsUseCase,
     watchRequests: watchRequestsUseCase,
   );
-
-  // ---- Export ----
 
   late final ExportDataSource exportDataSource = _exportDataSourceFactory();
 

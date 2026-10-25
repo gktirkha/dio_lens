@@ -8,8 +8,6 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_detail_entity.dart';
 
-/// Top of the detail page: back, method/status, path, host, quick stats and
-/// the Share / cURL / Replay actions. The tab bar sits right below it.
 class RequestDetailHeader extends StatelessWidget {
   const RequestDetailHeader({
     super.key,
@@ -25,8 +23,6 @@ class RequestDetailHeader extends StatelessWidget {
   final VoidCallback? onShare;
   final VoidCallback? onReplay;
 
-  /// Shown as a home button when the page was opened on its own (from
-  /// the banner), so the user can reach the request list.
   final VoidCallback? onOpenHome;
 
   @override
@@ -44,7 +40,6 @@ class RequestDetailHeader extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // chevron_left mirrors automatically in RTL.
               DioLensIconButton(
                 icon: Icons.chevron_left_rounded,
                 tooltip: onOpenHome == null ? 'Back to request list' : 'Back',
@@ -211,7 +206,6 @@ class _ActionButton extends StatelessWidget {
         backgroundColor: theme.surface2,
         side: BorderSide(color: theme.border),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        // Start from the theme's label style so the font family is kept.
         textStyle: Theme.of(context).textTheme.labelLarge
             ?.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600),
       ),

@@ -5,7 +5,6 @@ import 'request_status_filter.dart';
 
 part 'request_filter_params.freezed.dart';
 
-/// What the request list should show: status chip, method filter and search.
 @freezed
 abstract class RequestFilterParams with _$RequestFilterParams {
   const RequestFilterParams._();
@@ -13,14 +12,11 @@ abstract class RequestFilterParams with _$RequestFilterParams {
   const factory RequestFilterParams({
     @Default(RequestStatusFilter.all) RequestStatusFilter status,
 
-    /// Upper-case methods to keep; empty keeps every method.
     @Default(<String>{}) Set<String> methods,
 
-    /// Case-insensitive match against method, host, path and query.
     @Default('') String search,
   }) = _RequestFilterParams;
 
-  /// No filtering: every request matches.
   static const RequestFilterParams none = RequestFilterParams();
 
   bool get isEmpty =>

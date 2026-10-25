@@ -1,6 +1,5 @@
 import '../../../../core/enums/request_status_class.dart';
 
-/// Status filter chips on the request home page.
 enum RequestStatusFilter {
   all('All'),
   success('2xx'),

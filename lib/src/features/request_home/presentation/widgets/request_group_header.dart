@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Section label in the request list, e.g. `JUST NOW`, `EARLIER`.
 class RequestGroupHeader extends StatelessWidget {
   const RequestGroupHeader({super.key, required this.label});
 
@@ -11,7 +10,6 @@ class RequestGroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
-    // Opaque so rows don't show through while the header is pinned.
     return ColoredBox(
       color: theme.background,
       child: Padding(

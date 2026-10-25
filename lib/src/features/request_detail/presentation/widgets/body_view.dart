@@ -7,9 +7,6 @@ import '../../../../theme/dio_lens_theme.dart';
 import 'json_tree_view.dart';
 import 'key_value_box.dart';
 
-/// A request or response body, rendered by content type: form data as a
-/// key/value box, text as raw text, anything else as JSON with a
-/// Pretty / Raw toggle.
 class BodyView extends StatelessWidget {
   const BodyView({
     super.key,
@@ -18,11 +15,9 @@ class BodyView extends StatelessWidget {
     required this.emptyLabel,
   });
 
-  /// Decoded body: map, list, string or null.
   final Object? body;
   final String? contentType;
 
-  /// Shown when [body] is null, e.g. "No request body."
   final String emptyLabel;
 
   @override

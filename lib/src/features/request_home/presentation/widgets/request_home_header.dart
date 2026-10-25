@@ -6,8 +6,6 @@ import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../core/widgets/method_chip.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Top bar of the request home page: brand, quick actions, method filter,
-/// overflow menu and the collapsible search field.
 class RequestHomeHeader extends StatelessWidget {
   const RequestHomeHeader({
     super.key,

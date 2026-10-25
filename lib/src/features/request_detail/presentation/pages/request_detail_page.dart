@@ -11,11 +11,6 @@ import '../widgets/request_detail_header.dart';
 import '../widgets/request_tab.dart';
 import '../widgets/response_tab.dart';
 
-/// One captured request: header, quick actions and Overview / Request /
-/// Response tabs.
-///
-/// Creates its controller with [createController] and disposes it, so it
-/// can be pushed as a route directly.
 class RequestDetailPage extends StatefulWidget {
   const RequestDetailPage({
     super.key,
@@ -27,12 +22,8 @@ class RequestDetailPage extends StatefulWidget {
 
   final RequestDetailController Function() createController;
 
-  /// Set when the page is opened on its own (from the banner): the header
-  /// then offers a way to the Dio Lens home.
   final VoidCallback? onOpenHome;
 
-  /// Receives the request to share; without it, the report is copied to
-  /// the clipboard.
   final DioLensShareCallback? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
 

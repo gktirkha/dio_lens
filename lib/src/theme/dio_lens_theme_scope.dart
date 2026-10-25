@@ -4,15 +4,6 @@ import 'dio_lens_theme_mode_controller.dart';
 import 'theme_data/dio_lens_dark_theme.dart';
 import 'theme_data/dio_lens_light_theme.dart';
 
-/// Applies the Dio Lens theme to [child] without touching the host app.
-///
-/// Every Dio Lens route (inspector, detail, settings sheet, bubble) wraps its
-/// root in this widget. The [Theme] it installs fully replaces the host's
-/// [ThemeData] for that subtree only, so the host's theme neither leaks into
-/// the inspector nor gets changed by it.
-///
-/// With a [controller], the scope follows its mode live and exposes it to
-/// descendants (see [controllerOf]); the theme toggle only shows then.
 class DioLensThemeScope extends StatelessWidget {
   const DioLensThemeScope({
     super.key,
@@ -21,11 +12,8 @@ class DioLensThemeScope extends StatelessWidget {
     required this.child,
   });
 
-  /// Shared appearance setting; takes precedence over [mode].
   final DioLensThemeModeController? controller;
 
-  /// Fixed mode used when there is no [controller].
-  /// [ThemeMode.system] follows the device brightness, not the host theme.
   final ThemeMode mode;
 
   final Widget child;
@@ -33,11 +21,9 @@ class DioLensThemeScope extends StatelessWidget {
   static final ThemeData _dark = dioLensDarkTheme.toFlutterTheme();
   static final ThemeData _light = dioLensLightTheme.toFlutterTheme();
 
-  /// The controller of the nearest scope, if it has one.
   static DioLensThemeModeController? controllerOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_ModeScope>()?.controller;
 
-  /// The mode of the nearest scope.
   static ThemeMode modeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<_ModeScope>()?.mode ??
       ThemeMode.dark;

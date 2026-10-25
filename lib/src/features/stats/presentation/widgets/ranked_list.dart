@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// One row of a [RankedList].
 typedef RankedItem = ({String label, String value, double score, bool warn});
 
-/// Rows of label + value with a bar proportional to the highest score.
 class RankedList extends StatelessWidget {
   const RankedList({super.key, required this.items});
 

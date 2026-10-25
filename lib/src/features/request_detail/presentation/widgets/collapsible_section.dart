@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Bordered section with a tappable header that shows or hides [child].
 class CollapsibleSection extends StatefulWidget {
   const CollapsibleSection({
     super.key,
@@ -15,7 +14,6 @@ class CollapsibleSection extends StatefulWidget {
   final String title;
   final Widget child;
 
-  /// Small figure before the chevron, e.g. a line count.
   final String? trailingLabel;
   final bool initiallyExpanded;
 
@@ -79,7 +77,6 @@ class _CollapsibleSectionState extends State<CollapsibleSection> {
                       AnimatedRotation(
                         turns: _expanded ? 0.25 : 0,
                         duration: const Duration(milliseconds: 180),
-                        // chevron_right mirrors automatically in RTL.
                         child: Icon(
                           Icons.chevron_right_rounded,
                           size: 18,

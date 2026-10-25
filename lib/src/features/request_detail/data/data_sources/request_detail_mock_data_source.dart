@@ -8,12 +8,6 @@ import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'request_detail_data_source.dart';
 
-/// [RequestDetailDataSource] that derives details from the request list's
-/// data source, filling in plausible headers and bodies.
-///
-/// Sharing the list's store keeps both in sync (a deleted request
-/// disappears from its detail page too). Stand-in until the interceptor
-/// records real details.
 class RequestDetailMockDataSource implements RequestDetailDataSource {
   const RequestDetailMockDataSource(this._requests);
 
@@ -28,7 +22,6 @@ class RequestDetailMockDataSource implements RequestDetailDataSource {
         return null;
       }).distinct();
 
-  /// Builds a detail entity for a list item.
   static RequestDetailEntity detailFor(RequestListItemEntity r) {
     final requestBody = _requestBody(r);
     final responseBody = r.state == RequestState.completed

@@ -15,11 +15,6 @@ import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../../stats/presentation/controllers/stats_controller.dart';
 import '../../../stats/presentation/pages/stats_page.dart';
 
-/// Dio Lens' home, pushed by `DioLens.open`: Requests and Stats tabs over
-/// a bottom bar. A request tap opens its detail.
-///
-/// Tabs are lazy: Stats (and its controller) is built on first visit, then
-/// kept alive so switching back keeps its scroll position.
 class DioLensHomePage extends StatefulWidget {
   const DioLensHomePage({
     super.key,
@@ -31,13 +26,10 @@ class DioLensHomePage extends StatefulWidget {
 
   final DioLensDependencies dependencies;
 
-  /// Re-sends a request from its detail page.
   final ValueChanged<RequestDetailEntity>? onReplay;
 
-  /// Passed to detail pages (see `RequestDetailPage.onShare`).
   final DioLensShareCallback? onShare;
 
-  /// Builds an export and hands it to the app; null hides export.
   final Future<DioLensExportFile> Function(DioLensExportFormat format)?
   onExport;
 
@@ -99,8 +91,6 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // A Scaffold, so snackbars (export, copy) have somewhere to show,
-    // above the tab bar.
     return Scaffold(
       backgroundColor: DioLensTheme.of(context).background,
       body: IndexedStack(

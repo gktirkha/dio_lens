@@ -12,8 +12,6 @@ import '../controllers/settings_controller.dart';
 import '../widgets/capture_fields.dart';
 import '../widgets/settings_widgets.dart';
 
-/// Opens the settings sheet over the current Dio Lens page, sharing its
-/// theme mode. The sheet creates its controller and disposes it on close.
 Future<void> showDioLensSettings(
   BuildContext context, {
   required SettingsController Function() createController,
@@ -25,7 +23,6 @@ Future<void> showDioLensSettings(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    // The sheet draws its own grabber (as in the design).
     showDragHandle: false,
     backgroundColor: Colors.transparent,
     barrierColor: const Color(0x8C05060A),
@@ -40,8 +37,6 @@ Future<void> showDioLensSettings(
   );
 }
 
-/// Every Dio Lens setting, grouped as Appearance, Capture, Entry point,
-/// Privacy and Export. Changes apply as they are made.
 class SettingsSheet extends StatefulWidget {
   const SettingsSheet({
     super.key,
@@ -65,7 +60,6 @@ class _SettingsSheetState extends State<SettingsSheet> {
     super.dispose();
   }
 
-  /// Asks first, then puts every setting back to its starting value.
   Future<void> _confirmReset() async {
     final themeController = DioLensThemeScope.controllerOf(context);
     final mode = DioLensThemeScope.modeOf(context);
@@ -85,8 +79,6 @@ class _SettingsSheetState extends State<SettingsSheet> {
     final theme = DioLensTheme.of(context);
     final height = MediaQuery.sizeOf(context).height;
     final keyboard = MediaQuery.viewInsetsOf(context).bottom;
-    // Lift the sheet above the keyboard and fit it into the space left, so
-    // the list can scroll the focused field into view.
     return Padding(
       padding: EdgeInsets.only(bottom: keyboard),
       child: ConstrainedBox(

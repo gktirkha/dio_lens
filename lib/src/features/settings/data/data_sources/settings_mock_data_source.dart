@@ -3,7 +3,6 @@ import 'dart:async';
 import '../../domain/entities/dio_lens_settings.dart';
 import 'settings_data_source.dart';
 
-/// In-memory [SettingsDataSource], for previews.
 class SettingsMockDataSource implements SettingsDataSource {
   SettingsMockDataSource({this.initial = const DioLensSettings()})
     : _settings = initial;

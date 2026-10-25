@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Summary figure: small label above a large value.
 class StatCard extends StatelessWidget {
   const StatCard({
     super.key,
@@ -47,7 +46,6 @@ class StatCard extends StatelessWidget {
             child: Text(
               value,
               maxLines: 1,
-              // Numbers with units ("398 ms", "4.4 MB") always read LTR.
               textDirection: LtrContent.direction,
               style: TextStyle(
                 fontSize: 21,
@@ -64,7 +62,6 @@ class StatCard extends StatelessWidget {
   }
 }
 
-/// Two-column grid of [StatCard]s with equal-height rows.
 class StatCardGrid extends StatelessWidget {
   const StatCardGrid({super.key, required this.cards});
 

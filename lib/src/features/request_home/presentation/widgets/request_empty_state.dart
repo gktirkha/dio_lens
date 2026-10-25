@@ -2,12 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Shown when the list is empty, either because nothing was captured yet or
-/// because the active filters hide everything.
 class RequestEmptyState extends StatelessWidget {
   const RequestEmptyState({super.key, required this.filtered});
 
-  /// True when requests exist but the filters exclude all of them.
   final bool filtered;
 
   @override
@@ -30,8 +27,6 @@ class RequestEmptyState extends StatelessWidget {
       padding: const EdgeInsetsDirectional.fromSTEB(36, 70, 36, 40),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        // Full width, so short messages center instead of hugging the start
-        // edge inside the scroll view.
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Icon(icon, size: 40, color: theme.textFaint),

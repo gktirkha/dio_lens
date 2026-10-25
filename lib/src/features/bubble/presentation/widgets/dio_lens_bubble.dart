@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 
 import '../../../settings/domain/enums/dio_lens_bubble_position.dart';
 
-/// Round button that opens Dio Lens; the brand gradient is the same in
-/// light and dark.
 class DioLensBubble extends StatelessWidget {
   const DioLensBubble({super.key, this.onTap});
 
@@ -51,11 +49,6 @@ class DioLensBubble extends StatelessWidget {
   }
 }
 
-/// Fills the overlay and floats a [DioLensBubble] over it.
-///
-/// The bubble starts in the [initialPosition] corner and can be dragged
-/// anywhere inside the safe area. [settleDelay] after a drag ends it
-/// slides to the nearer side edge (left or right half of the screen).
 class FloatingDioLensBubble extends StatefulWidget {
   const FloatingDioLensBubble({
     super.key,
@@ -68,11 +61,8 @@ class FloatingDioLensBubble extends StatefulWidget {
   final VoidCallback? onTap;
   final Duration settleDelay;
 
-  /// Gap kept between the bubble and the screen edges.
   static const double margin = 16;
 
-  /// Distance of a bottom corner from the bottom of the safe area, clear of
-  /// typical bottom bars and FABs.
   static const double bottomInset = 112;
 
   @override
@@ -80,7 +70,6 @@ class FloatingDioLensBubble extends StatefulWidget {
 }
 
 class _FloatingDioLensBubbleState extends State<FloatingDioLensBubble> {
-  /// Top-left of the bubble in overlay coordinates; null until laid out.
   Offset? _position;
   bool _dragging = false;
   Timer? _settleTimer;
@@ -91,8 +80,6 @@ class _FloatingDioLensBubbleState extends State<FloatingDioLensBubble> {
     super.dispose();
   }
 
-  /// Where the bubble may sit: the overlay minus safe-area padding and
-  /// [FloatingDioLensBubble.margin].
   Rect _bounds(Size size, EdgeInsets padding) {
     const m = FloatingDioLensBubble.margin;
     const s = DioLensBubble.size;
@@ -150,7 +137,6 @@ class _FloatingDioLensBubbleState extends State<FloatingDioLensBubble> {
       builder: (context, constraints) {
         final size = constraints.biggest;
         final bounds = _bounds(size, padding);
-        // Clamp on every build so rotation or resizing keeps it on screen.
         final position = _clamp(
           _position ??= _corner(bounds, size, padding),
           bounds,
@@ -166,15 +152,11 @@ class _FloatingDioLensBubbleState extends State<FloatingDioLensBubble> {
               left: position.dx,
               top: position.dy,
               child: GestureDetector(
-                // Count movement from the touch point, so the bubble stays
-                // under the finger instead of lagging by the drag slop.
                 dragStartBehavior: DragStartBehavior.down,
                 onPanStart: (_) {
                   _settleTimer?.cancel();
                   setState(() => _dragging = true);
                 },
-                // Accumulate on the live position: several updates can land
-                // before the next rebuild.
                 onPanUpdate: (details) => setState(
                   () => _position = _clamp(
                     (_position ?? position) + details.delta,

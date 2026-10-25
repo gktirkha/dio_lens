@@ -15,9 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestFilterParams {
 
- RequestStatusFilter get status;/// Upper-case methods to keep; empty keeps every method.
- Set<String> get methods;/// Case-insensitive match against method, host, path and query.
- String get search;
+ RequestStatusFilter get status; Set<String> get methods; String get search;
 /// Create a copy of RequestFilterParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -220,16 +218,13 @@ class _RequestFilterParams extends RequestFilterParams {
   
 
 @override@JsonKey() final  RequestStatusFilter status;
-/// Upper-case methods to keep; empty keeps every method.
  final  Set<String> _methods;
-/// Upper-case methods to keep; empty keeps every method.
 @override@JsonKey() Set<String> get methods {
   if (_methods is EqualUnmodifiableSetView) return _methods;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableSetView(_methods);
 }
 
-/// Case-insensitive match against method, host, path and query.
 @override@JsonKey() final  String search;
 
 /// Create a copy of RequestFilterParams

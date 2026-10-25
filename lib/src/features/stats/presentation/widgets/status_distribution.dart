@@ -7,8 +7,6 @@ import '../../../../core/enums/request_status_class.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/status_share_entity.dart';
 
-/// Donut of status classes with a legend; the legend ends with a divider
-/// and the total request count.
 class StatusDistribution extends StatelessWidget {
   const StatusDistribution({
     super.key,
@@ -112,7 +110,6 @@ class _LegendRow extends StatelessWidget {
     this.emphasis = false,
   });
 
-  /// Dot color; the total row has no dot but keeps the same indent.
   final Color? color;
   final String label;
   final String value;

@@ -7,26 +7,19 @@ import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import 'overview_widgets.dart';
 
-/// One row of a [KeyValueBox].
 class KeyValueEntry {
   const KeyValueEntry(this.key, this.value, {this.redacted = false});
 
   final String key;
   final String value;
 
-  /// Hidden value (e.g. an Authorization header); shown as a mask.
   final bool redacted;
 
   static const String mask = '••••••• (redacted)';
 
-  /// What is shown and copied for this row.
   String get displayValue => redacted ? mask : value;
 }
 
-/// Bordered box of key/value rows with a titled header and "Copy all".
-/// Each row copies its own value on tap; "Copy all" copies every row as a
-/// pretty-printed JSON object. Used for query params, headers and form
-/// bodies.
 class KeyValueBox extends StatelessWidget {
   const KeyValueBox({
     super.key,
@@ -38,11 +31,8 @@ class KeyValueBox extends StatelessWidget {
   final String title;
   final List<KeyValueEntry> entries;
 
-  /// Snackbar label for "Copy all"; defaults to [title].
   final String? _copyAllLabel;
 
-  /// Every row as a JSON object, in order. Redacted rows keep their mask;
-  /// a repeated key (e.g. `?tag=a&tag=b`) becomes an array of its values.
   String get copyAllText {
     final map = <String, Object>{};
     for (final e in entries) {

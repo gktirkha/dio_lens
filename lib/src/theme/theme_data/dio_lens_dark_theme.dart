@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../dio_lens_theme.dart';
 
-/// Dark Dio Lens theme (the default), from `:root` in `res/design.html`.
 const DioLensTheme dioLensDarkTheme = DioLensTheme(
   brightness: Brightness.dark,
   background: Color(0xFF0B0D12),

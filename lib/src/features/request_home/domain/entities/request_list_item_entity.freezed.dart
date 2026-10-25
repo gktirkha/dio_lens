@@ -16,16 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestListItemEntity {
 
-@JsonKey(name: 'id') String get id;/// Upper-case HTTP method, e.g. `GET`, `POST`.
-@JsonKey(name: 'method') String get method;@JsonKey(name: 'uri') Uri get uri;@JsonKey(name: 'started_at') DateTime get startedAt;@JsonKey(name: 'state') RequestState get state;/// HTTP status code; null while pending or when the request failed
-/// without a response.
-@JsonKey(name: 'status_code') int? get statusCode;/// Time from send to response/error; null while pending.
-@JsonKey(name: 'duration') Duration? get duration;/// Response body size in bytes; null when unknown.
-@JsonKey(name: 'response_size') int? get responseSize;/// Why the request failed without a response; null otherwise.
-@JsonKey(name: 'error_type') DioExceptionType? get errorType;/// MIME type of the request body, e.g. `application/json`; null when
-/// there is no body.
-@JsonKey(name: 'request_content_type') String? get requestContentType;/// MIME type of the response body; null when there is none.
-@JsonKey(name: 'response_content_type') String? get responseContentType;
+@JsonKey(name: 'id') String get id;@JsonKey(name: 'method') String get method;@JsonKey(name: 'uri') Uri get uri;@JsonKey(name: 'started_at') DateTime get startedAt;@JsonKey(name: 'state') RequestState get state;@JsonKey(name: 'status_code') int? get statusCode;@JsonKey(name: 'duration') Duration? get duration;@JsonKey(name: 'response_size') int? get responseSize;@JsonKey(name: 'error_type') DioExceptionType? get errorType;@JsonKey(name: 'request_content_type') String? get requestContentType;@JsonKey(name: 'response_content_type') String? get responseContentType;
 /// Create a copy of RequestListItemEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -238,24 +229,15 @@ class _RequestListItemEntity extends RequestListItemEntity {
   factory _RequestListItemEntity.fromJson(Map<String, dynamic> json) => _$RequestListItemEntityFromJson(json);
 
 @override@JsonKey(name: 'id') final  String id;
-/// Upper-case HTTP method, e.g. `GET`, `POST`.
 @override@JsonKey(name: 'method') final  String method;
 @override@JsonKey(name: 'uri') final  Uri uri;
 @override@JsonKey(name: 'started_at') final  DateTime startedAt;
 @override@JsonKey(name: 'state') final  RequestState state;
-/// HTTP status code; null while pending or when the request failed
-/// without a response.
 @override@JsonKey(name: 'status_code') final  int? statusCode;
-/// Time from send to response/error; null while pending.
 @override@JsonKey(name: 'duration') final  Duration? duration;
-/// Response body size in bytes; null when unknown.
 @override@JsonKey(name: 'response_size') final  int? responseSize;
-/// Why the request failed without a response; null otherwise.
 @override@JsonKey(name: 'error_type') final  DioExceptionType? errorType;
-/// MIME type of the request body, e.g. `application/json`; null when
-/// there is no body.
 @override@JsonKey(name: 'request_content_type') final  String? requestContentType;
-/// MIME type of the response body; null when there is none.
 @override@JsonKey(name: 'response_content_type') final  String? responseContentType;
 
 /// Create a copy of RequestListItemEntity

@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Rounded card with a title, wrapping one chart or list.
-///
-/// With [onTap], the title row becomes a button with a trailing chevron.
-/// Without a [title] only [child] is shown.
 class StatsPanel extends StatelessWidget {
   const StatsPanel({super.key, this.title, required this.child, this.onTap});
 
@@ -43,7 +39,6 @@ class StatsPanel extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(child: titleText),
-                    // chevron_right mirrors automatically in RTL.
                     Icon(
                       Icons.chevron_right_rounded,
                       size: 18,

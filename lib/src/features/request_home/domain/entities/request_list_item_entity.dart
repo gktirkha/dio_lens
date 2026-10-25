@@ -7,7 +7,6 @@ import '../../../../core/enums/request_status_class.dart';
 part 'request_list_item_entity.freezed.dart';
 part 'request_list_item_entity.g.dart';
 
-/// One row of the request list on the home screen.
 @freezed
 abstract class RequestListItemEntity with _$RequestListItemEntity {
   const RequestListItemEntity._();
@@ -15,30 +14,21 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
   const factory RequestListItemEntity({
     @JsonKey(name: 'id') required String id,
 
-    /// Upper-case HTTP method, e.g. `GET`, `POST`.
     @JsonKey(name: 'method') required String method,
     @JsonKey(name: 'uri') required Uri uri,
     @JsonKey(name: 'started_at') required DateTime startedAt,
     @JsonKey(name: 'state') required RequestState state,
 
-    /// HTTP status code; null while pending or when the request failed
-    /// without a response.
     @JsonKey(name: 'status_code') int? statusCode,
 
-    /// Time from send to response/error; null while pending.
     @JsonKey(name: 'duration') Duration? duration,
 
-    /// Response body size in bytes; null when unknown.
     @JsonKey(name: 'response_size') int? responseSize,
 
-    /// Why the request failed without a response; null otherwise.
     @JsonKey(name: 'error_type') DioExceptionType? errorType,
 
-    /// MIME type of the request body, e.g. `application/json`; null when
-    /// there is no body.
     @JsonKey(name: 'request_content_type') String? requestContentType,
 
-    /// MIME type of the response body; null when there is none.
     @JsonKey(name: 'response_content_type') String? responseContentType,
   }) = _RequestListItemEntity;
 
@@ -49,7 +39,6 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
 
   String get path => uri.path.isEmpty ? '/' : uri.path;
 
-  /// Query string without the leading `?`; null when there is none.
   String? get query => uri.hasQuery && uri.query.isNotEmpty ? uri.query : null;
 
   RequestStatusClass get statusClass =>

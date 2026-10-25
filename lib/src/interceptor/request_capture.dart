@@ -7,18 +7,9 @@ import '../core/enums/request_state.dart';
 import '../core/utils/format_utils.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
 
-/// A body made storable: JSON-encodable [body] and the full [size] in bytes.
 typedef CapturedBody = ({Object? body, int? size});
 
-/// Turns Dio's request, response and error objects into a
-/// [RequestDetailEntity] whose bodies are JSON-encodable, so it can be
-/// stored as is.
-///
-/// Body work (JSON round trips, decoding, base64, sizing) runs in a
-/// background isolate; headers and metadata are read on the caller's.
 abstract final class RequestCapture {
-  /// The request part of a capture, still pending. Bodies over
-  /// [maxBodyBytes] are cut (null keeps them whole).
   static Future<RequestDetailEntity> pending({
     required String id,
     required DateTime startedAt,
@@ -44,7 +35,6 @@ abstract final class RequestCapture {
     );
   }
 
-  /// [request] finished with [response] (any status code) at [finishedAt].
   static Future<RequestDetailEntity> completed(
     RequestDetailEntity request,
     Response<dynamic> response, {
@@ -70,7 +60,6 @@ abstract final class RequestCapture {
     );
   }
 
-  /// [request] failed without a response at [finishedAt].
   static RequestDetailEntity failed(
     RequestDetailEntity request,
     DioException error, {
@@ -87,8 +76,6 @@ abstract final class RequestCapture {
       options.contentType ??
       (options.data is FormData ? Headers.multipartFormDataContentType : null);
 
-  /// Form data and streams (which cannot be sent to an isolate) are handled
-  /// here; every other body goes through [_process] in an isolate.
   static Future<CapturedBody> _capture(
     Object? data,
     String? contentType,
@@ -110,19 +97,16 @@ abstract final class RequestCapture {
     try {
       return await _processInIsolate(data, contentType, maxBytes);
     } catch (_) {
-      // Not sendable (e.g. an object holding a closure): do it here.
       return _process(data, contentType, maxBytes);
     }
   }
 
-  // Static, so the closure captures only its arguments.
   static Future<CapturedBody> _processInIsolate(
     Object data,
     String? contentType,
     int? maxBytes,
   ) => Isolate.run(() => _process(data, contentType, maxBytes));
 
-  /// [data] made storable and sized. Runs in an isolate.
   static CapturedBody _process(Object data, String? contentType, int? max) {
     final type = (contentType ?? '').toLowerCase();
     switch (data) {
@@ -142,7 +126,6 @@ abstract final class RequestCapture {
             max,
           );
         }
-        // Other binary bodies are not kept, only their size.
         return (body: null, size: bytes.length);
       default:
         final String encoded;
@@ -160,8 +143,6 @@ abstract final class RequestCapture {
     }
   }
 
-  /// [text] (encoded as [bytes]) as decoded JSON when [type] says JSON and
-  /// it parses, else as text; over [max] bytes, truncated text.
   static CapturedBody _text(
     String text,
     List<int> bytes,
@@ -175,14 +156,11 @@ abstract final class RequestCapture {
     if (_isJson(type)) {
       try {
         return (body: jsonDecode(text), size: bytes.length);
-      } on FormatException {
-        // Not valid JSON: keep the text.
-      }
+      } on FormatException catch (_) {}
     }
     return (body: text, size: bytes.length);
   }
 
-  /// The first [max] bytes of [bytes] as text, with a note.
   static String _truncated(List<int> bytes, int max) =>
       '${utf8.decode(bytes.sublist(0, max), allowMalformed: true)}\n\n'
       '… Truncated by Dio Lens: showing the first '
@@ -195,7 +173,6 @@ abstract final class RequestCapture {
     _ => '$value',
   };
 
-  /// Objects go through their `toJson()`, or `toString()` without one.
   static Object? _toEncodable(Object? value) {
     try {
       return (value as dynamic).toJson();

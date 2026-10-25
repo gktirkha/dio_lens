@@ -7,10 +7,6 @@ import '../../../../core/enums/request_state.dart';
 import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import 'stats_data_source.dart';
 
-/// [StatsDataSource] backed by generated traffic over the last 12 hours.
-///
-/// Stand-in until stats read from the shared request store. Lazy: requests
-/// are generated on first use.
 class StatsMockDataSource implements StatsDataSource {
   StatsMockDataSource({List<RequestListItemEntity> Function()? seed})
     : _seed = seed ?? generateRequests;
@@ -24,15 +20,11 @@ class StatsMockDataSource implements StatsDataSource {
     yield _requests;
   }
 
-  /// Deterministic sample: ~350 requests whose hourly volume, status mix and
-  /// per-endpoint latency resemble a real session.
   static List<RequestListItemEntity> generateRequests({DateTime? now}) {
     final at = now ?? DateTime.now();
     final random = Random(42);
 
-    // Relative traffic per hour, oldest first.
     const hourlyWeights = [6, 9, 14, 22, 31, 27, 19, 24, 35, 29, 18, 10];
-    // (method, host, path, weight, base latency ms)
     const endpoints = [
       ('GET', 'api.example.com', '/v1/users', 40, 184),
       ('GET', 'api.example.com', '/v1/orders', 27, 266),
@@ -70,7 +62,6 @@ class StatsMockDataSource implements StatsDataSource {
         );
         final ms = (baseMs * (0.6 + random.nextDouble() * 0.8)).round();
 
-        // 72% 2xx, 6% 3xx, 9% 4xx, 5% 5xx, 5% network error, 3% pending.
         final (state, code) = pick([
           ((RequestState.completed, 200), 72),
           ((RequestState.completed, 304), 6),

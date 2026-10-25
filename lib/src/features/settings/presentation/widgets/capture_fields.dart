@@ -6,8 +6,6 @@ import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/enums/dio_lens_size_unit.dart';
 import 'settings_widgets.dart';
 
-/// Max stored requests: `− value +` (steps of 10), help, presets and how
-/// much of the limit is used. Typed values apply once valid.
 class MaxRequestsField extends StatefulWidget {
   const MaxRequestsField({
     super.key,
@@ -32,7 +30,6 @@ class _MaxRequestsFieldState extends State<MaxRequestsField> {
   );
   final FocusNode _focus = FocusNode();
 
-  /// The typed number when it is within the limits, else null.
   int? get _draft => switch (int.tryParse(_text.text.trim())) {
     final n?
         when n >= DioLensSettings.minRequests &&
@@ -44,7 +41,6 @@ class _MaxRequestsFieldState extends State<MaxRequestsField> {
   @override
   void initState() {
     super.initState();
-    // Leaving an invalid value puts the current limit back.
     _focus.addListener(() {
       if (!_focus.hasFocus && _draft == null) _show(widget.value);
     });
@@ -230,7 +226,6 @@ class _PresetChip extends StatelessWidget {
           child: Container(
             height: 28,
             padding: const EdgeInsets.symmetric(horizontal: 11),
-            // Sized to the label, not stretched by the column.
             child: Center(
               widthFactor: 1,
               child: Text(
@@ -249,7 +244,6 @@ class _PresetChip extends StatelessWidget {
   }
 }
 
-/// Max body size: a number and a unit (B / KB / MB), or Unlimited.
 class MaxBodySizeField extends StatefulWidget {
   const MaxBodySizeField({
     super.key,
@@ -257,7 +251,6 @@ class MaxBodySizeField extends StatefulWidget {
     required this.onChanged,
   });
 
-  /// In bytes; null for unlimited.
   final int? value;
   final ValueChanged<int?> onChanged;
 
@@ -266,11 +259,9 @@ class MaxBodySizeField extends StatefulWidget {
 }
 
 class _MaxBodySizeFieldState extends State<MaxBodySizeField> {
-  /// Null: unlimited.
   DioLensSizeUnit? _unit;
   late final TextEditingController _text = TextEditingController();
 
-  /// Number shown when switching from Unlimited to a unit.
   static const Map<DioLensSizeUnit, num> _defaults = {
     DioLensSizeUnit.bytes: 1024,
     DioLensSizeUnit.kilobytes: 256,
@@ -297,7 +288,6 @@ class _MaxBodySizeFieldState extends State<MaxBodySizeField> {
     super.dispose();
   }
 
-  /// Shows [bytes] in the largest unit that keeps it a whole number.
   void _showValue(int? bytes) {
     if (bytes == null) {
       _unit = null;
@@ -314,7 +304,6 @@ class _MaxBodySizeFieldState extends State<MaxBodySizeField> {
   static String _format(num value) =>
       value == value.roundToDouble() ? '${value.round()}' : '$value';
 
-  /// The typed size in bytes; null when unlimited or not a positive number.
   int? get _bytes {
     final unit = _unit;
     final number = num.tryParse(_text.text.trim());

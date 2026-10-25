@@ -33,7 +33,6 @@ class ExportRepositoryImpl implements ExportRepository {
     );
   }
 
-  // Static, so the closure captures only its arguments.
   static Future<Uint8List> _buildInIsolate(
     DioLensExportFormat format,
     List<RequestDetailEntity> requests,
@@ -43,7 +42,6 @@ class ExportRepositoryImpl implements ExportRepository {
     () => ExportBuilder.build(format, requests, settings, createdAt),
   );
 
-  /// `20261025_165401`
   static String _stamp(DateTime t) {
     String two(int n) => n.toString().padLeft(2, '0');
     return '${t.year}${two(t.month)}${two(t.day)}_'

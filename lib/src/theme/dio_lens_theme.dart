@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Design tokens for the Dio Lens inspector UI.
-///
-/// Mirrors the `--dl-*` / `--m-*` custom properties in `res/design.html`.
-///
-/// Internal to the package: the host app never applies this theme. Dio Lens
-/// screens wrap themselves in `DioLensThemeScope`, which installs
-/// [toFlutterTheme] for that subtree only. Inside it, read the tokens with
-/// [DioLensTheme.of].
 @immutable
 class DioLensTheme extends ThemeExtension<DioLensTheme> {
   const DioLensTheme({
@@ -60,7 +52,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
 
   final Brightness brightness;
 
-  // Surfaces
   final Color background;
   final Color surface;
   final Color surface2;
@@ -68,17 +59,14 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
   final Color border;
   final Color borderStrong;
 
-  // Text
   final Color text;
   final Color textMuted;
   final Color textFaint;
 
-  // Accent
   final Color accent;
   final Color accentStrong;
   final Color onAccent;
 
-  // Status classes: 2xx / 3xx / 4xx / 5xx & errors / pending
   final Color success;
   final Color successBackground;
   final Color redirect;
@@ -90,10 +78,8 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
   final Color pending;
   final Color pendingBackground;
 
-  /// Requests that failed without a response (charts).
   final Color networkError;
 
-  // HTTP method chips
   final Color methodGet;
   final Color methodGetBackground;
   final Color methodPost;
@@ -107,7 +93,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
   final Color methodQuery;
   final Color methodQueryBackground;
 
-  // JSON tree syntax colors
   final Color jsonKey;
   final Color jsonString;
   final Color jsonNumber;
@@ -116,10 +101,6 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
 
   final BoxShadow shadow;
 
-  // Typography: device fonts only, nothing is bundled with the package.
-  // UI text uses the platform default (Roboto, San Francisco, Segoe UI…).
-  // Monospace: Android resolves 'monospace'; the fallbacks cover iOS/macOS,
-  // Windows and Linux.
   static const String monoFontFamily = 'monospace';
   static const List<String> monoFontFamilyFallback = [
     'Menlo',
@@ -129,26 +110,22 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     'DejaVu Sans Mono',
   ];
 
-  // Radii
   final double radiusSmall;
   final double radiusMedium;
   final double radiusLarge;
 
-  /// The tokens of the nearest `DioLensThemeScope`.
   static DioLensTheme of(BuildContext context) {
     final theme = Theme.of(context).extension<DioLensTheme>();
     assert(theme != null, 'No DioLensThemeScope found above this widget.');
     return theme!;
   }
 
-  /// Text style for URLs, headers, bodies and other code-like content.
   TextStyle get monoTextStyle => TextStyle(
     fontFamily: monoFontFamily,
     fontFamilyFallback: monoFontFamilyFallback,
     color: text,
   );
 
-  /// Converts these tokens into a Material 3 [ThemeData].
   ThemeData toFlutterTheme() {
     final colorScheme = ColorScheme(
       brightness: brightness,

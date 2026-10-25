@@ -9,9 +9,6 @@ import '../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../settings/domain/enums/dio_lens_notification_position.dart';
 import 'widgets/request_finished_banner.dart';
 
-/// Shows the request-finished banner at the top of the host app, in the
-/// overlay of the host's navigator. One banner at a time: a new one
-/// replaces the current one.
 class RequestBannerPresenter {
   RequestBannerPresenter({
     required this._navigatorKey,
@@ -26,14 +23,11 @@ class RequestBannerPresenter {
   OverlayEntry? _entry;
   GlobalKey<_AnimatedBannerState>? _bannerKey;
 
-  /// Shows [request] for [duration]; skipped when the navigator is not
-  /// mounted yet.
   void show(
     RequestDetailEntity request, {
     required Duration duration,
     DioLensNotificationPosition position = DioLensNotificationPosition.top,
   }) {
-    // Inserting while a frame is being built would throw; wait for it.
     if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
       SchedulerBinding.instance.addPostFrameCallback(
@@ -73,7 +67,6 @@ class RequestBannerPresenter {
     overlay.insert(entry);
   }
 
-  /// Hides the current banner, if any, with its exit animation.
   void dismiss() => _bannerKey?.currentState?.close();
 
   void _remove() {
@@ -83,8 +76,6 @@ class RequestBannerPresenter {
   }
 }
 
-/// Slides and fades the banner in, closes it after [duration] or on
-/// [close], then reports [onClosed].
 class _AnimatedBanner extends StatefulWidget {
   const _AnimatedBanner({
     super.key,
@@ -173,7 +164,6 @@ class _AnimatedBannerState extends State<_AnimatedBanner>
           ),
         ),
       ),
-      // Only the banner takes touches; the rest of the screen stays live.
       DioLensNotificationPosition.center => Positioned.fill(
         child: SafeArea(
           child: Center(
@@ -191,7 +181,6 @@ class _AnimatedBannerState extends State<_AnimatedBanner>
         child: SafeArea(
           top: false,
           child: Padding(
-            // Clear typical bottom bars (design: 82px).
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 82),
             child: banner,
           ),

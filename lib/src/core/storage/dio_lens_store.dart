@@ -10,12 +10,6 @@ import '../enums/request_state.dart';
 import 'dio_lens_storage.dart';
 import 'stored_requests_parser.dart';
 
-/// In-memory source of truth for captured requests and settings, written
-/// through to a [DioLensStorage].
-///
-/// Lazy: storage is created and read on first use. Every change updates
-/// memory at once, then reaches storage through a queue, one call at a
-/// time. The max requests limit and retention are applied here.
 class DioLensStore {
   DioLensStore({
     required DioLensStorage Function() storage,
@@ -24,7 +18,6 @@ class DioLensStore {
        _initialSettings = initialSettings,
        _settings = ValueNotifier(initialSettings);
 
-  /// Settings given to `DioLens.init`; what [resetSettings] goes back to.
   final DioLensSettings _initialSettings;
 
   final DioLensStorage Function() _storageFactory;
@@ -32,24 +25,19 @@ class DioLensStore {
 
   final ValueNotifier<DioLensSettings> _settings;
 
-  /// Newest first.
   final List<RequestDetailEntity> _requests = [];
 
   late final StreamController<List<RequestDetailEntity>> _changes =
       StreamController.broadcast();
 
-  /// Completes once stored settings and requests are loaded.
   late final Future<void> ready = _load();
 
   Future<void> _queue = Future.value();
 
-  /// Current settings: the initial ones until stored ones are loaded.
   ValueListenable<DioLensSettings> get settings => _settings;
 
-  /// Loaded requests, newest first; empty until [ready].
   List<RequestDetailEntity> get requests => List.unmodifiable(_requests);
 
-  /// The requests, newest first. Emits once loaded, then after every change.
   Stream<List<RequestDetailEntity>> watchRequests() {
     late final StreamController<List<RequestDetailEntity>> controller;
     StreamSubscription<List<RequestDetailEntity>>? subscription;
@@ -65,7 +53,6 @@ class DioLensStore {
     return controller.stream;
   }
 
-  /// Stores a newly started [request] as the newest one.
   Future<void> add(RequestDetailEntity request) async {
     await ready;
     _requests.insert(0, request);
@@ -74,8 +61,6 @@ class DioLensStore {
     _emit();
   }
 
-  /// Replaces the stored request with the same id. Ignored when it is gone
-  /// (deleted, cleared or trimmed while in flight).
   Future<void> update(RequestDetailEntity request) async {
     await ready;
     final index = _requests.indexWhere((r) => r.id == request.id);
@@ -101,15 +86,11 @@ class DioLensStore {
     _emit();
   }
 
-  /// Removes requests past the retention (or the limit) now, instead of
-  /// waiting for the next request.
   Future<void> removeExpired() async {
     await ready;
     if (_trim()) _emit();
   }
 
-  /// Applies and stores [settings]; a lower limit or shorter retention
-  /// removes the requests that no longer fit.
   Future<void> updateSettings(DioLensSettings settings) async {
     await ready;
     if (settings == _settings.value) return;
@@ -118,7 +99,6 @@ class DioLensStore {
     if (_trim()) _emit();
   }
 
-  /// Removes the stored settings and goes back to the initial ones.
   Future<void> resetSettings() async {
     await ready;
     _enqueue((s) => s.clearSettings());
@@ -136,7 +116,6 @@ class DioLensStore {
     }
 
     if (_settings.value.retention == DioLensRetention.session) {
-      // Nothing from an earlier run is kept, so skip reading it.
       _enqueue((s) => s.clearRequests());
       return;
     }
@@ -158,8 +137,6 @@ class DioLensStore {
     _trim();
   }
 
-  /// A request stored as pending by an earlier run never got its answer:
-  /// it is marked failed, and stored so, instead of spinning forever.
   RequestDetailEntity _settleInterrupted(RequestDetailEntity request) {
     if (request.state != RequestState.pending) return request;
     final settled = request.copyWith(
@@ -171,8 +148,6 @@ class DioLensStore {
     return settled;
   }
 
-  /// Drops requests past the limit or older than the retention; true when
-  /// any were dropped.
   bool _trim() {
     final settings = _settings.value;
     final maxAge = settings.retention.maxAge;

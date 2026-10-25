@@ -5,7 +5,6 @@ import '../../../../core/widgets/dio_lens_icon_button.dart';
 import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Top bar of the stats page: title, theme toggle and overflow menu.
 class StatsHeader extends StatelessWidget {
   const StatsHeader({
     super.key,

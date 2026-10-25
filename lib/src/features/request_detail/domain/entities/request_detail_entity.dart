@@ -9,7 +9,6 @@ import '../../../../core/enums/request_status_class.dart';
 part 'request_detail_entity.freezed.dart';
 part 'request_detail_entity.g.dart';
 
-/// Everything captured about one request, for the detail screen.
 @freezed
 abstract class RequestDetailEntity with _$RequestDetailEntity {
   const RequestDetailEntity._();
@@ -17,7 +16,6 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
   const factory RequestDetailEntity({
     @JsonKey(name: 'id') required String id,
 
-    /// Upper-case HTTP method, e.g. `GET`, `QUERY`.
     @JsonKey(name: 'method') required String method,
     @JsonKey(name: 'uri') required Uri uri,
     @JsonKey(name: 'started_at') required DateTime startedAt,
@@ -25,10 +23,8 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     @JsonKey(name: 'status_code') int? statusCode,
     @JsonKey(name: 'duration') Duration? duration,
 
-    /// e.g. `HTTP/2`; null when unknown.
     @JsonKey(name: 'protocol') String? protocol,
 
-    /// Body sizes in bytes; null when unknown.
     @JsonKey(name: 'request_size') int? requestSize,
     @JsonKey(name: 'response_size') int? responseSize,
     @JsonKey(name: 'request_content_type') String? requestContentType,
@@ -40,11 +36,9 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     @Default(<String, String>{})
     Map<String, String> responseHeaders,
 
-    /// Decoded body: a JSON map/list, a form map, a string, or null.
     @JsonKey(name: 'request_body') Object? requestBody,
     @JsonKey(name: 'response_body') Object? responseBody,
 
-    /// Why the request failed without a response; null otherwise.
     @JsonKey(name: 'error_type') DioExceptionType? errorType,
     @JsonKey(name: 'error_message') String? errorMessage,
     @JsonKey(name: 'stack_trace') String? stackTrace,
@@ -57,10 +51,8 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
 
   String get path => uri.path.isEmpty ? '/' : uri.path;
 
-  /// Query string without the leading `?`; null when there is none.
   String? get query => uri.hasQuery && uri.query.isNotEmpty ? uri.query : null;
 
-  /// Decoded query parameters in URL order, duplicates kept.
   List<({String key, String value})> get queryParameters {
     final q = query;
     if (q == null) return const [];
@@ -73,7 +65,6 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
   RequestStatusClass get statusClass =>
       RequestStatusClass.resolve(state, statusCode);
 
-  /// Equivalent `curl` command, one option per line.
   String get curl {
     final parts = <String>["curl -X $method '$uri'"];
     requestHeaders.forEach((k, v) => parts.add("-H '$k: $v'"));

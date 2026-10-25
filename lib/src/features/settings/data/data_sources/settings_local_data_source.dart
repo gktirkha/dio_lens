@@ -4,7 +4,6 @@ import '../../../../core/storage/dio_lens_store.dart';
 import '../../domain/entities/dio_lens_settings.dart';
 import 'settings_data_source.dart';
 
-/// [SettingsDataSource] over the stored settings.
 class SettingsLocalDataSource implements SettingsDataSource {
   SettingsLocalDataSource(this._store);
 
@@ -18,7 +17,6 @@ class SettingsLocalDataSource implements SettingsDataSource {
     controller = StreamController(
       onListen: () {
         settings.addListener(emit);
-        // Stored settings replace the initial ones once loaded.
         _store.ready.then((_) {
           if (!controller.isClosed) emit();
         });

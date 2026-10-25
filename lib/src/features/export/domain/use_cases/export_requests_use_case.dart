@@ -3,7 +3,6 @@ import '../../../../core/enums/export_format.dart';
 import '../entities/dio_lens_export_file.dart';
 import '../repositories/export_repository.dart';
 
-/// Builds an export file of the stored requests.
 class ExportRequestsUseCase
     implements UseCaseBase<DioLensExportFile, DioLensExportFormat> {
   const ExportRequestsUseCase(this._repository);

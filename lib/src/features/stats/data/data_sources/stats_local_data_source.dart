@@ -3,7 +3,6 @@ import '../../../request_home/data/mappers/request_list_item_mapper.dart';
 import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import 'stats_data_source.dart';
 
-/// [StatsDataSource] over the requests captured by the interceptor.
 class StatsLocalDataSource implements StatsDataSource {
   StatsLocalDataSource(this._store);
 

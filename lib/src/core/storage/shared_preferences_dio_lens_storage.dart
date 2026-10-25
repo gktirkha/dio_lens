@@ -6,14 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dio_lens_storage.dart';
 import 'stored_requests_parser.dart';
 
-/// Default [DioLensStorage], backed by `shared_preferences`.
-///
-/// Each request is its own JSON string entry, plus one entry listing the
-/// stored ids, so a write touches only the request that changed.
-///
-/// Preferences are read and written on the main isolate (platform
-/// channels need it); JSON encoding, decoding and parsing run in
-/// background isolates.
 class SharedPreferencesDioLensStorage extends DioLensStorage
     implements ParsingDioLensStorage {
   SharedPreferencesDioLensStorage({
@@ -21,7 +13,6 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
     this.keyPrefix = 'dio_lens',
   }) : _injectedPreferences = preferences;
 
-  /// Prefix of every key written, so entries never clash with the app's.
   final String keyPrefix;
 
   final SharedPreferencesAsync? _injectedPreferences;
@@ -33,7 +24,6 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
   String get _settingsKey => '$keyPrefix.settings';
   String _requestKey(String id) => '$keyPrefix.request.$id';
 
-  /// Stored ids, read once and then kept in sync with every write.
   List<String>? _ids;
 
   Future<List<String>> _loadIds() async =>
@@ -53,7 +43,6 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
     return Isolate.run(() => parseStoredRequests(_decodeAll(raw)));
   }
 
-  /// The stored JSON strings, in id order.
   Future<List<String>> _readRaw() async {
     final ids = await _loadIds();
     if (ids.isEmpty) return [];
@@ -66,7 +55,6 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
     ];
   }
 
-  // Top-level-like statics: isolate closures must not capture `this`.
   static List<Map<String, dynamic>> _decodeAll(List<String> raw) => [
     for (final r in raw) ?_decode(r),
   ];
@@ -119,7 +107,6 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
   @override
   Future<void> clearSettings() => _preferences.remove(_settingsKey);
 
-  /// [raw] as a JSON object; null when it is corrupt.
   static Map<String, dynamic>? _decode(String raw) {
     try {
       return switch (jsonDecode(raw)) {

@@ -5,7 +5,6 @@ import '../../../../core/enums/request_status_class.dart';
 part 'status_share_entity.freezed.dart';
 part 'status_share_entity.g.dart';
 
-/// How many requests fall into one status class.
 @freezed
 abstract class StatusShareEntity with _$StatusShareEntity {
   const factory StatusShareEntity({

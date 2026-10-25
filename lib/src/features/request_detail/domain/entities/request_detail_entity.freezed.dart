@@ -16,12 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestDetailEntity {
 
-@JsonKey(name: 'id') String get id;/// Upper-case HTTP method, e.g. `GET`, `QUERY`.
-@JsonKey(name: 'method') String get method;@JsonKey(name: 'uri') Uri get uri;@JsonKey(name: 'started_at') DateTime get startedAt;@JsonKey(name: 'state') RequestState get state;@JsonKey(name: 'status_code') int? get statusCode;@JsonKey(name: 'duration') Duration? get duration;/// e.g. `HTTP/2`; null when unknown.
-@JsonKey(name: 'protocol') String? get protocol;/// Body sizes in bytes; null when unknown.
-@JsonKey(name: 'request_size') int? get requestSize;@JsonKey(name: 'response_size') int? get responseSize;@JsonKey(name: 'request_content_type') String? get requestContentType;@JsonKey(name: 'response_content_type') String? get responseContentType;@JsonKey(name: 'request_headers') Map<String, String> get requestHeaders;@JsonKey(name: 'response_headers') Map<String, String> get responseHeaders;/// Decoded body: a JSON map/list, a form map, a string, or null.
-@JsonKey(name: 'request_body') Object? get requestBody;@JsonKey(name: 'response_body') Object? get responseBody;/// Why the request failed without a response; null otherwise.
-@JsonKey(name: 'error_type') DioExceptionType? get errorType;@JsonKey(name: 'error_message') String? get errorMessage;@JsonKey(name: 'stack_trace') String? get stackTrace;
+@JsonKey(name: 'id') String get id;@JsonKey(name: 'method') String get method;@JsonKey(name: 'uri') Uri get uri;@JsonKey(name: 'started_at') DateTime get startedAt;@JsonKey(name: 'state') RequestState get state;@JsonKey(name: 'status_code') int? get statusCode;@JsonKey(name: 'duration') Duration? get duration;@JsonKey(name: 'protocol') String? get protocol;@JsonKey(name: 'request_size') int? get requestSize;@JsonKey(name: 'response_size') int? get responseSize;@JsonKey(name: 'request_content_type') String? get requestContentType;@JsonKey(name: 'response_content_type') String? get responseContentType;@JsonKey(name: 'request_headers') Map<String, String> get requestHeaders;@JsonKey(name: 'response_headers') Map<String, String> get responseHeaders;@JsonKey(name: 'request_body') Object? get requestBody;@JsonKey(name: 'response_body') Object? get responseBody;@JsonKey(name: 'error_type') DioExceptionType? get errorType;@JsonKey(name: 'error_message') String? get errorMessage;@JsonKey(name: 'stack_trace') String? get stackTrace;
 /// Create a copy of RequestDetailEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -240,16 +235,13 @@ class _RequestDetailEntity extends RequestDetailEntity {
   factory _RequestDetailEntity.fromJson(Map<String, dynamic> json) => _$RequestDetailEntityFromJson(json);
 
 @override@JsonKey(name: 'id') final  String id;
-/// Upper-case HTTP method, e.g. `GET`, `QUERY`.
 @override@JsonKey(name: 'method') final  String method;
 @override@JsonKey(name: 'uri') final  Uri uri;
 @override@JsonKey(name: 'started_at') final  DateTime startedAt;
 @override@JsonKey(name: 'state') final  RequestState state;
 @override@JsonKey(name: 'status_code') final  int? statusCode;
 @override@JsonKey(name: 'duration') final  Duration? duration;
-/// e.g. `HTTP/2`; null when unknown.
 @override@JsonKey(name: 'protocol') final  String? protocol;
-/// Body sizes in bytes; null when unknown.
 @override@JsonKey(name: 'request_size') final  int? requestSize;
 @override@JsonKey(name: 'response_size') final  int? responseSize;
 @override@JsonKey(name: 'request_content_type') final  String? requestContentType;
@@ -268,10 +260,8 @@ class _RequestDetailEntity extends RequestDetailEntity {
   return EqualUnmodifiableMapView(_responseHeaders);
 }
 
-/// Decoded body: a JSON map/list, a form map, a string, or null.
 @override@JsonKey(name: 'request_body') final  Object? requestBody;
 @override@JsonKey(name: 'response_body') final  Object? responseBody;
-/// Why the request failed without a response; null otherwise.
 @override@JsonKey(name: 'error_type') final  DioExceptionType? errorType;
 @override@JsonKey(name: 'error_message') final  String? errorMessage;
 @override@JsonKey(name: 'stack_trace') final  String? stackTrace;

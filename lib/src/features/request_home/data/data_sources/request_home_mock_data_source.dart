@@ -6,18 +6,12 @@ import '../../../../core/enums/request_state.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import 'request_home_data_source.dart';
 
-/// In-memory [RequestHomeDataSource] seeded with sample traffic.
-///
-/// Stand-in until the Dio interceptor feeds a real store.
-///
-/// Lazy: the seed list and the change stream are only created on first use.
 class RequestHomeMockDataSource implements RequestHomeDataSource {
   RequestHomeMockDataSource({List<RequestListItemEntity> Function()? seed})
     : _seed = seed ?? sampleRequests;
 
   final List<RequestListItemEntity> Function() _seed;
 
-  /// Newest first.
   late final List<RequestListItemEntity> _requests = List.of(_seed());
 
   StreamController<List<RequestListItemEntity>>? _changesController;
@@ -45,7 +39,6 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
   }
 
   @override
-  /// Samples never expire.
   @override
   Future<void> removeExpired() async {}
 
@@ -56,11 +49,8 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
     _notify();
   }
 
-  /// Closes the change stream; the data source can't be used afterwards.
   Future<void> dispose() async => _changesController?.close();
 
-  /// Realistic mix of methods, status classes, a pending request and
-  /// failures, newest first.
   static List<RequestListItemEntity> sampleRequests({DateTime? now}) {
     final at = now ?? DateTime.now();
     var n = 0;

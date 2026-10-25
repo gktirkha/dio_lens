@@ -4,7 +4,6 @@ import '../../domain/entities/request_list_item_entity.dart';
 import '../mappers/request_list_item_mapper.dart';
 import 'request_home_data_source.dart';
 
-/// [RequestHomeDataSource] over the requests captured by the interceptor.
 class RequestHomeLocalDataSource implements RequestHomeDataSource {
   RequestHomeLocalDataSource(this._store);
 

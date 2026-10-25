@@ -12,10 +12,6 @@ import '../../domain/use_cases/delete_request_use_case.dart';
 import '../../domain/use_cases/remove_expired_requests_use_case.dart';
 import '../../domain/use_cases/watch_requests_use_case.dart';
 
-/// State for the request home page: the active filter and the requests that
-/// match it.
-///
-/// Lazy: nothing is watched until the first listener attaches.
 class RequestHomeController extends ChangeNotifier {
   RequestHomeController({
     required this._watchRequests,
@@ -29,7 +25,6 @@ class RequestHomeController extends ChangeNotifier {
   final ClearAllRequestsUseCase _clearAllRequests;
   final RemoveExpiredRequestsUseCase _removeExpiredRequests;
 
-  /// Delay after the last keystroke before search re-filters the list.
   static const Duration searchDebounce = Duration(milliseconds: 250);
 
   final Debouncer _searchDebouncer = Debouncer(searchDebounce);
@@ -42,12 +37,10 @@ class RequestHomeController extends ChangeNotifier {
 
   List<RequestListItemEntity> _requests = const [];
 
-  /// Requests matching [params], newest first.
   List<RequestListItemEntity> get requests => _requests;
 
   bool _loading = true;
 
-  /// True until the first result arrives.
   bool get isLoading => _loading;
 
   @override
@@ -71,8 +64,6 @@ class RequestHomeController extends ChangeNotifier {
 
   void clearMethods() => _updateParams(_params.copyWith(methods: const {}));
 
-  /// Applies [search] once typing pauses for [searchDebounce]; pass
-  /// [immediate] to apply it right away (e.g. when search is cleared).
   void setSearch(String search, {bool immediate = false}) {
     void apply() => _updateParams(_params.copyWith(search: search));
     if (immediate) {
@@ -84,14 +75,11 @@ class RequestHomeController extends ChangeNotifier {
   }
 
   Future<void> deleteRequest(String id) async {
-    // Drop it locally first so a swiped Dismissible leaves the tree at once.
     _requests = List.unmodifiable(_requests.where((r) => r.id != id));
     notifyListeners();
     await _deleteRequest(id);
   }
 
-  /// Drops expired requests and re-reads the list; completes once fresh
-  /// data has arrived.
   Future<void> refresh() async {
     _started = true;
     await _removeExpiredRequests(unit);
@@ -109,8 +97,6 @@ class RequestHomeController extends ChangeNotifier {
     if (_started) _subscribe();
   }
 
-  /// (Re)subscribes for the current params; the future completes on the
-  /// first result.
   Future<void> _subscribe() {
     _subscription?.cancel();
     final firstResult = Completer<void>();

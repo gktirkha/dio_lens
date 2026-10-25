@@ -16,18 +16,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestStatsEntity {
 
-@JsonKey(name: 'total_requests') int get totalRequests;/// Completed or failed, i.e. not pending.
-@JsonKey(name: 'finished_requests') int get finishedRequests;/// 2xx responses.
-@JsonKey(name: 'success_count') int get successCount;/// 4xx, 5xx and requests that failed without a response.
-@JsonKey(name: 'error_count') int get errorCount;/// Sum of response body sizes, in bytes.
-@JsonKey(name: 'total_bytes') int get totalBytes;/// Null when no request has finished yet.
-@JsonKey(name: 'average_latency') Duration? get averageLatency;@JsonKey(name: 'p95_latency') Duration? get p95Latency;/// Only status classes that occur, in display order.
-@JsonKey(name: 'status_distribution') List<StatusShareEntity> get statusDistribution;/// Slowest first.
-@JsonKey(name: 'slowest_endpoints') List<EndpointLatencyEntity> get slowestEndpoints;/// Largest response per endpoint, largest first; endpoints without a
-/// known response size are left out.
-@JsonKey(name: 'largest_responses') List<EndpointSizeEntity> get largestResponses;/// Most called first.
-@JsonKey(name: 'most_called_endpoints') List<NamedCountEntity> get mostCalledEndpoints;/// Busiest first.
-@JsonKey(name: 'top_hosts') List<NamedCountEntity> get topHosts;
+@JsonKey(name: 'total_requests') int get totalRequests;@JsonKey(name: 'finished_requests') int get finishedRequests;@JsonKey(name: 'success_count') int get successCount;@JsonKey(name: 'error_count') int get errorCount;@JsonKey(name: 'total_bytes') int get totalBytes;@JsonKey(name: 'average_latency') Duration? get averageLatency;@JsonKey(name: 'p95_latency') Duration? get p95Latency;@JsonKey(name: 'status_distribution') List<StatusShareEntity> get statusDistribution;@JsonKey(name: 'slowest_endpoints') List<EndpointLatencyEntity> get slowestEndpoints;@JsonKey(name: 'largest_responses') List<EndpointSizeEntity> get largestResponses;@JsonKey(name: 'most_called_endpoints') List<NamedCountEntity> get mostCalledEndpoints;@JsonKey(name: 'top_hosts') List<NamedCountEntity> get topHosts;
 /// Create a copy of RequestStatsEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -241,58 +230,41 @@ class _RequestStatsEntity extends RequestStatsEntity {
   factory _RequestStatsEntity.fromJson(Map<String, dynamic> json) => _$RequestStatsEntityFromJson(json);
 
 @override@JsonKey(name: 'total_requests') final  int totalRequests;
-/// Completed or failed, i.e. not pending.
 @override@JsonKey(name: 'finished_requests') final  int finishedRequests;
-/// 2xx responses.
 @override@JsonKey(name: 'success_count') final  int successCount;
-/// 4xx, 5xx and requests that failed without a response.
 @override@JsonKey(name: 'error_count') final  int errorCount;
-/// Sum of response body sizes, in bytes.
 @override@JsonKey(name: 'total_bytes') final  int totalBytes;
-/// Null when no request has finished yet.
 @override@JsonKey(name: 'average_latency') final  Duration? averageLatency;
 @override@JsonKey(name: 'p95_latency') final  Duration? p95Latency;
-/// Only status classes that occur, in display order.
  final  List<StatusShareEntity> _statusDistribution;
-/// Only status classes that occur, in display order.
 @override@JsonKey(name: 'status_distribution') List<StatusShareEntity> get statusDistribution {
   if (_statusDistribution is EqualUnmodifiableListView) return _statusDistribution;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_statusDistribution);
 }
 
-/// Slowest first.
  final  List<EndpointLatencyEntity> _slowestEndpoints;
-/// Slowest first.
 @override@JsonKey(name: 'slowest_endpoints') List<EndpointLatencyEntity> get slowestEndpoints {
   if (_slowestEndpoints is EqualUnmodifiableListView) return _slowestEndpoints;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_slowestEndpoints);
 }
 
-/// Largest response per endpoint, largest first; endpoints without a
-/// known response size are left out.
  final  List<EndpointSizeEntity> _largestResponses;
-/// Largest response per endpoint, largest first; endpoints without a
-/// known response size are left out.
 @override@JsonKey(name: 'largest_responses') List<EndpointSizeEntity> get largestResponses {
   if (_largestResponses is EqualUnmodifiableListView) return _largestResponses;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_largestResponses);
 }
 
-/// Most called first.
  final  List<NamedCountEntity> _mostCalledEndpoints;
-/// Most called first.
 @override@JsonKey(name: 'most_called_endpoints') List<NamedCountEntity> get mostCalledEndpoints {
   if (_mostCalledEndpoints is EqualUnmodifiableListView) return _mostCalledEndpoints;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_mostCalledEndpoints);
 }
 
-/// Busiest first.
  final  List<NamedCountEntity> _topHosts;
-/// Busiest first.
 @override@JsonKey(name: 'top_hosts') List<NamedCountEntity> get topHosts {
   if (_topHosts is EqualUnmodifiableListView) return _topHosts;
   // ignore: implicit_dynamic_type

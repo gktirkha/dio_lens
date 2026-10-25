@@ -5,7 +5,6 @@ import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/dio_lens_menu.dart';
 import '../../../../theme/dio_lens_theme.dart';
 
-/// Titled group of settings rows, e.g. "Capture".
 class SettingsSection extends StatelessWidget {
   const SettingsSection({
     super.key,
@@ -49,9 +48,6 @@ class SettingsSection extends StatelessWidget {
   }
 }
 
-/// A setting: title, optional description, and its control.
-///
-/// [stacked] puts the control under the label instead of beside it.
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
     super.key,
@@ -107,7 +103,6 @@ class SettingsRow extends StatelessWidget {
   }
 }
 
-/// On/off pill switch.
 class DioLensSwitch extends StatelessWidget {
   const DioLensSwitch({
     super.key,
@@ -165,8 +160,6 @@ class DioLensSwitch extends StatelessWidget {
   }
 }
 
-/// Selectable card, e.g. a theme mode or a bubble corner. Accent border
-/// and tint when [selected].
 class SettingsOption extends StatelessWidget {
   const SettingsOption({
     super.key,
@@ -182,7 +175,6 @@ class SettingsOption extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  /// Icon beside the label in a short pill instead of above it.
   final bool compact;
 
   @override
@@ -244,7 +236,6 @@ class SettingsOption extends StatelessWidget {
   }
 }
 
-/// Compact dropdown showing the label of [value]; picks from [options].
 class SettingsSelect<T> extends StatelessWidget {
   const SettingsSelect({
     super.key,
@@ -316,7 +307,6 @@ class SettingsSelect<T> extends StatelessWidget {
   }
 }
 
-/// `−  value  +` stepper for small numbers.
 class SettingsMiniStepper extends StatelessWidget {
   const SettingsMiniStepper({
     super.key,
@@ -330,7 +320,6 @@ class SettingsMiniStepper extends StatelessWidget {
   final VoidCallback? onDecrease;
   final VoidCallback? onIncrease;
 
-  /// Names the value for screen readers, e.g. "notification duration".
   final String semanticName;
 
   @override
@@ -365,7 +354,6 @@ class SettingsMiniStepper extends StatelessWidget {
   }
 }
 
-/// Square `−` / `+` button of a stepper.
 class SettingsStepButton extends StatelessWidget {
   const SettingsStepButton({
     super.key,
@@ -413,7 +401,6 @@ class SettingsStepButton extends StatelessWidget {
   }
 }
 
-/// Text input styled like the sheet's other controls.
 InputDecoration settingsInputDecoration(
   DioLensTheme theme, {
   String? hint,
@@ -439,8 +426,6 @@ InputDecoration settingsInputDecoration(
   );
 }
 
-/// Comma-separated list of keys (e.g. header names), stored lower case.
-/// Saves shortly after typing stops.
 class SettingsKeyListField extends StatefulWidget {
   const SettingsKeyListField({
     super.key,
@@ -473,7 +458,6 @@ class _SettingsKeyListFieldState extends State<SettingsKeyListField> {
   @override
   void didUpdateWidget(SettingsKeyListField old) {
     super.didUpdateWidget(old);
-    // Follow changes made elsewhere (e.g. a reset), not our own typing.
     if (!listEquals(widget.keys, _parse(_text.text)) && !_debouncer.isPending) {
       _text.text = widget.keys.join(', ');
     }
@@ -481,7 +465,6 @@ class _SettingsKeyListFieldState extends State<SettingsKeyListField> {
 
   @override
   void dispose() {
-    // Save what was typed even if the sheet closes first.
     if (_debouncer.isPending) widget.onChanged(_parse(_text.text));
     _debouncer.dispose();
     _text.dispose();
@@ -492,7 +475,6 @@ class _SettingsKeyListFieldState extends State<SettingsKeyListField> {
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
     return Padding(
-      // Same rhythm as [SettingsRow], so the divider above has room.
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

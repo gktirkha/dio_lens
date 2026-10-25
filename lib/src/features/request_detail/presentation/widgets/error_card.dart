@@ -6,7 +6,6 @@ import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import 'collapsible_section.dart';
 
-/// Red card naming the [DioExceptionType] and its message.
 class ErrorCard extends StatelessWidget {
   const ErrorCard({super.key, required this.type, required this.message});
 
@@ -60,7 +59,6 @@ class ErrorCard extends StatelessWidget {
   }
 }
 
-/// Collapsible stack trace, closed by default, with a copy button.
 class StackTraceSection extends StatelessWidget {
   const StackTraceSection({super.key, required this.stackTrace});
 
@@ -82,7 +80,6 @@ class StackTraceSection extends StatelessWidget {
               border: Border.all(color: theme.border),
               borderRadius: BorderRadius.circular(theme.radiusMedium),
             ),
-            // Traces read LTR and scroll sideways instead of wrapping.
             child: Directionality(
               textDirection: TextDirection.ltr,
               child: SingleChildScrollView(

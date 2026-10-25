@@ -1,5 +1,3 @@
-/// Network inspector for Dio: records requests, shows them in an in-app
-/// inspector and announces finished requests with a banner.
 library;
 
 export 'src/core/enums/dio_lens_mode.dart';
