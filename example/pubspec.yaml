@@ -1,0 +1,22 @@
+name: dio_lens_example
+description: Example app for Dio Lens, the in-app network inspector for Dio.
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  dio: ^5.11.1
+  dio_lens:
+    path: ../
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

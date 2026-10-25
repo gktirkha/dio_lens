@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'dio_lens_theme_mode_controller.dart';
 import 'theme_data/dio_lens_dark_theme.dart';
@@ -56,7 +57,11 @@ class DioLensThemeScope extends StatelessWidget {
     return _ModeScope(
       controller: controller,
       mode: mode,
-      child: Theme(data: dark ? _dark : _light, child: child),
+      // Status bar icons readable on the Dio Lens background.
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        child: Theme(data: dark ? _dark : _light, child: child),
+      ),
     );
   }
 }
