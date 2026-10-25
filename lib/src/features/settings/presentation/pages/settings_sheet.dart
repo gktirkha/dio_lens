@@ -65,6 +65,21 @@ class _SettingsSheetState extends State<SettingsSheet> {
     super.dispose();
   }
 
+  /// Asks first, then puts every setting back to its starting value.
+  Future<void> _confirmReset() async {
+    final themeController = DioLensThemeScope.controllerOf(context);
+    final mode = DioLensThemeScope.modeOf(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => DioLensThemeScope(
+        controller: themeController,
+        mode: mode,
+        child: const _ResetDialog(),
+      ),
+    );
+    if (confirmed ?? false) await _controller.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
@@ -136,6 +151,7 @@ class _SettingsSheetState extends State<SettingsSheet> {
                       settings: _controller.settings,
                       storedCount: _controller.storedCount,
                       onChanged: _controller.update,
+                      onReset: _confirmReset,
                       onExport: widget.onExport,
                     );
                   },
@@ -154,9 +170,11 @@ class _SettingsBody extends StatelessWidget {
     required this.settings,
     required this.storedCount,
     required this.onChanged,
+    required this.onReset,
     this.onExport,
   });
 
+  final VoidCallback onReset;
   final DioLensSettings settings;
   final int storedCount;
   final Future<void> Function(
@@ -429,6 +447,73 @@ class _SettingsBody extends StatelessWidget {
               ],
             ),
           ],
+        ),
+        SettingsSection(
+          title: 'Reset',
+          children: [
+            SettingsRow(
+              title: 'Reset settings',
+              description:
+                  'Back to the starting values; captured requests '
+                  'are kept',
+              control: _ResetButton(onPressed: onReset),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ResetButton extends StatelessWidget {
+  const _ResetButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = DioLensTheme.of(context);
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: const Icon(Icons.settings_backup_restore_rounded, size: 16),
+      label: const Text('Reset'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: theme.danger,
+        backgroundColor: theme.dangerBackground,
+        side: BorderSide(color: theme.danger.withValues(alpha: 0.4)),
+        minimumSize: const Size(0, 34),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
+        textStyle: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+}
+
+class _ResetDialog extends StatelessWidget {
+  const _ResetDialog();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = DioLensTheme.of(context);
+    return AlertDialog(
+      title: const Text('Reset settings?'),
+      content: Text(
+        'Every setting goes back to its starting value. Captured requests '
+        'are kept.',
+        style: TextStyle(fontSize: 13.5, height: 1.45, color: theme.textMuted),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          style: TextButton.styleFrom(foregroundColor: theme.textMuted),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          style: TextButton.styleFrom(foregroundColor: theme.danger),
+          child: const Text('Reset'),
         ),
       ],
     );

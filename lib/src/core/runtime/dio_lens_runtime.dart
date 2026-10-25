@@ -96,20 +96,24 @@ class DioLensRuntime {
       '-${(_sequence++).toRadixString(36)}';
 
   /// Pushes the Dio Lens home page on the host's navigator.
-  Future<void> open() => _push(
-    (_) =>
-        DioLensHomePage(dependencies: dependencies, onReplay: replayer.replay),
-  );
+  Future<void> open() => _push(_home);
 
-  /// Pushes the detail page of the request with [id].
+  /// Pushes the detail page of the request with [id], on its own (from
+  /// the banner): its header offers a way to the home page, which then
+  /// replaces it.
   Future<void> openRequest(String id) => _push(
     (_) => RequestDetailPage(
       createController: () => dependencies.createRequestDetailController(id),
       onReplay: replayer.replay,
+      onOpenHome: () => _push(_home, replace: true),
     ),
   );
 
-  Future<void> _push(WidgetBuilder builder) async {
+  Widget _home(BuildContext context) =>
+      DioLensHomePage(dependencies: dependencies, onReplay: replayer.replay);
+
+  /// Pushes a Dio Lens page; with [replace], in place of the current one.
+  Future<void> _push(WidgetBuilder builder, {bool replace = false}) async {
     final navigator = navigatorKey.currentState;
     if (navigator == null) {
       debugPrint(
@@ -120,15 +124,16 @@ class DioLensRuntime {
     }
     banner.dismiss();
     _pagesOpen.value = ++_openPageCount > 0;
+    final route = MaterialPageRoute<void>(
+      builder: (_) => DioLensThemeScope(
+        controller: themeController,
+        child: Builder(builder: builder),
+      ),
+    );
     try {
-      await navigator.push<void>(
-        MaterialPageRoute(
-          builder: (_) => DioLensThemeScope(
-            controller: themeController,
-            child: Builder(builder: builder),
-          ),
-        ),
-      );
+      await (replace
+          ? navigator.pushReplacement<void, void>(route)
+          : navigator.push<void>(route));
     } finally {
       _pagesOpen.value = --_openPageCount > 0;
     }

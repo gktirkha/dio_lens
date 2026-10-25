@@ -21,9 +21,14 @@ class RequestDetailPage extends StatefulWidget {
     required this.createController,
     this.onShare,
     this.onReplay,
+    this.onOpenHome,
   });
 
   final RequestDetailController Function() createController;
+
+  /// Set when the page is opened on its own (from the banner): the header
+  /// then offers a way to the Dio Lens home.
+  final VoidCallback? onOpenHome;
   final ValueChanged<RequestDetailEntity>? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
 
@@ -70,6 +75,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
               settings: _controller.settings,
               onShare: widget.onShare,
               onReplay: widget.onReplay == null ? null : _replay,
+              onOpenHome: widget.onOpenHome,
             );
           },
         ),
@@ -84,10 +90,12 @@ class _DetailBody extends StatelessWidget {
     required this.settings,
     this.onShare,
     this.onReplay,
+    this.onOpenHome,
   });
 
   final RequestDetailEntity request;
   final DioLensSettings settings;
+  final VoidCallback? onOpenHome;
   final ValueChanged<RequestDetailEntity>? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
 
@@ -118,6 +126,7 @@ class _DetailBody extends StatelessWidget {
                       copyToClipboard(context, request.curl, label: 'cURL'),
                   onShare: onShare == null ? null : () => onShare(request),
                   onReplay: onReplay == null ? null : () => onReplay(request),
+                  onOpenHome: onOpenHome,
                 ),
                 TabBar(
                   indicatorSize: TabBarIndicatorSize.tab,

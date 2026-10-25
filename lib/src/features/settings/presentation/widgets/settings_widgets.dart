@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/debouncer.dart';
@@ -468,6 +469,15 @@ class _SettingsKeyListFieldState extends State<SettingsKeyListField> {
     for (final part in text.split(','))
       if (part.trim().toLowerCase() case final key when key.isNotEmpty) key,
   ];
+
+  @override
+  void didUpdateWidget(SettingsKeyListField old) {
+    super.didUpdateWidget(old);
+    // Follow changes made elsewhere (e.g. a reset), not our own typing.
+    if (!listEquals(widget.keys, _parse(_text.text)) && !_debouncer.isPending) {
+      _text.text = widget.keys.join(', ');
+    }
+  }
 
   @override
   void dispose() {

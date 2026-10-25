@@ -17,12 +17,17 @@ class RequestDetailHeader extends StatelessWidget {
     required this.onCopyCurl,
     this.onShare,
     this.onReplay,
+    this.onOpenHome,
   });
 
   final RequestDetailEntity request;
   final VoidCallback onCopyCurl;
   final VoidCallback? onShare;
   final VoidCallback? onReplay;
+
+  /// Shown as a home button when the page was opened on its own (from
+  /// the banner), so the user can reach the request list.
+  final VoidCallback? onOpenHome;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +47,7 @@ class RequestDetailHeader extends StatelessWidget {
               // chevron_left mirrors automatically in RTL.
               DioLensIconButton(
                 icon: Icons.chevron_left_rounded,
-                tooltip: 'Back to request list',
+                tooltip: onOpenHome == null ? 'Back to request list' : 'Back',
                 onPressed: () => Navigator.of(context).maybePop(),
               ),
               const SizedBox(width: 4),
@@ -88,6 +93,12 @@ class RequestDetailHeader extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onOpenHome case final onOpenHome?)
+                DioLensIconButton(
+                  icon: Icons.home_outlined,
+                  tooltip: 'Open Dio Lens home',
+                  onPressed: onOpenHome,
+                ),
               const DioLensThemeToggleButton(),
             ],
           ),

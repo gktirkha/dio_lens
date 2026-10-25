@@ -1145,6 +1145,7 @@
     var settingsBody = document.getElementById('dl-settings-body');
     var toastRoot = document.getElementById('dl-toast-root');
     var notifRoot = document.getElementById('dl-notif-root');
+    var DEFAULT_SETTINGS = JSON.stringify(state.settings);
 
     function effectiveTheme() {
       if (state.settings.theme === 'system') {
@@ -2008,7 +2009,12 @@
         '<div class="dl-set-section"><h3>Export</h3><div class="dl-export-row">' +
           '<button type="button" class="dl-act-btn" data-action="export" data-format="HAR">' + icon('download') + ' HAR</button>' +
           '<button type="button" class="dl-act-btn" data-action="export" data-format="JSON">' + icon('download') + ' JSON</button>' +
-        '</div></div>';
+        '</div></div>' +
+        '<div class="dl-set-section"><h3>Reset</h3>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Reset settings</div><div class="set-desc">Back to the starting values; captured requests are kept</div></div>' +
+            '<button type="button" class="dl-act-btn" style="flex:none;padding:0 12px;height:34px;color:var(--dl-danger);background:var(--dl-danger-bg);border-color:color-mix(in srgb, var(--dl-danger) 40%, transparent);" data-action="reset-settings">Reset</button>' +
+          '</div>' +
+        '</div>';
     }
 
     /* ---------------------------------------------------------------- max stored requests: validation, commit, trim */
@@ -2274,6 +2280,11 @@
         case 'notif-duration-step':
           state.settings.notificationDuration = Math.max(2, Math.min(15, state.settings.notificationDuration + parseInt(btn.dataset.dir, 10)));
           renderSettings();
+          break;
+        case 'reset-settings':
+          state.settings = JSON.parse(DEFAULT_SETTINGS);
+          state.maxStoredDraft = String(state.settings.maxStored);
+          renderSettings(); render(); toast('Settings reset');
           break;
         case 'set-notif-pos':
           state.settings.notificationPosition = btn.dataset.pos;
