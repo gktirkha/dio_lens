@@ -37,7 +37,11 @@ class DioLensInterceptor extends Interceptor {
       if (runtime == null || !runtime.enabled) return;
       final store = runtime.store;
       final id = runtime.nextRequestId();
-      if (_dio case final dio?) runtime.replayer.register(id, dio);
+      if (_dio case final dio?) {
+        runtime.replayer.register(id, dio);
+      } else {
+        _warnMissingDio();
+      }
       final capture =
           RequestCapture.pending(
             id: id,
@@ -122,6 +126,20 @@ class DioLensInterceptor extends Interceptor {
     }
 
     finish().catchError(_log);
+  }
+
+  static bool _warnedMissingDio = false;
+
+  /// Tells the developer, once per run, how to get full Replay support.
+  static void _warnMissingDio() {
+    if (_warnedMissingDio) return;
+    _warnedMissingDio = true;
+    debugPrint(
+      'DioLens: DioLensInterceptor was added without its Dio, so Replay '
+      'falls back to a plain Dio (your interceptors, base options and '
+      'adapter will not apply). Pass the Dio to the interceptor:\n'
+      '  dio.interceptors.add(DioLensInterceptor(dio));',
+    );
   }
 
   static void _guard(VoidCallback capture) {

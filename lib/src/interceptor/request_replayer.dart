@@ -18,7 +18,12 @@ class RequestReplayer {
   Dio? _lastClient;
 
   /// Used when the app never passed a Dio to the interceptor.
-  late final Dio _fallback = Dio()..interceptors.add(DioLensInterceptor());
+  late final Dio _fallback = () {
+    final dio = Dio();
+    // Passes itself, so it never triggers the missing-Dio warning.
+    dio.interceptors.add(DioLensInterceptor(dio));
+    return dio;
+  }();
 
   /// Most remembered request → Dio links; the oldest are forgotten.
   static const int maxRemembered = 10000;
