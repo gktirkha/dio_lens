@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/enums/export_format.dart';
+import '../../../../core/navigation/dio_lens_navigator.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../core/widgets/dio_lens_refresh_indicator.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../controllers/stats_controller.dart';
+import '../models/stats_ranking.dart';
+import 'stats_ranking_page.dart';
 import '../widgets/ranked_list.dart';
 import '../widgets/stat_card.dart';
 import '../widgets/stats_header.dart';
@@ -18,8 +21,6 @@ class StatsPage extends StatelessWidget {
   const StatsPage({
     super.key,
     required this.controller,
-    this.themeMode = ThemeMode.dark,
-    this.onThemeModeChanged,
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
@@ -29,15 +30,10 @@ class StatsPage extends StatelessWidget {
   /// Owned by the caller, which also disposes it.
   final StatsController controller;
 
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode>? onThemeModeChanged;
   final VoidCallback? onOpenSettings;
   final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onClearAll;
   final VoidCallback? onMinimize;
-
-  /// Average latency above this is highlighted in "Slowest endpoints".
-  static const Duration slowThreshold = Duration(milliseconds: 400);
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +46,6 @@ class StatsPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             StatsHeader(
-              themeMode: themeMode,
-              onThemeModeChanged: onThemeModeChanged,
               onOpenSettings: onOpenSettings,
               onExport: onExport,
               onClearAll: onClearAll,
@@ -67,7 +61,11 @@ class StatsPage extends StatelessWidget {
                     onRefresh: controller.refresh,
                     child: stats.isEmpty
                         ? const _EmptyStats()
-                        : _StatsBody(stats: stats),
+                        : _StatsBody(
+                            stats: stats,
+                            onOpenRanking: (ranking) =>
+                                _openRanking(context, ranking),
+                          ),
                   );
                 },
               ),
@@ -77,12 +75,21 @@ class StatsPage extends StatelessWidget {
       ),
     );
   }
+
+  void _openRanking(BuildContext context, StatsRanking ranking) {
+    pushDioLensPage<void>(
+      context,
+      builder: (_) =>
+          StatsRankingPage(controller: controller, ranking: ranking),
+    );
+  }
 }
 
 class _StatsBody extends StatelessWidget {
-  const _StatsBody({required this.stats});
+  const _StatsBody({required this.stats, required this.onOpenRanking});
 
   final RequestStatsEntity stats;
+  final ValueChanged<StatsRanking> onOpenRanking;
 
   @override
   Widget build(BuildContext context) {
@@ -130,57 +137,17 @@ class _StatsBody extends StatelessWidget {
             total: stats.totalRequests,
           ),
         ),
-        if (stats.slowestEndpoints.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          StatsPanel(
-            title: 'Slowest endpoints',
-            child: RankedList(
-              items: [
-                for (final e in stats.slowestEndpoints)
-                  (
-                    label: e.path,
-                    value: FormatUtils.duration(e.averageLatency),
-                    score: e.averageLatency.inMilliseconds.toDouble(),
-                    warn: e.averageLatency > StatsPage.slowThreshold,
-                  ),
-              ],
+        for (final ranking in StatsRanking.values)
+          if (ranking.items(stats) case final items when items.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            StatsPanel(
+              title: ranking.title,
+              onTap: () => onOpenRanking(ranking),
+              child: RankedList(
+                items: items.take(StatsRanking.previewCount).toList(),
+              ),
             ),
-          ),
-        ],
-        if (stats.mostCalledEndpoints.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          StatsPanel(
-            title: 'Most-called endpoints',
-            child: RankedList(
-              items: [
-                for (final e in stats.mostCalledEndpoints)
-                  (
-                    label: e.name,
-                    value: '${e.count}×',
-                    score: e.count.toDouble(),
-                    warn: false,
-                  ),
-              ],
-            ),
-          ),
-        ],
-        if (stats.topHosts.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          StatsPanel(
-            title: 'Top hosts',
-            child: RankedList(
-              items: [
-                for (final e in stats.topHosts)
-                  (
-                    label: e.name,
-                    value: '${e.count}×',
-                    score: e.count.toDouble(),
-                    warn: false,
-                  ),
-              ],
-            ),
-          ),
-        ],
+          ],
       ],
     );
   }

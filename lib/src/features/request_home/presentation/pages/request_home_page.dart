@@ -21,8 +21,6 @@ class RequestHomePage extends StatefulWidget {
     super.key,
     required this.controller,
     this.onRequestTap,
-    this.themeMode = ThemeMode.dark,
-    this.onThemeModeChanged,
     this.onOpenSettings,
     this.onExport,
     this.onMinimize,
@@ -32,8 +30,6 @@ class RequestHomePage extends StatefulWidget {
   final RequestHomeController controller;
 
   final ValueChanged<RequestListItemEntity>? onRequestTap;
-  final ThemeMode themeMode;
-  final ValueChanged<ThemeMode>? onThemeModeChanged;
   final VoidCallback? onOpenSettings;
   final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onMinimize;
@@ -135,8 +131,6 @@ class _RequestHomePageState extends State<RequestHomePage> {
               selectedMethods: params.methods,
               onMethodToggled: _controller.toggleMethod,
               onMethodsCleared: _controller.clearMethods,
-              themeMode: widget.themeMode,
-              onThemeModeChanged: widget.onThemeModeChanged,
               onOpenSettings: widget.onOpenSettings,
               onExport: widget.onExport,
               onClearAll: visible.isEmpty && params.isEmpty

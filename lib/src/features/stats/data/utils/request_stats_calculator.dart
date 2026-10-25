@@ -8,9 +8,6 @@ import '../../domain/entities/status_share_entity.dart';
 
 /// Turns captured requests into [RequestStatsEntity]. Pure and synchronous.
 abstract final class RequestStatsCalculator {
-  /// Rows in each ranked list.
-  static const int rankedLimit = 5;
-
   /// Display order of the status distribution.
   static const List<RequestStatusClass> distributionOrder = [
     RequestStatusClass.success,
@@ -107,8 +104,9 @@ abstract final class RequestStatsCalculator {
     return sorted[rank - 1];
   }
 
+  /// Every item, highest score first.
   static List<T> _top<T>(Iterable<T> items, int Function(T) score) {
     final sorted = items.toList()..sort((a, b) => score(b).compareTo(score(a)));
-    return List.unmodifiable(sorted.take(rankedLimit));
+    return List.unmodifiable(sorted);
   }
 }

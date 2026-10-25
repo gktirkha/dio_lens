@@ -18,8 +18,6 @@ class RequestHomeHeader extends StatelessWidget {
     required this.selectedMethods,
     required this.onMethodToggled,
     required this.onMethodsCleared,
-    this.themeMode = ThemeMode.dark,
-    this.onThemeModeChanged,
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
@@ -43,10 +41,6 @@ class RequestHomeHeader extends StatelessWidget {
   final ValueChanged<String> onMethodToggled;
   final VoidCallback onMethodsCleared;
 
-  final ThemeMode themeMode;
-
-  /// Shows the theme toggle when set.
-  final ValueChanged<ThemeMode>? onThemeModeChanged;
   final VoidCallback? onOpenSettings;
   final ValueChanged<ExportFormat>? onExport;
   final VoidCallback? onClearAll;
@@ -55,7 +49,6 @@ class RequestHomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
-    final onThemeModeChanged = this.onThemeModeChanged;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -84,11 +77,7 @@ class RequestHomeHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (onThemeModeChanged != null)
-                  DioLensThemeToggleButton(
-                    mode: themeMode,
-                    onChanged: onThemeModeChanged,
-                  ),
+                const DioLensThemeToggleButton(),
                 DioLensIconButton(
                   icon: Icons.search_rounded,
                   tooltip: 'Search requests',

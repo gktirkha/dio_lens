@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/dio_lens_theme.dart';
+import '../../theme/dio_lens_theme_mode_controller.dart';
+import '../../theme/dio_lens_theme_scope.dart';
 
 /// Compact 36×36 icon button used in Dio Lens top bars.
 class DioLensIconButton extends StatelessWidget {
@@ -47,24 +49,11 @@ class DioLensIconButton extends StatelessWidget {
 }
 
 /// Cycles the theme light → dark → system; the icon shows the current mode.
+///
+/// Reads and updates the controller of the nearest [DioLensThemeScope];
+/// renders nothing when that scope has no controller.
 class DioLensThemeToggleButton extends StatelessWidget {
-  const DioLensThemeToggleButton({
-    super.key,
-    required this.mode,
-    required this.onChanged,
-  });
-
-  final ThemeMode mode;
-
-  /// Called with the next mode in the cycle.
-  final ValueChanged<ThemeMode> onChanged;
-
-  /// Mode that follows [mode] when the button is pressed.
-  static ThemeMode next(ThemeMode mode) => switch (mode) {
-    ThemeMode.light => ThemeMode.dark,
-    ThemeMode.dark => ThemeMode.system,
-    ThemeMode.system => ThemeMode.light,
-  };
+  const DioLensThemeToggleButton({super.key});
 
   static String _label(ThemeMode mode) => switch (mode) {
     ThemeMode.light => 'Light',
@@ -74,7 +63,10 @@ class DioLensThemeToggleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final next = DioLensThemeToggleButton.next(mode);
+    final controller = DioLensThemeScope.controllerOf(context);
+    if (controller == null) return const SizedBox.shrink();
+    final mode = DioLensThemeScope.modeOf(context);
+    final next = DioLensThemeModeController.next(mode);
     return DioLensIconButton(
       icon: switch (mode) {
         ThemeMode.light => Icons.light_mode_outlined,
@@ -82,7 +74,7 @@ class DioLensThemeToggleButton extends StatelessWidget {
         ThemeMode.system => Icons.brightness_auto_outlined,
       },
       tooltip: 'Theme: ${_label(mode)}. Switch to ${_label(next)}',
-      onPressed: () => onChanged(next),
+      onPressed: controller.cycle,
     );
   }
 }
