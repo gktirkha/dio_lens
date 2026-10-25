@@ -52,117 +52,104 @@ class RequestFinishedBanner extends StatelessWidget {
         borderRadius: BorderRadius.circular(theme.radiusLarge),
         boxShadow: [theme.shadow],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 30,
-            height: 30,
-            margin: const EdgeInsets.only(top: 1),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(9),
+      // Intrinsic height so the actions can center against the text.
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 30,
+              height: 30,
+              margin: const EdgeInsets.only(top: 1),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Icon(icon, size: 16, color: fg),
             ),
-            child: Icon(icon, size: 16, color: fg),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    MethodChip(method: request.method),
-                    const SizedBox(width: 6),
-                    StatusBadge(
-                      statusClass: request.statusClass,
-                      statusCode: request.statusCode,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        'REQUEST FINISHED',
-                        textAlign: TextAlign.end,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.33,
-                          color: theme.textFaint,
-                        ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      MethodChip(method: request.method),
+                      const SizedBox(width: 6),
+                      StatusBadge(
+                        statusClass: request.statusClass,
+                        statusCode: request.statusCode,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    request.path,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textDirection: LtrContent.direction,
+                    textAlign: LtrContent.align(context),
+                    style: theme.monoTextStyle.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: theme.text,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  request.path,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: LtrContent.direction,
-                  textAlign: LtrContent.align(context),
-                  style: theme.monoTextStyle.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: theme.text,
                   ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  request.host,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: LtrContent.direction,
-                  textAlign: LtrContent.align(context),
-                  style: theme.monoTextStyle.copyWith(
-                    fontSize: 11,
+                  const SizedBox(height: 1),
+                  Text(
+                    request.host,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textDirection: LtrContent.direction,
+                    textAlign: LtrContent.align(context),
+                    style: theme.monoTextStyle.copyWith(
+                      fontSize: 11,
+                      color: theme.textFaint,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Align(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FilledButton(
+                    onPressed: onView,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: theme.accent,
+                      foregroundColor: theme.onAccent,
+                      minimumSize: const Size(0, 34),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                      textStyle: Theme.of(context).textTheme.labelMedium
+                          ?.copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                    ),
+                    child: const Text('View'),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    onPressed: onDismiss,
+                    tooltip: 'Dismiss notification',
+                    icon: const Icon(Icons.close_rounded, size: 14),
                     color: theme.textFaint,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 28,
+                      height: 28,
+                    ),
+                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Padding(
-            padding: const EdgeInsets.only(top: 1),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FilledButton(
-                  onPressed: onView,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.accent,
-                    foregroundColor: theme.onAccent,
-                    minimumSize: const Size(0, 28),
-                    padding: const EdgeInsets.symmetric(horizontal: 11),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
-                    textStyle: Theme.of(context).textTheme.labelMedium
-                        ?.copyWith(fontSize: 11.5, fontWeight: FontWeight.w700),
-                  ),
-                  child: const Text('View'),
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  onPressed: onDismiss,
-                  tooltip: 'Dismiss notification',
-                  icon: const Icon(Icons.close_rounded, size: 14),
-                  color: theme.textFaint,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 28,
-                    height: 28,
-                  ),
-                  padding: EdgeInsets.zero,
-                  style: IconButton.styleFrom(
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
