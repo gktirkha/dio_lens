@@ -30,6 +30,9 @@ class RequestEmptyState extends StatelessWidget {
       padding: const EdgeInsetsDirectional.fromSTEB(36, 70, 36, 40),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        // Full width, so short messages center instead of hugging the start
+        // edge inside the scroll view.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Icon(icon, size: 40, color: theme.textFaint),
           const SizedBox(height: 10),

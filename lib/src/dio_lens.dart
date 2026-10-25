@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'core/enums/dio_lens_mode.dart';
 import 'core/runtime/dio_lens_runtime.dart';
 import 'core/storage/dio_lens_storage.dart';
 import 'core/storage/shared_preferences_dio_lens_storage.dart';
@@ -29,17 +30,17 @@ abstract final class DioLens {
   /// [storage] persists requests and settings; defaults to Dio Lens' own
   /// `shared_preferences` storage.
   ///
-  /// With [enabled] false (the default outside debug builds), nothing is
-  /// recorded.
+  /// [mode] picks the build modes Dio Lens is enabled in (debug builds
+  /// only by default); outside them nothing is recorded.
   static void init({
     required GlobalKey<NavigatorState> navigatorKey,
     DioLensSettings settings = const DioLensSettings(),
     DioLensStorage? storage,
-    bool enabled = kDebugMode,
+    DioLensMode mode = DioLensMode.debug,
   }) {
     DioLensRuntime.current = DioLensRuntime(
       navigatorKey: navigatorKey,
-      enabled: enabled,
+      enabled: mode.isEnabled,
       initialSettings: settings,
       storage: storage != null
           ? () => storage
