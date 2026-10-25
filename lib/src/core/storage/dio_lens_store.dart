@@ -8,6 +8,7 @@ import '../../features/settings/domain/entities/dio_lens_settings.dart';
 import '../../features/settings/domain/enums/dio_lens_retention.dart';
 import '../enums/request_state.dart';
 import 'dio_lens_storage.dart';
+import 'stored_requests_parser.dart';
 
 /// In-memory source of truth for captured requests and settings, written
 /// through to a [DioLensStorage].
@@ -127,27 +128,26 @@ class DioLensStore {
       _log('could not read settings', error, stack);
     }
 
-    final List<Map<String, dynamic>> rows;
+    if (_settings.value.retention == DioLensRetention.session) {
+      // Nothing from an earlier run is kept, so skip reading it.
+      _enqueue((s) => s.clearRequests());
+      return;
+    }
+    final ParsedRequests parsed;
     try {
-      rows = await _storage.readRequests();
+      parsed = switch (_storage) {
+        final ParsingDioLensStorage storage =>
+          await storage.readParsedRequests(),
+        final storage => parseStoredRequests(await storage.readRequests()),
+      };
     } catch (error, stack) {
       _log('could not read requests', error, stack);
       return;
     }
-    if (_settings.value.retention == DioLensRetention.session) {
-      if (rows.isNotEmpty) _enqueue((s) => s.clearRequests());
-      return;
+    if (parsed.corrupt.isNotEmpty) {
+      _enqueue((s) => s.deleteRequests(parsed.corrupt));
     }
-    final corrupt = <String>[];
-    for (final json in rows) {
-      try {
-        _requests.add(_settleInterrupted(RequestDetailEntity.fromJson(json)));
-      } catch (_) {
-        if (json['id'] case final String id) corrupt.add(id);
-      }
-    }
-    if (corrupt.isNotEmpty) _enqueue((s) => s.deleteRequests(corrupt));
-    _requests.sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    _requests.addAll(parsed.requests.map(_settleInterrupted));
     _trim();
   }
 

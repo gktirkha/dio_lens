@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/runtime/dio_lens_runtime.dart';
+import '../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'request_capture.dart';
 
 /// Records every request made through the [Dio] it is added to, stores it
@@ -20,21 +21,27 @@ import 'request_capture.dart';
 class DioLensInterceptor extends Interceptor {
   DioLensInterceptor();
 
-  static const String _idKey = 'dio_lens_id';
-  static const String _startedAtKey = 'dio_lens_started_at';
+  /// The pending capture, once it is in the store.
+  static const String _captureKey = 'dio_lens_capture';
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     _guard(() {
       final runtime = DioLensRuntime.current;
       if (runtime == null || !runtime.enabled) return;
-      final id = runtime.nextRequestId();
-      final startedAt = DateTime.now();
-      options.extra[_idKey] = id;
-      options.extra[_startedAtKey] = startedAt;
-      runtime.store.add(
-        RequestCapture.pending(id: id, startedAt: startedAt, options: options),
-      );
+      final store = runtime.store;
+      final capture =
+          RequestCapture.pending(
+            id: runtime.nextRequestId(),
+            startedAt: DateTime.now(),
+            options: options,
+            maxBodyBytes: store.settings.value.maxBodyBytes,
+          ).then((request) async {
+            await store.add(request);
+            return request;
+          });
+      options.extra[_captureKey] = capture;
+      capture.then<void>((_) {}, onError: _log);
     });
     handler.next(options);
   }
@@ -44,52 +51,75 @@ class DioLensInterceptor extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    _guard(() => _finish(response.requestOptions, response: response));
+    final finishedAt = DateTime.now();
+    _guard(
+      () => _finish(
+        response.requestOptions,
+        finishedAt: finishedAt,
+        response: response,
+      ),
+    );
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
+    final finishedAt = DateTime.now();
     _guard(
-      () => _finish(err.requestOptions, response: err.response, error: err),
+      () => _finish(
+        err.requestOptions,
+        finishedAt: finishedAt,
+        response: err.response,
+        error: err,
+      ),
     );
     handler.next(err);
   }
 
-  /// Completes the capture started in [onRequest]: a response (even an
-  /// error status) completes it; an error without one fails it.
+  /// Completes the capture started in [onRequest], in the background: a
+  /// response (even an error status) completes it; an error without one
+  /// fails it.
   void _finish(
     RequestOptions options, {
+    required DateTime finishedAt,
     Response<dynamic>? response,
     DioException? error,
   }) {
     final runtime = DioLensRuntime.current;
     if (runtime == null || !runtime.enabled) return;
-    final id = options.extra[_idKey];
-    final startedAt = options.extra[_startedAtKey];
-    if (id is! String || startedAt is! DateTime) return;
+    final capture = options.extra[_captureKey];
+    if (capture is! Future<RequestDetailEntity>) return;
 
-    final request = RequestCapture.pending(
-      id: id,
-      startedAt: startedAt,
-      options: options,
-    );
-    final finished = response != null
-        ? RequestCapture.completed(request, response)
-        : RequestCapture.failed(request, error!);
-    runtime.store.update(finished);
+    Future<void> finish() async {
+      final request = await capture;
+      final store = runtime.store;
+      final finished = response != null
+          ? await RequestCapture.completed(
+              request,
+              response,
+              finishedAt: finishedAt,
+              maxBodyBytes: store.settings.value.maxBodyBytes,
+            )
+          : RequestCapture.failed(request, error!, finishedAt: finishedAt);
+      await store.update(finished);
 
-    final settings = runtime.store.settings.value;
-    if (settings.showNotification) {
-      runtime.banner.show(finished, duration: settings.notificationDuration);
+      final settings = store.settings.value;
+      if (settings.showNotification) {
+        runtime.banner.show(finished, duration: settings.notificationDuration);
+      }
     }
+
+    finish().catchError(_log);
   }
 
   static void _guard(VoidCallback capture) {
     try {
       capture();
     } catch (error, stack) {
-      debugPrint('DioLens: could not capture request: $error\n$stack');
+      _log(error, stack);
     }
   }
+
+  static void _log(Object error, StackTrace stack) =>
+      debugPrint('DioLens: could not capture request: $error\n$stack');
 }

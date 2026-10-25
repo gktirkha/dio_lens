@@ -1,26 +1,33 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:dio/dio.dart';
 
 import '../core/enums/request_state.dart';
+import '../core/utils/format_utils.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
+
+/// A body made storable: JSON-encodable [body] and the full [size] in bytes.
+typedef CapturedBody = ({Object? body, int? size});
 
 /// Turns Dio's request, response and error objects into a
 /// [RequestDetailEntity] whose bodies are JSON-encodable, so it can be
 /// stored as is.
+///
+/// Body work (JSON round trips, decoding, base64, sizing) runs in a
+/// background isolate; headers and metadata are read on the caller's.
 abstract final class RequestCapture {
-  /// Image bodies up to this size are kept (base64) for the preview.
-  static const int maxImageBytes = 512 * 1024;
-
-  /// The request part of a capture, still pending.
-  static RequestDetailEntity pending({
+  /// The request part of a capture, still pending. Bodies over
+  /// [maxBodyBytes] are cut (null keeps them whole).
+  static Future<RequestDetailEntity> pending({
     required String id,
     required DateTime startedAt,
     required RequestOptions options,
-  }) {
+    int? maxBodyBytes,
+  }) async {
     final data = options.data;
     final contentType = data == null ? null : _requestContentType(options);
-    final body = _requestBody(data, contentType);
+    final captured = await _capture(data, contentType, maxBodyBytes);
     return RequestDetailEntity(
       id: id,
       method: options.method.toUpperCase(),
@@ -31,39 +38,46 @@ abstract final class RequestCapture {
         for (final e in options.headers.entries)
           if (e.value != null) e.key: _headerValue(e.value),
       },
-      requestContentType: body == null ? null : contentType,
-      requestBody: body,
-      requestSize: _requestSize(data, body),
+      requestContentType: captured.body == null ? null : contentType,
+      requestBody: captured.body,
+      requestSize: captured.size,
     );
   }
 
-  /// [request] finished with [response] (any status code).
-  static RequestDetailEntity completed(
+  /// [request] finished with [response] (any status code) at [finishedAt].
+  static Future<RequestDetailEntity> completed(
     RequestDetailEntity request,
-    Response<dynamic> response,
-  ) {
+    Response<dynamic> response, {
+    required DateTime finishedAt,
+    int? maxBodyBytes,
+  }) async {
     final contentType = response.headers.value(Headers.contentTypeHeader);
-    final data = response.data;
+    final headers = {
+      for (final e in response.headers.map.entries) e.key: e.value.join(', '),
+    };
+    final captured = await _capture(response.data, contentType, maxBodyBytes);
+    final lengthHeader = response.headers.value(Headers.contentLengthHeader);
     return request.copyWith(
       state: RequestState.completed,
       statusCode: response.statusCode,
-      duration: DateTime.now().difference(request.startedAt),
-      responseHeaders: {
-        for (final e in response.headers.map.entries) e.key: e.value.join(', '),
-      },
+      duration: finishedAt.difference(request.startedAt),
+      responseHeaders: headers,
       responseContentType: contentType,
-      responseBody: _responseBody(data, contentType),
-      responseSize: _responseSize(response, data),
+      responseBody: captured.body,
+      responseSize:
+          (lengthHeader == null ? null : int.tryParse(lengthHeader)) ??
+          captured.size,
     );
   }
 
-  /// [request] failed without a response.
+  /// [request] failed without a response at [finishedAt].
   static RequestDetailEntity failed(
     RequestDetailEntity request,
-    DioException error,
-  ) => request.copyWith(
+    DioException error, {
+    required DateTime finishedAt,
+  }) => request.copyWith(
     state: RequestState.failed,
-    duration: DateTime.now().difference(request.startedAt),
+    duration: finishedAt.difference(request.startedAt),
     errorType: error.type,
     errorMessage: error.message ?? error.error?.toString(),
     stackTrace: error.stackTrace.toString(),
@@ -73,107 +87,120 @@ abstract final class RequestCapture {
       options.contentType ??
       (options.data is FormData ? Headers.multipartFormDataContentType : null);
 
-  static Object? _requestBody(Object? data, String? contentType) =>
-      switch (data) {
-        null => null,
-        FormData form => {
-          for (final e in form.fields) e.key: e.value,
-          for (final e in form.files)
-            e.key: '${e.value.filename ?? 'file'} (${e.value.length} bytes)',
-        },
-        String text => _decodeText(text, contentType),
-        List<int> bytes => _decodeBytes(bytes, contentType),
-        Stream<dynamic>() => null,
-        _ => _jsonSafe(data),
-      };
-
-  static int? _requestSize(Object? data, Object? body) => switch (data) {
-    null => null,
-    FormData form => form.length,
-    List<int> bytes => bytes.length,
-    String text => utf8.encode(text).length,
-    _ => body == null ? null : _encodedSize(body),
-  };
-
-  static Object? _responseBody(Object? data, String? contentType) =>
-      switch (data) {
-        null || ResponseBody() || Stream<dynamic>() => null,
-        String text => _decodeText(text, contentType),
-        List<int> bytes => _decodeBytes(bytes, contentType),
-        _ => _jsonSafe(data),
-      };
-
-  static int? _responseSize(Response<dynamic> response, Object? data) {
-    final header = response.headers.value(Headers.contentLengthHeader);
-    if (header != null) {
-      if (int.tryParse(header) case final length?) return length;
+  /// Form data and streams (which cannot be sent to an isolate) are handled
+  /// here; every other body goes through [_process] in an isolate.
+  static Future<CapturedBody> _capture(
+    Object? data,
+    String? contentType,
+    int? maxBytes,
+  ) async {
+    switch (data) {
+      case null || ResponseBody() || Stream<dynamic>():
+        return (body: null, size: null);
+      case FormData form:
+        return (
+          body: {
+            for (final e in form.fields) e.key: e.value,
+            for (final e in form.files)
+              e.key: '${e.value.filename ?? 'file'} (${e.value.length} bytes)',
+          },
+          size: form.length,
+        );
     }
-    return switch (data) {
-      null || ResponseBody() || Stream<dynamic>() => null,
-      List<int> bytes => bytes.length,
-      String text => utf8.encode(text).length,
-      _ => _encodedSize(data),
-    };
+    try {
+      return await _processInIsolate(data, contentType, maxBytes);
+    } catch (_) {
+      // Not sendable (e.g. an object holding a closure): do it here.
+      return _process(data, contentType, maxBytes);
+    }
   }
 
-  /// Text as decoded JSON when [contentType] says JSON and it parses.
-  static Object? _decodeText(String text, String? contentType) {
-    if (text.isEmpty) return null;
-    if (_isJson(contentType)) {
+  // Static, so the closure captures only its arguments.
+  static Future<CapturedBody> _processInIsolate(
+    Object data,
+    String? contentType,
+    int? maxBytes,
+  ) => Isolate.run(() => _process(data, contentType, maxBytes));
+
+  /// [data] made storable and sized. Runs in an isolate.
+  static CapturedBody _process(Object data, String? contentType, int? max) {
+    final type = (contentType ?? '').toLowerCase();
+    switch (data) {
+      case String text:
+        return _text(text, utf8.encode(text), type, max);
+      case List<int> bytes:
+        if (bytes.isEmpty) return (body: null, size: 0);
+        if (type.startsWith('image/')) {
+          final fits = max == null || bytes.length <= max;
+          return (body: fits ? base64Encode(bytes) : null, size: bytes.length);
+        }
+        if (_isJson(type) || type.startsWith('text/') || type.contains('xml')) {
+          return _text(
+            utf8.decode(bytes, allowMalformed: true),
+            bytes,
+            type,
+            max,
+          );
+        }
+        // Other binary bodies are not kept, only their size.
+        return (body: null, size: bytes.length);
+      default:
+        final String encoded;
+        try {
+          encoded = jsonEncode(data, toEncodable: _toEncodable);
+        } catch (_) {
+          final text = data.toString();
+          return (body: text, size: utf8.encode(text).length);
+        }
+        final bytes = utf8.encode(encoded);
+        if (max != null && bytes.length > max) {
+          return (body: _truncated(bytes, max), size: bytes.length);
+        }
+        return (body: jsonDecode(encoded), size: bytes.length);
+    }
+  }
+
+  /// [text] (encoded as [bytes]) as decoded JSON when [type] says JSON and
+  /// it parses, else as text; over [max] bytes, truncated text.
+  static CapturedBody _text(
+    String text,
+    List<int> bytes,
+    String type,
+    int? max,
+  ) {
+    if (bytes.isEmpty) return (body: null, size: 0);
+    if (max != null && bytes.length > max) {
+      return (body: _truncated(bytes, max), size: bytes.length);
+    }
+    if (_isJson(type)) {
       try {
-        return jsonDecode(text);
+        return (body: jsonDecode(text), size: bytes.length);
       } on FormatException {
-        return text;
+        // Not valid JSON: keep the text.
       }
     }
-    return text;
+    return (body: text, size: bytes.length);
   }
 
-  /// Small images as base64 (for the preview), text as text, other binary
-  /// bodies dropped: only their size is kept.
-  static Object? _decodeBytes(List<int> bytes, String? contentType) {
-    if (bytes.isEmpty) return null;
-    final type = (contentType ?? '').toLowerCase();
-    if (type.startsWith('image/')) {
-      return bytes.length <= maxImageBytes ? base64Encode(bytes) : null;
-    }
-    if (_isJson(type) || type.startsWith('text/') || type.contains('xml')) {
-      return _decodeText(utf8.decode(bytes, allowMalformed: true), type);
-    }
-    return null;
-  }
+  /// The first [max] bytes of [bytes] as text, with a note.
+  static String _truncated(List<int> bytes, int max) =>
+      '${utf8.decode(bytes.sublist(0, max), allowMalformed: true)}\n\n'
+      '… Truncated by Dio Lens: showing the first '
+      '${FormatUtils.bytes(max)} of ${FormatUtils.bytes(bytes.length)}.';
 
-  static bool _isJson(String? contentType) =>
-      (contentType ?? '').toLowerCase().contains('json');
+  static bool _isJson(String type) => type.contains('json');
 
   static String _headerValue(Object? value) => switch (value) {
     Iterable<dynamic> values => values.join(', '),
     _ => '$value',
   };
 
-  /// [value] reduced to maps, lists, strings, numbers, booleans and null;
-  /// objects go through their `toJson()`, or `toString()` without one.
-  static Object? _jsonSafe(Object? value) {
-    try {
-      return jsonDecode(jsonEncode(value, toEncodable: _toEncodable));
-    } catch (_) {
-      return value.toString();
-    }
-  }
-
+  /// Objects go through their `toJson()`, or `toString()` without one.
   static Object? _toEncodable(Object? value) {
     try {
       return (value as dynamic).toJson();
     } catch (_) {
       return value.toString();
-    }
-  }
-
-  static int? _encodedSize(Object body) {
-    try {
-      return utf8.encode(jsonEncode(body)).length;
-    } catch (_) {
-      return null;
     }
   }
 }

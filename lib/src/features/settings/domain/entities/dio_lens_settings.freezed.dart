@@ -17,7 +17,10 @@ T _$identity<T>(T value) => value;
 mixin _$DioLensSettings {
 
 /// Most requests kept; the oldest are removed past this limit.
-@JsonKey(name: 'max_requests') int get maxRequests;@JsonKey(name: 'retention') DioLensRetention get retention;/// Show a banner over the host app when a request finishes.
+@JsonKey(name: 'max_requests') int get maxRequests;/// Largest body kept, in bytes (see `DioLensSizeUnit`). Bigger text and
+/// JSON bodies are stored truncated, bigger images without a preview;
+/// sizes still report the full body. Null keeps every body whole.
+@JsonKey(name: 'max_body_bytes') int? get maxBodyBytes;@JsonKey(name: 'retention') DioLensRetention get retention;/// Show a banner over the host app when a request finishes.
 @JsonKey(name: 'show_notification') bool get showNotification;/// How long the request-finished banner stays on screen.
 @JsonKey(name: 'notification_duration') Duration get notificationDuration;/// Show the tap-to-open bubble over the host app.
 @JsonKey(name: 'show_bubble') bool get showBubble;@JsonKey(name: 'bubble_position') DioLensBubblePosition get bubblePosition;/// Mask Authorization, Cookie and Set-Cookie values in the UI.
@@ -35,20 +38,20 @@ $DioLensSettingsCopyWith<DioLensSettings> get copyWith => _$DioLensSettingsCopyW
 @override
 bool operator ==(Object other) {
   final _this = this as DioLensSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DioLensSettings&&(identical(other.maxRequests, _this.maxRequests) || other.maxRequests == _this.maxRequests)&&(identical(other.retention, _this.retention) || other.retention == _this.retention)&&(identical(other.showNotification, _this.showNotification) || other.showNotification == _this.showNotification)&&(identical(other.notificationDuration, _this.notificationDuration) || other.notificationDuration == _this.notificationDuration)&&(identical(other.showBubble, _this.showBubble) || other.showBubble == _this.showBubble)&&(identical(other.bubblePosition, _this.bubblePosition) || other.bubblePosition == _this.bubblePosition)&&(identical(other.redactHeaders, _this.redactHeaders) || other.redactHeaders == _this.redactHeaders)&&(identical(other.themeMode, _this.themeMode) || other.themeMode == _this.themeMode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DioLensSettings&&(identical(other.maxRequests, _this.maxRequests) || other.maxRequests == _this.maxRequests)&&(identical(other.maxBodyBytes, _this.maxBodyBytes) || other.maxBodyBytes == _this.maxBodyBytes)&&(identical(other.retention, _this.retention) || other.retention == _this.retention)&&(identical(other.showNotification, _this.showNotification) || other.showNotification == _this.showNotification)&&(identical(other.notificationDuration, _this.notificationDuration) || other.notificationDuration == _this.notificationDuration)&&(identical(other.showBubble, _this.showBubble) || other.showBubble == _this.showBubble)&&(identical(other.bubblePosition, _this.bubblePosition) || other.bubblePosition == _this.bubblePosition)&&(identical(other.redactHeaders, _this.redactHeaders) || other.redactHeaders == _this.redactHeaders)&&(identical(other.themeMode, _this.themeMode) || other.themeMode == _this.themeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as DioLensSettings;
-  return Object.hash(runtimeType,_this.maxRequests,_this.retention,_this.showNotification,_this.notificationDuration,_this.showBubble,_this.bubblePosition,_this.redactHeaders,_this.themeMode);
+  return Object.hash(runtimeType,_this.maxRequests,_this.maxBodyBytes,_this.retention,_this.showNotification,_this.notificationDuration,_this.showBubble,_this.bubblePosition,_this.redactHeaders,_this.themeMode);
 }
 
 @override
 String toString() {
   final _this = this as DioLensSettings;
-  return 'DioLensSettings(maxRequests: ${_this.maxRequests}, retention: ${_this.retention}, showNotification: ${_this.showNotification}, notificationDuration: ${_this.notificationDuration}, showBubble: ${_this.showBubble}, bubblePosition: ${_this.bubblePosition}, redactHeaders: ${_this.redactHeaders}, themeMode: ${_this.themeMode})';
+  return 'DioLensSettings(maxRequests: ${_this.maxRequests}, maxBodyBytes: ${_this.maxBodyBytes}, retention: ${_this.retention}, showNotification: ${_this.showNotification}, notificationDuration: ${_this.notificationDuration}, showBubble: ${_this.showBubble}, bubblePosition: ${_this.bubblePosition}, redactHeaders: ${_this.redactHeaders}, themeMode: ${_this.themeMode})';
 }
 
 
@@ -59,7 +62,7 @@ abstract mixin class $DioLensSettingsCopyWith<$Res>  {
   factory $DioLensSettingsCopyWith(DioLensSettings value, $Res Function(DioLensSettings) _then) = _$DioLensSettingsCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'max_requests') int maxRequests,@JsonKey(name: 'retention') DioLensRetention retention,@JsonKey(name: 'show_notification') bool showNotification,@JsonKey(name: 'notification_duration') Duration notificationDuration,@JsonKey(name: 'show_bubble') bool showBubble,@JsonKey(name: 'bubble_position') DioLensBubblePosition bubblePosition,@JsonKey(name: 'redact_headers') bool redactHeaders,@JsonKey(name: 'theme_mode') ThemeMode themeMode
+@JsonKey(name: 'max_requests') int maxRequests,@JsonKey(name: 'max_body_bytes') int? maxBodyBytes,@JsonKey(name: 'retention') DioLensRetention retention,@JsonKey(name: 'show_notification') bool showNotification,@JsonKey(name: 'notification_duration') Duration notificationDuration,@JsonKey(name: 'show_bubble') bool showBubble,@JsonKey(name: 'bubble_position') DioLensBubblePosition bubblePosition,@JsonKey(name: 'redact_headers') bool redactHeaders,@JsonKey(name: 'theme_mode') ThemeMode themeMode
 });
 
 
@@ -76,10 +79,11 @@ class _$DioLensSettingsCopyWithImpl<$Res>
 
 /// Create a copy of DioLensSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? maxRequests = null,Object? retention = null,Object? showNotification = null,Object? notificationDuration = null,Object? showBubble = null,Object? bubblePosition = null,Object? redactHeaders = null,Object? themeMode = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? maxRequests = null,Object? maxBodyBytes = freezed,Object? retention = null,Object? showNotification = null,Object? notificationDuration = null,Object? showBubble = null,Object? bubblePosition = null,Object? redactHeaders = null,Object? themeMode = null,}) {
   return _then(DioLensSettings(
 maxRequests: null == maxRequests ? _self.maxRequests : maxRequests // ignore: cast_nullable_to_non_nullable
-as int,retention: null == retention ? _self.retention : retention // ignore: cast_nullable_to_non_nullable
+as int,maxBodyBytes: freezed == maxBodyBytes ? _self.maxBodyBytes : maxBodyBytes // ignore: cast_nullable_to_non_nullable
+as int?,retention: null == retention ? _self.retention : retention // ignore: cast_nullable_to_non_nullable
 as DioLensRetention,showNotification: null == showNotification ? _self.showNotification : showNotification // ignore: cast_nullable_to_non_nullable
 as bool,notificationDuration: null == notificationDuration ? _self.notificationDuration : notificationDuration // ignore: cast_nullable_to_non_nullable
 as Duration,showBubble: null == showBubble ? _self.showBubble : showBubble // ignore: cast_nullable_to_non_nullable
@@ -171,10 +175,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'max_body_bytes')  int? maxBodyBytes, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _DioLensSettings() when $default != null:
-return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
+return $default(_that.maxRequests,_that.maxBodyBytes,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
   return orElse();
 
 }
@@ -192,10 +196,10 @@ return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.n
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'max_body_bytes')  int? maxBodyBytes, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)  $default,) {final _that = this;
 switch (_that) {
 case _DioLensSettings():
-return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
+return $default(_that.maxRequests,_that.maxBodyBytes,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -212,10 +216,10 @@ return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.n
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'max_requests')  int maxRequests, @JsonKey(name: 'max_body_bytes')  int? maxBodyBytes, @JsonKey(name: 'retention')  DioLensRetention retention, @JsonKey(name: 'show_notification')  bool showNotification, @JsonKey(name: 'notification_duration')  Duration notificationDuration, @JsonKey(name: 'show_bubble')  bool showBubble, @JsonKey(name: 'bubble_position')  DioLensBubblePosition bubblePosition, @JsonKey(name: 'redact_headers')  bool redactHeaders, @JsonKey(name: 'theme_mode')  ThemeMode themeMode)?  $default,) {final _that = this;
 switch (_that) {
 case _DioLensSettings() when $default != null:
-return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
+return $default(_that.maxRequests,_that.maxBodyBytes,_that.retention,_that.showNotification,_that.notificationDuration,_that.showBubble,_that.bubblePosition,_that.redactHeaders,_that.themeMode);case _:
   return null;
 
 }
@@ -227,11 +231,15 @@ return $default(_that.maxRequests,_that.retention,_that.showNotification,_that.n
 @JsonSerializable()
 
 class _DioLensSettings extends DioLensSettings {
-  const _DioLensSettings({@JsonKey(name: 'max_requests') this.maxRequests = 500, @JsonKey(name: 'retention') this.retention = DioLensRetention.oneDay, @JsonKey(name: 'show_notification') this.showNotification = true, @JsonKey(name: 'notification_duration') this.notificationDuration = const Duration(seconds: 4), @JsonKey(name: 'show_bubble') this.showBubble = true, @JsonKey(name: 'bubble_position') this.bubblePosition = DioLensBubblePosition.bottomEnd, @JsonKey(name: 'redact_headers') this.redactHeaders = true, @JsonKey(name: 'theme_mode') this.themeMode = ThemeMode.dark}): assert(maxRequests >= DioLensSettings.minRequests && maxRequests <= DioLensSettings.maxRequestsLimit, 'maxRequests must be between 10 and 10000'),super._();
+  const _DioLensSettings({@JsonKey(name: 'max_requests') this.maxRequests = 500, @JsonKey(name: 'max_body_bytes') this.maxBodyBytes, @JsonKey(name: 'retention') this.retention = DioLensRetention.oneDay, @JsonKey(name: 'show_notification') this.showNotification = true, @JsonKey(name: 'notification_duration') this.notificationDuration = const Duration(seconds: 4), @JsonKey(name: 'show_bubble') this.showBubble = true, @JsonKey(name: 'bubble_position') this.bubblePosition = DioLensBubblePosition.bottomEnd, @JsonKey(name: 'redact_headers') this.redactHeaders = true, @JsonKey(name: 'theme_mode') this.themeMode = ThemeMode.dark}): assert(maxRequests >= DioLensSettings.minRequests && maxRequests <= DioLensSettings.maxRequestsLimit, 'maxRequests must be between 10 and 10000'),assert(maxBodyBytes == null || maxBodyBytes > 0, 'maxBodyBytes must be positive, or null for unlimited'),super._();
   factory _DioLensSettings.fromJson(Map<String, dynamic> json) => _$DioLensSettingsFromJson(json);
 
 /// Most requests kept; the oldest are removed past this limit.
 @override@JsonKey(name: 'max_requests') final  int maxRequests;
+/// Largest body kept, in bytes (see `DioLensSizeUnit`). Bigger text and
+/// JSON bodies are stored truncated, bigger images without a preview;
+/// sizes still report the full body. Null keeps every body whole.
+@override@JsonKey(name: 'max_body_bytes') final  int? maxBodyBytes;
 @override@JsonKey(name: 'retention') final  DioLensRetention retention;
 /// Show a banner over the host app when a request finishes.
 @override@JsonKey(name: 'show_notification') final  bool showNotification;
@@ -257,18 +265,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DioLensSettings&&(identical(other.maxRequests, maxRequests) || other.maxRequests == maxRequests)&&(identical(other.retention, retention) || other.retention == retention)&&(identical(other.showNotification, showNotification) || other.showNotification == showNotification)&&(identical(other.notificationDuration, notificationDuration) || other.notificationDuration == notificationDuration)&&(identical(other.showBubble, showBubble) || other.showBubble == showBubble)&&(identical(other.bubblePosition, bubblePosition) || other.bubblePosition == bubblePosition)&&(identical(other.redactHeaders, redactHeaders) || other.redactHeaders == redactHeaders)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _DioLensSettings&&(identical(other.maxRequests, maxRequests) || other.maxRequests == maxRequests)&&(identical(other.maxBodyBytes, maxBodyBytes) || other.maxBodyBytes == maxBodyBytes)&&(identical(other.retention, retention) || other.retention == retention)&&(identical(other.showNotification, showNotification) || other.showNotification == showNotification)&&(identical(other.notificationDuration, notificationDuration) || other.notificationDuration == notificationDuration)&&(identical(other.showBubble, showBubble) || other.showBubble == showBubble)&&(identical(other.bubblePosition, bubblePosition) || other.bubblePosition == bubblePosition)&&(identical(other.redactHeaders, redactHeaders) || other.redactHeaders == redactHeaders)&&(identical(other.themeMode, themeMode) || other.themeMode == themeMode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,maxRequests,retention,showNotification,notificationDuration,showBubble,bubblePosition,redactHeaders,themeMode);
+    return Object.hash(runtimeType,maxRequests,maxBodyBytes,retention,showNotification,notificationDuration,showBubble,bubblePosition,redactHeaders,themeMode);
 }
 
 @override
 String toString() {
-    return 'DioLensSettings(maxRequests: $maxRequests, retention: $retention, showNotification: $showNotification, notificationDuration: $notificationDuration, showBubble: $showBubble, bubblePosition: $bubblePosition, redactHeaders: $redactHeaders, themeMode: $themeMode)';
+    return 'DioLensSettings(maxRequests: $maxRequests, maxBodyBytes: $maxBodyBytes, retention: $retention, showNotification: $showNotification, notificationDuration: $notificationDuration, showBubble: $showBubble, bubblePosition: $bubblePosition, redactHeaders: $redactHeaders, themeMode: $themeMode)';
 }
 
 
@@ -279,7 +287,7 @@ abstract mixin class _$DioLensSettingsCopyWith<$Res> implements $DioLensSettings
   factory _$DioLensSettingsCopyWith(_DioLensSettings value, $Res Function(_DioLensSettings) _then) = __$DioLensSettingsCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'max_requests') int maxRequests,@JsonKey(name: 'retention') DioLensRetention retention,@JsonKey(name: 'show_notification') bool showNotification,@JsonKey(name: 'notification_duration') Duration notificationDuration,@JsonKey(name: 'show_bubble') bool showBubble,@JsonKey(name: 'bubble_position') DioLensBubblePosition bubblePosition,@JsonKey(name: 'redact_headers') bool redactHeaders,@JsonKey(name: 'theme_mode') ThemeMode themeMode
+@JsonKey(name: 'max_requests') int maxRequests,@JsonKey(name: 'max_body_bytes') int? maxBodyBytes,@JsonKey(name: 'retention') DioLensRetention retention,@JsonKey(name: 'show_notification') bool showNotification,@JsonKey(name: 'notification_duration') Duration notificationDuration,@JsonKey(name: 'show_bubble') bool showBubble,@JsonKey(name: 'bubble_position') DioLensBubblePosition bubblePosition,@JsonKey(name: 'redact_headers') bool redactHeaders,@JsonKey(name: 'theme_mode') ThemeMode themeMode
 });
 
 
@@ -296,10 +304,11 @@ class __$DioLensSettingsCopyWithImpl<$Res>
 
 /// Create a copy of DioLensSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? maxRequests = null,Object? retention = null,Object? showNotification = null,Object? notificationDuration = null,Object? showBubble = null,Object? bubblePosition = null,Object? redactHeaders = null,Object? themeMode = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? maxRequests = null,Object? maxBodyBytes = freezed,Object? retention = null,Object? showNotification = null,Object? notificationDuration = null,Object? showBubble = null,Object? bubblePosition = null,Object? redactHeaders = null,Object? themeMode = null,}) {
   return _then(_DioLensSettings(
 maxRequests: null == maxRequests ? _self.maxRequests : maxRequests // ignore: cast_nullable_to_non_nullable
-as int,retention: null == retention ? _self.retention : retention // ignore: cast_nullable_to_non_nullable
+as int,maxBodyBytes: freezed == maxBodyBytes ? _self.maxBodyBytes : maxBodyBytes // ignore: cast_nullable_to_non_nullable
+as int?,retention: null == retention ? _self.retention : retention // ignore: cast_nullable_to_non_nullable
 as DioLensRetention,showNotification: null == showNotification ? _self.showNotification : showNotification // ignore: cast_nullable_to_non_nullable
 as bool,notificationDuration: null == notificationDuration ? _self.notificationDuration : notificationDuration // ignore: cast_nullable_to_non_nullable
 as Duration,showBubble: null == showBubble ? _self.showBubble : showBubble // ignore: cast_nullable_to_non_nullable

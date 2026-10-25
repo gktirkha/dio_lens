@@ -20,9 +20,18 @@ abstract class DioLensSettings with _$DioLensSettings {
         'maxRequests <= DioLensSettings.maxRequestsLimit',
     'maxRequests must be between 10 and 10000',
   )
+  @Assert(
+    'maxBodyBytes == null || maxBodyBytes > 0',
+    'maxBodyBytes must be positive, or null for unlimited',
+  )
   const factory DioLensSettings({
     /// Most requests kept; the oldest are removed past this limit.
     @JsonKey(name: 'max_requests') @Default(500) int maxRequests,
+
+    /// Largest body kept, in bytes (see `DioLensSizeUnit`). Bigger text and
+    /// JSON bodies are stored truncated, bigger images without a preview;
+    /// sizes still report the full body. Null keeps every body whole.
+    @JsonKey(name: 'max_body_bytes') int? maxBodyBytes,
     @JsonKey(name: 'retention')
     @Default(DioLensRetention.oneDay)
     DioLensRetention retention,
