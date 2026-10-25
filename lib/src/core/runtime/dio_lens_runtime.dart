@@ -7,6 +7,7 @@ import '../../features/notification/presentation/request_banner_presenter.dart';
 import '../../features/request_detail/data/data_sources/request_detail_local_data_source.dart';
 import '../../features/request_detail/presentation/pages/request_detail_page.dart';
 import '../../features/request_home/data/data_sources/request_home_local_data_source.dart';
+import '../../features/settings/data/data_sources/settings_local_data_source.dart';
 import '../../features/settings/domain/entities/dio_lens_settings.dart';
 import '../../features/stats/data/data_sources/stats_local_data_source.dart';
 import '../../theme/dio_lens_theme_mode_controller.dart';
@@ -46,6 +47,7 @@ class DioLensRuntime {
     requestHomeDataSource: () => RequestHomeLocalDataSource(store),
     statsDataSource: () => StatsLocalDataSource(store),
     requestDetailDataSource: () => RequestDetailLocalDataSource(store),
+    settingsDataSource: () => SettingsLocalDataSource(store),
   );
 
   /// Appearance shared by every Dio Lens page and banner, kept in sync

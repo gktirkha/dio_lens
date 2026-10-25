@@ -7,6 +7,7 @@ import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../request_detail/presentation/pages/request_detail_page.dart';
 import '../../../request_home/presentation/controllers/request_home_controller.dart';
 import '../../../request_home/presentation/pages/request_home_page.dart';
+import '../../../settings/presentation/pages/settings_sheet.dart';
 import '../../../stats/presentation/controllers/stats_controller.dart';
 import '../../../stats/presentation/pages/stats_page.dart';
 
@@ -51,6 +52,11 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
 
   void _minimize() => Navigator.of(context).maybePop();
 
+  void _openSettings() => showDioLensSettings(
+    context,
+    createController: widget.dependencies.createSettingsController,
+  );
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -70,12 +76,14 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
                     onReplay: widget.onReplay,
                   ),
                 ),
+                onOpenSettings: _openSettings,
                 onMinimize: _minimize,
               ),
               if (_tab == 1 || _statsController != null)
                 StatsPage(
                   controller: _stats,
                   onClearAll: _homeController.clearAll,
+                  onOpenSettings: _openSettings,
                   onMinimize: _minimize,
                 )
               else

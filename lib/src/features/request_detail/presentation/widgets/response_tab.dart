@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/enums/request_state.dart';
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'error_card.dart';
@@ -18,16 +19,13 @@ class ResponseTab extends StatelessWidget {
   const ResponseTab({
     super.key,
     required this.request,
-    this.redactHeaders = true,
+    this.settings = const DioLensSettings(),
   });
 
   final RequestDetailEntity request;
 
-  /// Masks sensitive headers (see [sensitiveHeaders]).
-  final bool redactHeaders;
-
-  /// Lower-case response header names hidden when [redactHeaders] is on.
-  static const Set<String> sensitiveHeaders = {'set-cookie'};
+  /// Decides which headers are masked.
+  final DioLensSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +63,7 @@ class ResponseTab extends StatelessWidget {
               KeyValueEntry(
                 e.key,
                 e.value,
-                redacted:
-                    redactHeaders &&
-                    sensitiveHeaders.contains(e.key.toLowerCase()),
+                redacted: settings.isHeaderRedacted(e.key),
               ),
           ],
         ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/enums/request_status_class.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
@@ -10,9 +11,16 @@ import 'overview_widgets.dart';
 /// Overview tab: every key fact as a tap-to-copy field, query params and
 /// the cURL command.
 class OverviewTab extends StatelessWidget {
-  const OverviewTab({super.key, required this.request});
+  const OverviewTab({
+    super.key,
+    required this.request,
+    this.settings = const DioLensSettings(),
+  });
 
   final RequestDetailEntity request;
+
+  /// Decides which query params are masked.
+  final DioLensSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +53,14 @@ class OverviewTab extends StatelessWidget {
             const SizedBox(height: 6),
             KeyValueBox(
               title: 'Query',
-              entries: [for (final p in params) KeyValueEntry(p.key, p.value)],
+              entries: [
+                for (final p in params)
+                  KeyValueEntry(
+                    p.key,
+                    p.value,
+                    redacted: settings.isQueryParamRedacted(p.key),
+                  ),
+              ],
               copyAllLabel: 'Query params',
             ),
           ],

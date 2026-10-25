@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import '../controllers/request_detail_controller.dart';
 import '../widgets/overview_tab.dart';
@@ -66,6 +67,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
             if (request == null) return const _RequestGone();
             return _DetailBody(
               request: request,
+              settings: _controller.settings,
               onShare: widget.onShare,
               onReplay: widget.onReplay == null ? null : _replay,
             );
@@ -77,9 +79,15 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
 }
 
 class _DetailBody extends StatelessWidget {
-  const _DetailBody({required this.request, this.onShare, this.onReplay});
+  const _DetailBody({
+    required this.request,
+    required this.settings,
+    this.onShare,
+    this.onReplay,
+  });
 
   final RequestDetailEntity request;
+  final DioLensSettings settings;
   final ValueChanged<RequestDetailEntity>? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
 
@@ -129,9 +137,9 @@ class _DetailBody extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                OverviewTab(request: request),
-                RequestTab(request: request),
-                ResponseTab(request: request),
+                OverviewTab(request: request, settings: settings),
+                RequestTab(request: request, settings: settings),
+                ResponseTab(request: request, settings: settings),
               ],
             ),
           ),

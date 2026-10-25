@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../enums/dio_lens_bubble_position.dart';
+import '../enums/dio_lens_notification_position.dart';
 import '../enums/dio_lens_retention.dart';
 
 part 'dio_lens_settings.freezed.dart';
@@ -39,6 +40,10 @@ abstract class DioLensSettings with _$DioLensSettings {
     /// Show a banner over the host app when a request finishes.
     @JsonKey(name: 'show_notification') @Default(true) bool showNotification,
 
+    @JsonKey(name: 'notification_position')
+    @Default(DioLensNotificationPosition.top)
+    DioLensNotificationPosition notificationPosition,
+
     /// How long the request-finished banner stays on screen.
     @JsonKey(name: 'notification_duration')
     @Default(Duration(seconds: 4))
@@ -50,13 +55,56 @@ abstract class DioLensSettings with _$DioLensSettings {
     @Default(DioLensBubblePosition.bottomEnd)
     DioLensBubblePosition bubblePosition,
 
-    /// Mask Authorization, Cookie and Set-Cookie values in the UI.
+    /// Mask the values of [redactedHeaders] in the UI.
     @JsonKey(name: 'redact_headers') @Default(true) bool redactHeaders,
+
+    /// Header names masked while [redactHeaders] is on, in requests and
+    /// responses; matched case-insensitively.
+    @JsonKey(name: 'redacted_headers')
+    @Default(DioLensSettings.defaultRedactedHeaders)
+    List<String> redactedHeaders,
+
+    /// Mask the values of [redactedQueryParams] in the UI.
+    @JsonKey(name: 'redact_query') @Default(true) bool redactQuery,
+
+    /// Query parameter names masked while [redactQuery] is on; matched
+    /// case-insensitively.
+    @JsonKey(name: 'redacted_query_params')
+    @Default(DioLensSettings.defaultRedactedQueryParams)
+    List<String> redactedQueryParams,
     @JsonKey(name: 'theme_mode') @Default(ThemeMode.dark) ThemeMode themeMode,
   }) = _DioLensSettings;
 
   factory DioLensSettings.fromJson(Map<String, dynamic> json) =>
       _$DioLensSettingsFromJson(json);
+
+  static const List<String> defaultRedactedHeaders = [
+    'authorization',
+    'cookie',
+    'set-cookie',
+    'x-api-key',
+  ];
+
+  static const List<String> defaultRedactedQueryParams = [
+    'token',
+    'apikey',
+    'password',
+  ];
+
+  /// Whether the header [name] is masked under these settings. Case
+  /// insensitive, whatever case the keys were given in.
+  bool isHeaderRedacted(String name) =>
+      redactHeaders && _matches(redactedHeaders, name);
+
+  /// Whether the query parameter [name] is masked under these settings.
+  /// Case insensitive, whatever case the keys were given in.
+  bool isQueryParamRedacted(String name) =>
+      redactQuery && _matches(redactedQueryParams, name);
+
+  static bool _matches(List<String> keys, String name) {
+    final lower = name.toLowerCase();
+    return keys.any((key) => key.toLowerCase() == lower);
+  }
 
   static const int minRequests = 10;
   static const int maxRequestsLimit = 10000;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'key_value_box.dart';
@@ -10,16 +11,13 @@ class RequestTab extends StatelessWidget {
   const RequestTab({
     super.key,
     required this.request,
-    this.redactHeaders = true,
+    this.settings = const DioLensSettings(),
   });
 
   final RequestDetailEntity request;
 
-  /// Masks sensitive headers (see [sensitiveHeaders]).
-  final bool redactHeaders;
-
-  /// Lower-case request header names hidden when [redactHeaders] is on.
-  static const Set<String> sensitiveHeaders = {'authorization', 'cookie'};
+  /// Decides which headers and query params are masked.
+  final DioLensSettings settings;
 
   @override
   Widget build(BuildContext context) {
@@ -35,16 +33,21 @@ class RequestTab extends StatelessWidget {
               KeyValueEntry(
                 e.key,
                 e.value,
-                redacted:
-                    redactHeaders &&
-                    sensitiveHeaders.contains(e.key.toLowerCase()),
+                redacted: settings.isHeaderRedacted(e.key),
               ),
           ],
         ),
       if (params.isNotEmpty)
         KeyValueBox(
           title: 'Query params',
-          entries: [for (final p in params) KeyValueEntry(p.key, p.value)],
+          entries: [
+            for (final p in params)
+              KeyValueEntry(
+                p.key,
+                p.value,
+                redacted: settings.isQueryParamRedacted(p.key),
+              ),
+          ],
         ),
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

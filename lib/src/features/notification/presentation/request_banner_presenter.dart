@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import '../../../theme/dio_lens_theme_mode_controller.dart';
 import '../../../theme/dio_lens_theme_scope.dart';
 import '../../request_detail/domain/entities/request_detail_entity.dart';
+import '../../settings/domain/enums/dio_lens_notification_position.dart';
 import 'widgets/request_finished_banner.dart';
 
 /// Shows the request-finished banner at the top of the host app, in the
@@ -27,12 +28,16 @@ class RequestBannerPresenter {
 
   /// Shows [request] for [duration]; skipped when the navigator is not
   /// mounted yet.
-  void show(RequestDetailEntity request, {required Duration duration}) {
+  void show(
+    RequestDetailEntity request, {
+    required Duration duration,
+    DioLensNotificationPosition position = DioLensNotificationPosition.top,
+  }) {
     // Inserting while a frame is being built would throw; wait for it.
     if (SchedulerBinding.instance.schedulerPhase ==
         SchedulerPhase.persistentCallbacks) {
       SchedulerBinding.instance.addPostFrameCallback(
-        (_) => show(request, duration: duration),
+        (_) => show(request, duration: duration, position: position),
       );
       return;
     }
@@ -46,6 +51,7 @@ class RequestBannerPresenter {
       builder: (context) => _AnimatedBanner(
         key: key,
         duration: duration,
+        position: position,
         onClosed: () {
           if (identical(_entry, entry)) _remove();
         },
@@ -83,11 +89,13 @@ class _AnimatedBanner extends StatefulWidget {
   const _AnimatedBanner({
     super.key,
     required this.duration,
+    required this.position,
     required this.onClosed,
     required this.child,
   });
 
   final Duration duration;
+  final DioLensNotificationPosition position;
   final VoidCallback onClosed;
   final Widget child;
 
@@ -135,19 +143,25 @@ class _AnimatedBannerState extends State<_AnimatedBanner>
       curve: Curves.easeOut,
       reverseCurve: Curves.easeIn,
     );
+    final top = widget.position == DioLensNotificationPosition.top;
     return Positioned(
-      top: 0,
+      top: top ? 0 : null,
+      bottom: top ? null : 0,
       left: 0,
       right: 0,
       child: SafeArea(
-        bottom: false,
+        top: top,
+        bottom: !top,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          // At the bottom, clear typical bottom bars (design: 82px).
+          padding: top
+              ? const EdgeInsets.fromLTRB(12, 8, 12, 0)
+              : const EdgeInsets.fromLTRB(12, 0, 12, 82),
           child: FadeTransition(
             opacity: curved,
             child: SlideTransition(
               position: Tween(
-                begin: const Offset(0, -0.12),
+                begin: Offset(0, top ? -0.12 : 0.12),
                 end: Offset.zero,
               ).animate(curved),
               child: Semantics(

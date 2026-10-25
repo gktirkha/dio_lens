@@ -1131,7 +1131,7 @@
       bodyMode: {},                // key -> 'pretty' | 'raw'
       openJsonPaths: {},           // treeKey -> Set of expanded node paths
       settings: {
-        maxStored: 500, retention: '24h', notification: true, notificationPosition: 'top', notificationDuration: 4, bubble: true, bubblePosition: 'br', redactHeaders: true, redactHeadersList: ['authorization', 'cookie', 'x-api-key'], redactQuery: true, redactQueryList: ['token', 'apikey', 'password'], theme: 'dark'
+        maxStored: 500, retention: '24h', notification: true, notificationPosition: 'top', notificationDuration: 4, bubble: true, bubblePosition: 'br', maxBodySize: 256, maxBodyUnit: 'unlimited', redactHeaders: true, redactHeadersList: ['authorization', 'cookie', 'x-api-key'], redactQuery: true, redactQueryList: ['token', 'apikey', 'password'], theme: 'dark'
       },
       maxStoredDraft: '500',
       lastListFocusId: null,
@@ -1967,6 +1967,13 @@
             '<select class="dl-select" data-action="set-retention" aria-label="Retention period">' +
               [['session','This session'],['1h','1 hour'],['24h','24 hours'],['7d','7 days'],['always','Always']].map(function(v){ return '<option value="'+v[0]+'"'+(s.retention===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
             '</select></div>' +
+          '<div class="dl-set-row"><div class="set-label"><div class="set-title">Max body size</div><div class="set-desc">' + (s.maxBodyUnit === 'unlimited' ? 'Every body is kept whole' : 'Larger bodies are stored truncated') + '</div></div>' +
+            '<div style="display:flex;gap:8px;align-items:center;">' +
+              (s.maxBodyUnit === 'unlimited' ? '' : '<input type="text" inputmode="decimal" class="dl-stepper-input" style="width:84px;flex:none;height:34px;font-size:13px;" data-action="set-body-size" value="' + esc(String(s.maxBodySize)) + '" aria-label="Max body size">') +
+              '<select class="dl-select" data-action="set-body-unit" aria-label="Max body size unit">' +
+                [['B','B'],['KB','KB'],['MB','MB'],['unlimited','Unlimited']].map(function(v){ return '<option value="'+v[0]+'"'+(s.maxBodyUnit===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
+              '</select>' +
+            '</div></div>' +
         '</div>' +
         '<div class="dl-set-section"><h3>Entry point</h3>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Show notification</div><div class="set-desc">Persistent notification while capturing in the background</div></div>' + switchEl('notification', s.notification) + '</div>' +
@@ -2287,6 +2294,12 @@
     });
 
     app.addEventListener('input', function (e) {
+        if (e.target.matches('[data-action="set-body-size"]')) {
+          var size = parseFloat(e.target.value);
+          e.target.classList.toggle('invalid', !(size > 0));
+          if (size > 0) state.settings.maxBodySize = size;
+          return;
+        }
         if (e.target.matches('[data-action="set-redact-list"]')) {
           var t = e.target.dataset.type;
           var list = e.target.value.split(',').map(function(s){return s.trim().toLowerCase();}).filter(function(s){return s;});
@@ -2326,6 +2339,7 @@
 
     document.addEventListener('change', function (e) {
       if (e.target.matches('[data-action="set-retention"]')) { state.settings.retention = e.target.value; }
+      if (e.target.matches('[data-action="set-body-unit"]')) { state.settings.maxBodyUnit = e.target.value; renderSettings(); }
     });
 
     document.addEventListener('input', function (e) {

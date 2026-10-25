@@ -113,7 +113,11 @@ class DioLensInterceptor extends Interceptor {
 
       final settings = store.settings.value;
       if (settings.showNotification) {
-        runtime.banner.show(finished, duration: settings.notificationDuration);
+        runtime.banner.show(
+          finished,
+          duration: settings.notificationDuration,
+          position: settings.notificationPosition,
+        );
       }
     }
 
