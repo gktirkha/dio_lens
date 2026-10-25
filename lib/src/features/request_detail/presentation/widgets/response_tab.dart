@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -77,6 +78,7 @@ class ResponseTab extends StatelessWidget {
                 bytes: switch (body) {
                   Uint8List b => b,
                   List<int> b => Uint8List.fromList(b),
+                  String encoded => _decodeBase64(encoded),
                   _ => null,
                 },
                 contentType: request.responseContentType,
@@ -89,6 +91,15 @@ class ResponseTab extends StatelessWidget {
               ),
       ),
     ];
+  }
+}
+
+/// Image bytes stored as base64 by the interceptor; null when invalid.
+Uint8List? _decodeBase64(String encoded) {
+  try {
+    return base64Decode(encoded);
+  } on FormatException {
+    return null;
   }
 }
 
