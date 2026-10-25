@@ -12,14 +12,20 @@ import 'request_capture.dart';
 /// earlier interceptors added:
 ///
 /// ```dart
-/// dio.interceptors.add(DioLensInterceptor());
+/// dio.interceptors.add(DioLensInterceptor(dio));
 /// ```
+///
+/// Passing the [Dio] lets Replay re-send requests through it, so the app's
+/// own interceptors (auth, refresh) and adapter apply; without it, replays
+/// go through a plain Dio.
 ///
 /// Does nothing until `DioLens.init` is called, or when Dio Lens is
 /// disabled. Never changes or delays a request, and a capture failure never
 /// reaches the app.
 class DioLensInterceptor extends Interceptor {
-  DioLensInterceptor();
+  DioLensInterceptor([this._dio]);
+
+  final Dio? _dio;
 
   /// The pending capture, once it is in the store.
   static const String _captureKey = 'dio_lens_capture';
@@ -30,9 +36,11 @@ class DioLensInterceptor extends Interceptor {
       final runtime = DioLensRuntime.current;
       if (runtime == null || !runtime.enabled) return;
       final store = runtime.store;
+      final id = runtime.nextRequestId();
+      if (_dio case final dio?) runtime.replayer.register(id, dio);
       final capture =
           RequestCapture.pending(
-            id: runtime.nextRequestId(),
+            id: id,
             startedAt: DateTime.now(),
             options: options,
             maxBodyBytes: store.settings.value.maxBodyBytes,

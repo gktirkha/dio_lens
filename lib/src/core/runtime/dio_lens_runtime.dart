@@ -11,6 +11,7 @@ import '../../features/settings/domain/entities/dio_lens_settings.dart';
 import '../../features/stats/data/data_sources/stats_local_data_source.dart';
 import '../../theme/dio_lens_theme_mode_controller.dart';
 import '../../theme/dio_lens_theme_scope.dart';
+import '../../interceptor/request_replayer.dart';
 import '../storage/dio_lens_storage.dart';
 import '../storage/dio_lens_store.dart';
 
@@ -71,6 +72,9 @@ class DioLensRuntime {
     onView: openRequest,
   );
 
+  /// Re-sends captured requests (the detail page's Replay).
+  late final RequestReplayer replayer = RequestReplayer();
+
   late final BubblePresenter bubble = BubblePresenter(
     navigatorKey: navigatorKey,
     settings: store.settings,
@@ -90,13 +94,16 @@ class DioLensRuntime {
       '-${(_sequence++).toRadixString(36)}';
 
   /// Pushes the Dio Lens home page on the host's navigator.
-  Future<void> open() =>
-      _push((_) => DioLensHomePage(dependencies: dependencies));
+  Future<void> open() => _push(
+    (_) =>
+        DioLensHomePage(dependencies: dependencies, onReplay: replayer.replay),
+  );
 
   /// Pushes the detail page of the request with [id].
   Future<void> openRequest(String id) => _push(
     (_) => RequestDetailPage(
       createController: () => dependencies.createRequestDetailController(id),
+      onReplay: replayer.replay,
     ),
   );
 

@@ -39,6 +39,18 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     super.dispose();
   }
 
+  void _replay(RequestDetailEntity request) {
+    widget.onReplay?.call(request);
+    ScaffoldMessenger.maybeOf(context)
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Request replayed'),
+          duration: Duration(milliseconds: 1400),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
@@ -55,7 +67,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
             return _DetailBody(
               request: request,
               onShare: widget.onShare,
-              onReplay: widget.onReplay,
+              onReplay: widget.onReplay == null ? null : _replay,
             );
           },
         ),

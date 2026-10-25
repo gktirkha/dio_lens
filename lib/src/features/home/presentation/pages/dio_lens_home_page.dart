@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/navigation/dio_lens_navigator.dart';
 import '../../../../core/widgets/dio_lens_bottom_nav.dart';
 import '../../../../di/dio_lens_dependencies.dart';
+import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../request_detail/presentation/pages/request_detail_page.dart';
 import '../../../request_home/presentation/controllers/request_home_controller.dart';
 import '../../../request_home/presentation/pages/request_home_page.dart';
@@ -15,9 +16,12 @@ import '../../../stats/presentation/pages/stats_page.dart';
 /// Tabs are lazy: Stats (and its controller) is built on first visit, then
 /// kept alive so switching back keeps its scroll position.
 class DioLensHomePage extends StatefulWidget {
-  const DioLensHomePage({super.key, required this.dependencies});
+  const DioLensHomePage({super.key, required this.dependencies, this.onReplay});
 
   final DioLensDependencies dependencies;
+
+  /// Re-sends a request from its detail page.
+  final ValueChanged<RequestDetailEntity>? onReplay;
 
   static const List<DioLensNavItem> tabs = [
     DioLensNavItem(icon: Icons.bolt_rounded, label: 'Requests'),
@@ -63,6 +67,7 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
                   builder: (_) => RequestDetailPage(
                     createController: () => widget.dependencies
                         .createRequestDetailController(item.id),
+                    onReplay: widget.onReplay,
                   ),
                 ),
                 onMinimize: _minimize,
