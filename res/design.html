@@ -1871,6 +1871,10 @@
             rankList(STATS.slowest, 'avg', ' ms', maxSlow) +
           '</div>' +
           '<div class="dl-panel">' +
+            '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="largest"><h2>Largest responses</h2>' + icon('chevronRight', 'chev') + '</button>' +
+            (function(){ var arr = computeLargest(); var maxv = arr[0]?arr[0].bytes:1; if(arr.length===0)return '<p style="color:var(--dl-text-faint);font-size:12px;">No response size data</p>'; return '<div class="dl-rank-list">' + arr.slice(0,3).map(function (it){ var pct=Math.round(it.bytes/maxv*100); return '<div class="dl-rank-row"><div class="dl-rank-top"><span class="path">'+esc(it.path)+'</span><span class="val">'+fmtBytes(it.bytes)+'</span></div><div class="dl-rank-track"><div class="dl-rank-fill" style="width:'+pct+'%"></div></div></div>'; }).join('') + '</div>'; })() +
+          '</div>' +
+          '<div class="dl-panel">' +
             '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="mostCalled"><h2>Most-called endpoints</h2>' + icon('chevronRight', 'chev') + '</button>' +
             rankList(STATS.mostCalled, 'count', '×', maxCalled) +
           '</div>' +
@@ -1883,19 +1887,41 @@
       '</div>';
     }
 
+    function computeLargest() {
+      var m = {};
+      requests.forEach(function(r){
+        if(r.resSize != null){
+          var k = r.path;
+          if(!m[k] || r.resSize > m[k].size) m[k] = {path: k, bytes: r.resSize};
+        }
+      });
+      var arr = Object.keys(m).map(function(k){ return m[k]; });
+      arr.sort(function(a,b){ return b.bytes - a.bytes; });
+      return arr;
+    }
     var RANK_META = {
-      slowest: { title: 'Slowest endpoints', items: 'slowestAll', valueKey: 'avg', suffix: ' ms' },
-      mostCalled: { title: 'Most-called endpoints', items: 'mostCalledAll', valueKey: 'count', suffix: '×' },
-      topHosts: { title: 'Top hosts', items: 'topHostsAll', valueKey: 'count', suffix: '×' }
+      slowest: { title: 'Slowest endpoints', items: 'slowestAll', valueKey: 'avg', suffix: ' ms', format: 'ms' },
+      mostCalled: { title: 'Most-called endpoints', items: 'mostCalledAll', valueKey: 'count', suffix: '×', format: 'count' },
+      largest: { title: 'Largest responses', items: 'largestAll', valueKey: 'bytes', suffix: '', format: 'bytes' },
+      topHosts: { title: 'Top hosts', items: 'topHostsAll', valueKey: 'count', suffix: '×', format: 'count' }
     };
     function renderRankDetail() {
       var meta = RANK_META[state.rankKind];
       if (!meta) { state.view = 'stats'; return renderStats(); }
-      var items = STATS[meta.items];
-      var maxVal = Math.max.apply(null, items.map(function (i) { return i[meta.valueKey]; }));
+      var items = state.rankKind === 'largest' ? computeLargest() : STATS[meta.items];
+      var maxVal = items.length ? Math.max.apply(null, items.map(function (i) { return i[meta.valueKey]; })) : 1;
+      var listHtml = '<div class="dl-rank-list">' + items.map(function (it) {
+        var v = it[meta.valueKey];
+        var pct = Math.round(v / maxVal * 100);
+        var display = meta.format === 'bytes' ? fmtBytes(v) : v + meta.suffix;
+        return '<div class="dl-rank-row">' +
+          '<div class="dl-rank-top"><span class="path">' + esc(it.path || it.host) + '</span><span class="val">' + display + '</span></div>' +
+          '<div class="dl-rank-track"><div class="dl-rank-fill" style="width:' + pct + '%"></div></div>' +
+        '</div>';
+      }).join('') + '</div>';
       return '<div class="dl-screen od-screen">' +
         topbar(meta.title, { back: 'back-to-stats' }) +
-        '<div class="od-scroll"><div class="dl-panel dl-enter" style="margin-top:12px;">' + rankList(items, meta.valueKey, meta.suffix, maxVal) + '</div></div>' +
+        '<div class="od-scroll"><div class="dl-panel dl-enter" style="margin-top:12px;">' + listHtml + '</div></div>' +
       '</div>';
     }
 

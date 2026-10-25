@@ -2,6 +2,7 @@ import '../../../../core/enums/request_state.dart';
 import '../../../../core/enums/request_status_class.dart';
 import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import '../../domain/entities/endpoint_latency_entity.dart';
+import '../../domain/entities/endpoint_size_entity.dart';
 import '../../domain/entities/named_count_entity.dart';
 import '../../domain/entities/request_stats_entity.dart';
 import '../../domain/entities/status_share_entity.dart';
@@ -25,6 +26,7 @@ abstract final class RequestStatsCalculator {
     final statusCounts = <RequestStatusClass, int>{};
     final latencies = <int>[];
     final latencyByPath = <String, List<int>>{};
+    final largestByPath = <String, int>{};
     final callsByPath = <String, int>{};
     final callsByHost = <String, int>{};
     var finished = 0;
@@ -34,7 +36,10 @@ abstract final class RequestStatsCalculator {
       final statusClass = r.statusClass;
       statusCounts[statusClass] = (statusCounts[statusClass] ?? 0) + 1;
       if (r.state != RequestState.pending) finished++;
-      totalBytes += r.responseSize ?? 0;
+      if (r.responseSize case final size?) {
+        totalBytes += size;
+        if (size > (largestByPath[r.path] ?? -1)) largestByPath[r.path] = size;
+      }
       callsByPath[r.path] = (callsByPath[r.path] ?? 0) + 1;
       callsByHost[r.host] = (callsByHost[r.host] ?? 0) + 1;
 
@@ -82,6 +87,12 @@ abstract final class RequestStatsCalculator {
           ),
         ),
         (e) => e.averageLatency.inMilliseconds,
+      ),
+      largestResponses: _top(
+        largestByPath.entries.map(
+          (e) => EndpointSizeEntity(path: e.key, bytes: e.value),
+        ),
+        (e) => e.bytes,
       ),
       mostCalledEndpoints: _top(
         callsByPath.entries.map(

@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'endpoint_latency_entity.dart';
+import 'endpoint_size_entity.dart';
 import 'named_count_entity.dart';
 import 'status_share_entity.dart';
 
@@ -40,6 +41,12 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     @JsonKey(name: 'slowest_endpoints')
     @Default(<EndpointLatencyEntity>[])
     List<EndpointLatencyEntity> slowestEndpoints,
+
+    /// Largest response per endpoint, largest first; endpoints without a
+    /// known response size are left out.
+    @JsonKey(name: 'largest_responses')
+    @Default(<EndpointSizeEntity>[])
+    List<EndpointSizeEntity> largestResponses,
 
     /// Most called first.
     @JsonKey(name: 'most_called_endpoints')

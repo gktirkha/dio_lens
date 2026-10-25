@@ -5,6 +5,7 @@ import '../widgets/ranked_list.dart';
 /// The ranked lists on the stats page; each opens a full-list page.
 enum StatsRanking {
   slowestEndpoints('Slowest endpoints'),
+  largestResponses('Largest responses'),
   mostCalledEndpoints('Most-called endpoints'),
   topHosts('Top hosts');
 
@@ -29,6 +30,16 @@ enum StatsRanking {
               value: FormatUtils.duration(e.averageLatency),
               score: e.averageLatency.inMilliseconds.toDouble(),
               warn: e.averageLatency > slowThreshold,
+            ),
+        ];
+      case StatsRanking.largestResponses:
+        return [
+          for (final e in stats.largestResponses)
+            (
+              label: e.path,
+              value: FormatUtils.bytes(e.bytes),
+              score: e.bytes.toDouble(),
+              warn: false,
             ),
         ];
       case StatsRanking.mostCalledEndpoints:
