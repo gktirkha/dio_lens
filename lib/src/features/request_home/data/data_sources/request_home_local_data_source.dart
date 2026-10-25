@@ -1,7 +1,5 @@
 import '../../../../core/storage/dio_lens_store.dart';
-import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../domain/entities/request_list_item_entity.dart';
-import '../mappers/request_list_item_mapper.dart';
 import 'request_home_data_source.dart';
 
 class RequestHomeLocalDataSource implements RequestHomeDataSource {
@@ -10,13 +8,12 @@ class RequestHomeLocalDataSource implements RequestHomeDataSource {
   final DioLensStore _store;
 
   @override
-  Stream<List<RequestListItemEntity>> watchRequests() =>
-      _store.watchRequests().map(_toItems);
+  Stream<List<RequestListItemEntity>> watchRequests() => _store.watchRequests();
 
   @override
   Future<List<RequestListItemEntity>> getRequests() async {
     await _store.ready;
-    return _toItems(_store.requests);
+    return _store.requests;
   }
 
   @override
@@ -27,8 +24,4 @@ class RequestHomeLocalDataSource implements RequestHomeDataSource {
 
   @override
   Future<void> removeExpired() => _store.removeExpired();
-
-  static List<RequestListItemEntity> _toItems(
-    List<RequestDetailEntity> requests,
-  ) => [for (final r in requests) r.toListItem()];
 }

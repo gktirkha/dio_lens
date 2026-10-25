@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:dio/dio.dart' show DioExceptionType;
 import 'package:flutter/foundation.dart';
 
 import '../../features/request_detail/domain/entities/request_detail_entity.dart';
+import '../../features/request_home/data/mappers/request_list_item_mapper.dart';
+import '../../features/request_home/domain/entities/request_list_item_entity.dart';
 import '../../features/settings/domain/entities/dio_lens_settings.dart';
 import '../../features/settings/domain/enums/dio_lens_retention.dart';
 import '../enums/request_state.dart';
@@ -18,6 +21,8 @@ class DioLensStore {
        _initialSettings = initialSettings,
        _settings = ValueNotifier(initialSettings);
 
+  static const int detailCacheSize = 20;
+
   final DioLensSettings _initialSettings;
 
   final DioLensStorage Function() _storageFactory;
@@ -25,9 +30,17 @@ class DioLensStore {
 
   final ValueNotifier<DioLensSettings> _settings;
 
-  final List<RequestDetailEntity> _requests = [];
+  final List<RequestListItemEntity> _summaries = [];
 
-  late final StreamController<List<RequestDetailEntity>> _changes =
+  final LinkedHashMap<String, RequestDetailEntity> _details = LinkedHashMap();
+
+  late final StreamController<List<RequestListItemEntity>> _changes =
+      StreamController.broadcast();
+
+  late final StreamController<RequestDetailEntity> _detailChanges =
+      StreamController.broadcast();
+
+  late final StreamController<Set<String>?> _removals =
       StreamController.broadcast();
 
   late final Future<void> ready = _load();
@@ -36,11 +49,11 @@ class DioLensStore {
 
   ValueListenable<DioLensSettings> get settings => _settings;
 
-  List<RequestDetailEntity> get requests => List.unmodifiable(_requests);
+  List<RequestListItemEntity> get requests => List.unmodifiable(_summaries);
 
-  Stream<List<RequestDetailEntity>> watchRequests() {
-    late final StreamController<List<RequestDetailEntity>> controller;
-    StreamSubscription<List<RequestDetailEntity>>? subscription;
+  Stream<List<RequestListItemEntity>> watchRequests() {
+    late final StreamController<List<RequestListItemEntity>> controller;
+    StreamSubscription<List<RequestListItemEntity>>? subscription;
     controller = StreamController(
       onListen: () {
         subscription = _changes.stream.listen(controller.add);
@@ -53,37 +66,104 @@ class DioLensStore {
     return controller.stream;
   }
 
+  Future<RequestDetailEntity?> getRequest(String id) async {
+    await ready;
+    if (!_summaries.any((s) => s.id == id)) return null;
+    if (_details.remove(id) case final cached?) return _cache(cached);
+    final loaded = await _read(
+      (s) => switch (s) {
+        final ParsingDioLensStorage storage => storage.readParsedRequest(id),
+        final storage => storage.readRequest(id).then(parseStoredRequest),
+      },
+    );
+    if (loaded == null || !_summaries.any((s) => s.id == id)) return null;
+    return _cache(_details[id] ?? loaded);
+  }
+
+  Stream<RequestDetailEntity?> watchRequest(String id) {
+    late final StreamController<RequestDetailEntity?> controller;
+    final subscriptions = <StreamSubscription<Object?>>[];
+    controller = StreamController(
+      onListen: () {
+        var changed = false;
+        subscriptions
+          ..add(
+            _detailChanges.stream.where((r) => r.id == id).listen((request) {
+              changed = true;
+              controller.add(request);
+            }),
+          )
+          ..add(
+            _removals.stream
+                .where((ids) => ids == null || ids.contains(id))
+                .listen((_) {
+                  changed = true;
+                  controller.add(null);
+                }),
+          );
+        getRequest(id).then((request) {
+          if (!changed && !controller.isClosed) controller.add(request);
+        });
+      },
+      onCancel: () {
+        for (final s in subscriptions) {
+          s.cancel();
+        }
+      },
+    );
+    return controller.stream;
+  }
+
+  Future<List<RequestDetailEntity>> getAllRequests() async {
+    await ready;
+    return _read(
+      (s) => switch (s) {
+        final ParsingDioLensStorage storage => storage.readParsedRequests(),
+        final storage => storage.readRequests().then(parseStoredRequests),
+      },
+    );
+  }
+
   Future<void> add(RequestDetailEntity request) async {
     await ready;
-    _requests.insert(0, request);
+    _summaries.insert(0, request.toListItem());
+    _cache(request);
     _write(request);
     _trim();
     _emit();
+    if (_detailChanges.hasListener) _detailChanges.add(request);
   }
 
   Future<void> update(RequestDetailEntity request) async {
     await ready;
-    final index = _requests.indexWhere((r) => r.id == request.id);
+    final index = _summaries.indexWhere((s) => s.id == request.id);
     if (index < 0) return;
-    _requests[index] = request;
+    _summaries[index] = request.toListItem();
+    _details.remove(request.id);
+    _cache(request);
     _write(request);
     _emit();
+    if (_detailChanges.hasListener) _detailChanges.add(request);
   }
 
   Future<void> delete(String id) async {
     await ready;
-    final before = _requests.length;
-    _requests.removeWhere((r) => r.id == id);
-    if (_requests.length == before) return;
+    final before = _summaries.length;
+    _summaries.removeWhere((s) => s.id == id);
+    if (_summaries.length == before) return;
+    _details.remove(id);
     _enqueue((s) => s.deleteRequests([id]));
     _emit();
+    _notifyRemoved({id});
   }
 
   Future<void> clear() async {
     await ready;
-    _requests.clear();
+    _summaries.clear();
+    _details.clear();
     _enqueue((s) => s.clearRequests());
     _emit();
+    _notifyRemoved(null);
   }
 
   Future<void> removeExpired() async {
@@ -119,12 +199,12 @@ class DioLensStore {
       _enqueue((s) => s.clearRequests());
       return;
     }
-    final ParsedRequests parsed;
+    final ParsedSummaries parsed;
     try {
       parsed = switch (_storage) {
         final ParsingDioLensStorage storage =>
-          await storage.readParsedRequests(),
-        final storage => parseStoredRequests(await storage.readRequests()),
+          await storage.readParsedSummaries(),
+        final storage => parseStoredSummaries(await storage.readSummaries()),
       };
     } catch (error, stack) {
       _log('could not read requests', error, stack);
@@ -133,42 +213,79 @@ class DioLensStore {
     if (parsed.corrupt.isNotEmpty) {
       _enqueue((s) => s.deleteRequests(parsed.corrupt));
     }
-    _requests.addAll(parsed.requests.map(_settleInterrupted));
+    _summaries.addAll(parsed.summaries.map(_settleInterrupted));
     _trim();
   }
 
-  RequestDetailEntity _settleInterrupted(RequestDetailEntity request) {
-    if (request.state != RequestState.pending) return request;
-    final settled = request.copyWith(
-      state: RequestState.failed,
-      errorType: DioExceptionType.unknown,
-      errorMessage: 'The app closed before this request finished.',
-    );
-    _write(settled);
-    return settled;
+  RequestListItemEntity _settleInterrupted(RequestListItemEntity summary) {
+    if (summary.state != RequestState.pending) return summary;
+    const errorType = DioExceptionType.unknown;
+    const message = 'The app closed before this request finished.';
+    _enqueue((s) async {
+      final request = switch (s) {
+        final ParsingDioLensStorage storage => await storage.readParsedRequest(
+          summary.id,
+        ),
+        final storage => parseStoredRequest(
+          await storage.readRequest(summary.id),
+        ),
+      };
+      if (request == null) return;
+      final settled = request.copyWith(
+        state: RequestState.failed,
+        errorType: errorType,
+        errorMessage: message,
+      );
+      await s.writeRequest(
+        settled.id,
+        request: settled.toJson(),
+        summary: settled.toListItem().toJson(),
+      );
+    });
+    return summary.copyWith(state: RequestState.failed, errorType: errorType);
   }
 
   bool _trim() {
     final settings = _settings.value;
     final maxAge = settings.retention.maxAge;
     final cutoff = maxAge == null ? null : DateTime.now().subtract(maxAge);
-    final removed = <String>[];
-    while (_requests.length > settings.maxRequests ||
+    final removed = <String>{};
+    while (_summaries.length > settings.maxRequests ||
         (cutoff != null &&
-            _requests.isNotEmpty &&
-            _requests.last.startedAt.isBefore(cutoff))) {
-      removed.add(_requests.removeLast().id);
+            _summaries.isNotEmpty &&
+            _summaries.last.startedAt.isBefore(cutoff))) {
+      final id = _summaries.removeLast().id;
+      removed.add(id);
+      _details.remove(id);
     }
     if (removed.isEmpty) return false;
-    _enqueue((s) => s.deleteRequests(removed));
+    _enqueue((s) => s.deleteRequests(removed.toList()));
+    _notifyRemoved(removed);
     return true;
   }
 
-  void _write(RequestDetailEntity request) =>
-      _enqueue((s) => s.writeRequest(request.id, request.toJson()));
+  RequestDetailEntity _cache(RequestDetailEntity request) {
+    _details[request.id] = request;
+    while (_details.length > detailCacheSize) {
+      _details.remove(_details.keys.first);
+    }
+    return request;
+  }
+
+  void _write(RequestDetailEntity request) => _enqueue(
+    (s) => s.writeRequest(
+      request.id,
+      request: request.toJson(),
+      summary: request.toListItem().toJson(),
+    ),
+  );
 
   void _emit() {
     if (_changes.hasListener) _changes.add(requests);
+  }
+
+  void _notifyRemoved(Set<String>? ids) {
+    if (_removals.hasListener) _removals.add(ids);
   }
 
   void _enqueue(Future<void> Function(DioLensStorage storage) operation) {
@@ -178,6 +295,12 @@ class DioLensStore {
           (Object error, StackTrace stack) =>
               _log('storage write failed', error, stack),
         );
+  }
+
+  Future<T> _read<T>(Future<T> Function(DioLensStorage storage) read) {
+    final result = _queue.then((_) => read(_storage));
+    _queue = result.then<void>((_) {}, onError: (_) {});
+    return result;
   }
 
   static void _log(String message, Object error, StackTrace stack) =>

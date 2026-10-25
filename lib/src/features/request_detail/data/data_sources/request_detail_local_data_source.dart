@@ -9,10 +9,5 @@ class RequestDetailLocalDataSource implements RequestDetailDataSource {
 
   @override
   Stream<RequestDetailEntity?> watchRequest(String id) =>
-      _store.watchRequests().map((requests) {
-        for (final r in requests) {
-          if (r.id == id) return r;
-        }
-        return null;
-      }).distinct();
+      _store.watchRequest(id);
 }

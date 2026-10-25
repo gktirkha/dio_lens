@@ -9,10 +9,7 @@ class ExportLocalDataSource implements ExportDataSource {
   final DioLensStore _store;
 
   @override
-  Future<List<RequestDetailEntity>> getRequests() async {
-    await _store.ready;
-    return _store.requests;
-  }
+  Future<List<RequestDetailEntity>> getRequests() => _store.getAllRequests();
 
   @override
   DioLensSettings get settings => _store.settings.value;

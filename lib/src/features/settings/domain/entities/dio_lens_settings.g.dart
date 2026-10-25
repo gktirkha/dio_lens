@@ -9,7 +9,9 @@ part of 'dio_lens_settings.dart';
 _DioLensSettings _$DioLensSettingsFromJson(Map<String, dynamic> json) =>
     _DioLensSettings(
       maxRequests: (json['max_requests'] as num?)?.toInt() ?? 500,
-      maxBodyBytes: (json['max_body_bytes'] as num?)?.toInt(),
+      maxBodyBytes: _readMaxBodyBytes(json, 'max_body_bytes') == null
+          ? DioLensSettings.defaultMaxBodyBytes
+          : _maxBodyBytesFromJson(_readMaxBodyBytes(json, 'max_body_bytes')),
       retention:
           $enumDecodeNullable(_$DioLensRetentionEnumMap, json['retention']) ??
           DioLensRetention.oneDay,

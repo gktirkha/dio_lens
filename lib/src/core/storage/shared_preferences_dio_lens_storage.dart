@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'dio_lens_storage.dart';
 import 'stored_requests_parser.dart';
 
@@ -23,6 +24,7 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
   String get _idsKey => '$keyPrefix.request_ids';
   String get _settingsKey => '$keyPrefix.settings';
   String _requestKey(String id) => '$keyPrefix.request.$id';
+  String _summaryKey(String id) => '$keyPrefix.summary.$id';
 
   List<String>? _ids;
 
@@ -30,20 +32,57 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
       _ids ??= await _preferences.getStringList(_idsKey) ?? [];
 
   @override
-  Future<List<Map<String, dynamic>>> readRequests() async {
-    final raw = await _readRaw();
-    if (raw.isEmpty) return [];
-    return Isolate.run(() => _decodeAll(raw));
+  Future<List<Map<String, dynamic>>> readSummaries() async =>
+      _decodeAllInIsolate(await _readRawSummaries());
+
+  @override
+  Future<ParsedSummaries> readParsedSummaries() async =>
+      _parseSummariesInIsolate(await _readRawSummaries());
+
+  @override
+  Future<Map<String, dynamic>?> readRequest(String id) async {
+    final raw = await _preferences.getString(_requestKey(id));
+    return raw == null ? null : _decodeOneInIsolate(raw);
   }
 
   @override
-  Future<ParsedRequests> readParsedRequests() async {
-    final raw = await _readRaw();
-    if (raw.isEmpty) return parseStoredRequests(const []);
-    return Isolate.run(() => parseStoredRequests(_decodeAll(raw)));
+  Future<RequestDetailEntity?> readParsedRequest(String id) async {
+    final raw = await _preferences.getString(_requestKey(id));
+    return raw == null ? null : _parseOneInIsolate(raw);
   }
 
-  Future<List<String>> _readRaw() async {
+  @override
+  Future<List<Map<String, dynamic>>> readRequests() async =>
+      _decodeAllInIsolate(await _readRawRequests());
+
+  @override
+  Future<List<RequestDetailEntity>> readParsedRequests() async =>
+      _parseRequestsInIsolate(await _readRawRequests());
+
+  Future<List<String>> _readRawSummaries() async {
+    final ids = await _loadIds();
+    if (ids.isEmpty) return [];
+    final values = await _preferences.getAll(
+      allowList: {for (final id in ids) _summaryKey(id)},
+    );
+    final missing = [
+      for (final id in ids)
+        if (values[_summaryKey(id)] is! String) id,
+    ];
+    final legacy = missing.isEmpty
+        ? const <String, Object?>{}
+        : await _preferences.getAll(
+            allowList: {for (final id in missing) _requestKey(id)},
+          );
+    return [
+      for (final id in ids)
+        if (values[_summaryKey(id)] ?? legacy[_requestKey(id)]
+            case final String raw)
+          raw,
+    ];
+  }
+
+  Future<List<String>> _readRawRequests() async {
     final ids = await _loadIds();
     if (ids.isEmpty) return [];
     final values = await _preferences.getAll(
@@ -55,18 +94,46 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
     ];
   }
 
+  static Future<List<Map<String, dynamic>>> _decodeAllInIsolate(
+    List<String> raw,
+  ) async => raw.isEmpty ? [] : Isolate.run(() => _decodeAll(raw));
+
+  static Future<ParsedSummaries> _parseSummariesInIsolate(List<String> raw) =>
+      raw.isEmpty
+      ? Future.value(parseStoredSummaries(const []))
+      : Isolate.run(() => parseStoredSummaries(_decodeAll(raw)));
+
+  static Future<List<RequestDetailEntity>> _parseRequestsInIsolate(
+    List<String> raw,
+  ) async => raw.isEmpty
+      ? []
+      : Isolate.run(() => parseStoredRequests(_decodeAll(raw)));
+
+  static Future<Map<String, dynamic>?> _decodeOneInIsolate(String raw) =>
+      Isolate.run(() => _decode(raw));
+
+  static Future<RequestDetailEntity?> _parseOneInIsolate(String raw) =>
+      Isolate.run(() => parseStoredRequest(_decode(raw)));
+
+  static Future<(String, String)> _encodeInIsolate(
+    Map<String, dynamic> request,
+    Map<String, dynamic> summary,
+  ) => Isolate.run(() => (jsonEncode(request), jsonEncode(summary)));
+
   static List<Map<String, dynamic>> _decodeAll(List<String> raw) => [
     for (final r in raw) ?_decode(r),
   ];
 
-  static Future<String> _encodeInIsolate(Map<String, dynamic> json) =>
-      Isolate.run(() => jsonEncode(json));
-
   @override
-  Future<void> writeRequest(String id, Map<String, dynamic> json) async {
+  Future<void> writeRequest(
+    String id, {
+    required Map<String, dynamic> request,
+    required Map<String, dynamic> summary,
+  }) async {
     final ids = await _loadIds();
-    final encoded = await _encodeInIsolate(json);
-    await _preferences.setString(_requestKey(id), encoded);
+    final (requestJson, summaryJson) = await _encodeInIsolate(request, summary);
+    await _preferences.setString(_requestKey(id), requestJson);
+    await _preferences.setString(_summaryKey(id), summaryJson);
     if (!ids.contains(id)) {
       ids.add(id);
       await _preferences.setStringList(_idsKey, ids);
@@ -79,7 +146,9 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
     final stored = await _loadIds();
     final removed = ids.toSet();
     await _preferences.clear(
-      allowList: {for (final id in removed) _requestKey(id)},
+      allowList: {
+        for (final id in removed) ...[_requestKey(id), _summaryKey(id)],
+      },
     );
     stored.removeWhere(removed.contains);
     await _preferences.setStringList(_idsKey, stored);
@@ -89,7 +158,10 @@ class SharedPreferencesDioLensStorage extends DioLensStorage
   Future<void> clearRequests() async {
     final ids = await _loadIds();
     await _preferences.clear(
-      allowList: {_idsKey, for (final id in ids) _requestKey(id)},
+      allowList: {
+        _idsKey,
+        for (final id in ids) ...[_requestKey(id), _summaryKey(id)],
+      },
     );
     ids.clear();
   }

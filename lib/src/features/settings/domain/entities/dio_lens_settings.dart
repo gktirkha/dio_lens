@@ -8,6 +8,14 @@ import '../enums/dio_lens_retention.dart';
 part 'dio_lens_settings.freezed.dart';
 part 'dio_lens_settings.g.dart';
 
+const int _unlimitedBodyBytes = -1;
+
+Object? _readMaxBodyBytes(Map<dynamic, dynamic> json, String key) =>
+    json.containsKey(key) ? json[key] ?? _unlimitedBodyBytes : null;
+
+int? _maxBodyBytesFromJson(Object? value) =>
+    value == _unlimitedBodyBytes ? null : (value as num?)?.toInt();
+
 @freezed
 abstract class DioLensSettings with _$DioLensSettings {
   const DioLensSettings._();
@@ -24,7 +32,15 @@ abstract class DioLensSettings with _$DioLensSettings {
   const factory DioLensSettings({
     @JsonKey(name: 'max_requests') @Default(500) int maxRequests,
 
-    @JsonKey(name: 'max_body_bytes') int? maxBodyBytes,
+    @JsonKey(
+      name: 'max_body_bytes',
+
+      readValue: _readMaxBodyBytes,
+
+      fromJson: _maxBodyBytesFromJson,
+    )
+    @Default(DioLensSettings.defaultMaxBodyBytes)
+    int? maxBodyBytes,
     @JsonKey(name: 'retention')
     @Default(DioLensRetention.oneDay)
     DioLensRetention retention,
@@ -84,6 +100,8 @@ abstract class DioLensSettings with _$DioLensSettings {
     final lower = name.toLowerCase();
     return keys.any((key) => key.toLowerCase() == lower);
   }
+
+  static const int defaultMaxBodyBytes = 1024 * 1024;
 
   static const int minRequests = 10;
   static const int maxRequestsLimit = 10000;
