@@ -1,11 +1,20 @@
 name: dio_lens
-description: "A new Flutter package project."
+description: >-
+  In-app network inspector for Dio: browse captured requests, stats and details, replay requests, export HAR or JSON, and redact sensitive data.
 version: 0.0.1
-homepage:
+homepage: https://github.com/gktirkha/dio_lens
+repository: https://github.com/gktirkha/dio_lens
+issue_tracker: https://github.com/gktirkha/dio_lens/issues
+topics:
+  - dio
+  - network
+  - http
+  - inspector
+  - debugging
 
 environment:
   sdk: ^3.13.7
-  flutter: ">=1.17.0"
+  flutter: ">=3.47.0"
 
 dependencies:
   dio: ^5.11.1
