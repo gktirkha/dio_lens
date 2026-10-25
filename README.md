@@ -11,11 +11,11 @@ sensitive values masked.
 
 ## Screenshots
 
-| Requests | Request detail | Stats |
-| :---: | :---: | :---: |
-| <img src="screenshots/requests.png" width="240" alt="Request list"> | <img src="screenshots/detail_request.png" width="240" alt="Request tab with a redacted Authorization header and a JSON body"> | <img src="screenshots/stats.png" width="240" alt="Stats"> |
-| **Settings** | **Request-finished banner** | **Light theme** |
-| <img src="screenshots/settings.png" width="240" alt="Settings sheet"> | <img src="screenshots/banner.png" width="240" alt="Banner over the host app"> | <img src="screenshots/requests_light.png" width="240" alt="Request list in the light theme"> |
+|                               Requests                                |                                                        Request detail                                                         |                                            Stats                                             |
+| :-------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
+|  <img src="screenshots/requests.png" width="240" alt="Request list">  | <img src="screenshots/detail_request.png" width="240" alt="Request tab with a redacted Authorization header and a JSON body"> |                  <img src="screenshots/stats.png" width="240" alt="Stats">                   |
+|                             **Settings**                              |                                                  **Request-finished banner**                                                  |                                       **Light theme**                                        |
+| <img src="screenshots/settings.png" width="240" alt="Settings sheet"> |                         <img src="screenshots/banner.png" width="240" alt="Banner over the host app">                         | <img src="screenshots/requests_light.png" width="240" alt="Request list in the light theme"> |
 
 ## Features
 
@@ -91,16 +91,16 @@ only runs in debug builds. Choose the build modes with `mode`:
 DioLens.init(navigatorKey: navigatorKey, mode: DioLensMode.debugProfile);
 ```
 
-| Mode | Debug | Profile | Release |
-| --- | :---: | :---: | :---: |
-| `hide` | | | |
-| `debug` (default) | ✓ | | |
-| `profile` | | ✓ | |
-| `release` | | | ✓ |
-| `debugProfile` | ✓ | ✓ | |
-| `debugRelease` | ✓ | | ✓ |
-| `profileRelease` | | ✓ | ✓ |
-| `debugProfileRelease`, `show` | ✓ | ✓ | ✓ |
+| Mode                          | Debug | Profile | Release |
+| ----------------------------- | :---: | :-----: | :-----: |
+| `hide`                        |       |         |         |
+| `debug` (default)             |   ✓   |         |         |
+| `profile`                     |       |    ✓    |         |
+| `release`                     |       |         |    ✓    |
+| `debugProfile`                |   ✓   |    ✓    |         |
+| `debugRelease`                |   ✓   |         |    ✓    |
+| `profileRelease`              |       |    ✓    |    ✓    |
+| `debugProfileRelease`, `show` |   ✓   |    ✓    |    ✓    |
 
 Outside the chosen modes the interceptor does nothing.
 
@@ -121,21 +121,21 @@ DioLens.init(
 );
 ```
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| `maxRequests` | `500` | Most requests kept (10 to 10,000); the oldest are removed. |
-| `retention` | `oneDay` | How long requests are kept: `session`, `oneHour`, `oneDay`, `sevenDays` or `always`. |
-| `maxBodyBytes` | 1 MB | Largest body kept; bigger bodies are stored truncated. `null` keeps every body whole. |
-| `showNotification` | `true` | Show a banner when a request finishes. |
-| `notificationPosition` | `top` | Banner position: `top`, `center` or `bottom`. |
-| `notificationDuration` | 4 s | How long the banner stays (2 to 15 seconds). |
-| `showBubble` | `true` | Show the floating bubble. |
-| `bubblePosition` | `bottomEnd` | Corner the bubble starts in; follows the reading direction. |
-| `redactHeaders` | `true` | Mask the headers in `redactedHeaders`. |
-| `redactedHeaders` | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive. |
-| `redactQuery` | `true` | Mask the query parameters in `redactedQueryParams`. |
-| `redactedQueryParams` | `token`, `apikey`, `password` | Query parameter names to mask, case-insensitive. |
-| `themeMode` | `dark` | Dio Lens theme: light, dark or system. |
+| Setting                | Default                                              | Description                                                                           |
+| ---------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `maxRequests`          | `500`                                                | Most requests kept (10 to 10,000); the oldest are removed.                            |
+| `retention`            | `oneDay`                                             | How long requests are kept: `session`, `oneHour`, `oneDay`, `sevenDays` or `always`.  |
+| `maxBodyBytes`         | 1 MB                                                 | Largest body kept; bigger bodies are stored truncated. `null` keeps every body whole. |
+| `showNotification`     | `true`                                               | Show a banner when a request finishes.                                                |
+| `notificationPosition` | `top`                                                | Banner position: `top`, `center` or `bottom`.                                         |
+| `notificationDuration` | 4 s                                                  | How long the banner stays (2 to 15 seconds).                                          |
+| `showBubble`           | `true`                                               | Show the floating bubble.                                                             |
+| `bubblePosition`       | `bottomEnd`                                          | Corner the bubble starts in; follows the reading direction.                           |
+| `redactHeaders`        | `true`                                               | Mask the headers in `redactedHeaders`.                                                |
+| `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
+| `redactQuery`          | `true`                                               | Mask the query parameters in `redactedQueryParams`.                                   |
+| `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
+| `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
 
 Read and change settings from code:
 
@@ -197,52 +197,164 @@ uploadDio.interceptors.add(DioLensInterceptor(dio: uploadDio, name: 'upload'));
 ## Custom storage
 
 Requests and settings persist with `shared_preferences` by default. To use
-your own database, extend `DioLensStorage` and pass it to `DioLens.init`:
+your own database or format, extend `DioLensStorage` and pass it to
+`DioLens.init`.
 
-```dart
-class MyStorage extends DioLensStorage {
-  @override
-  Future<List<Map<String, dynamic>>> readSummaries() async { /* … */ }
+- Records are plain JSON-encodable maps, so storage needs no Dio Lens types.
+- Each request has a full record and a small summary used for lists. Store
+  them separately so startup reads only summaries. If your storage can't,
+  return the full records from `readSummaries`; they work as summaries too.
+- Dio Lens applies the request limit and retention itself, and never calls
+  two storage methods at once.
+
+Here is a complete storage that keeps one JSON file per summary and per
+request, using only `dart:io`:
+
+````dart
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio_lens/dio_lens.dart';
+
+/// A [DioLensStorage] that keeps each request as two JSON files, a small
+/// summary and the full record, plus one file for the settings:
+///
+/// ```text
+/// <directory>/summaries/<id>.json
+/// <directory>/requests/<id>.json
+/// <directory>/settings.json
+/// ```
+class FileDioLensStorage extends DioLensStorage {
+  /// Creates a storage that writes under [directory].
+  FileDioLensStorage(this.directory);
+
+  /// Folder holding every file this storage writes.
+  final Directory directory;
+
+  Directory get _summaries => Directory('${directory.path}/summaries');
+  Directory get _requests => Directory('${directory.path}/requests');
+  File get _settings => File('${directory.path}/settings.json');
+
+  File _summaryFile(String id) => File('${_summaries.path}/$id.json');
+  File _requestFile(String id) => File('${_requests.path}/$id.json');
 
   @override
-  Future<Map<String, dynamic>?> readRequest(String id) async { /* … */ }
+  Future<List<Map<String, dynamic>>> readSummaries() => _readAll(_summaries);
 
   @override
-  Future<List<Map<String, dynamic>>> readRequests() async { /* … */ }
+  Future<Map<String, dynamic>?> readRequest(String id) =>
+      _read(_requestFile(id));
+
+  @override
+  Future<List<Map<String, dynamic>>> readRequests() => _readAll(_requests);
 
   @override
   Future<void> writeRequest(
     String id, {
     required Map<String, dynamic> request,
     required Map<String, dynamic> summary,
-  }) async { /* … */ }
+  }) async {
+    await _write(_requestFile(id), request);
+    await _write(_summaryFile(id), summary);
+  }
 
-  // deleteRequests, clearRequests, readSettings, writeSettings,
-  // clearSettings…
+  @override
+  Future<void> deleteRequests(List<String> ids) async {
+    for (final id in ids) {
+      await _delete(_requestFile(id));
+      await _delete(_summaryFile(id));
+    }
+  }
+
+  @override
+  Future<void> clearRequests() async {
+    for (final folder in [_requests, _summaries]) {
+      if (await folder.exists()) await folder.delete(recursive: true);
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>?> readSettings() => _read(_settings);
+
+  @override
+  Future<void> writeSettings(Map<String, dynamic> json) =>
+      _write(_settings, json);
+
+  @override
+  Future<void> clearSettings() => _delete(_settings);
+
+  /// The JSON object in [file]; null when it is missing or unreadable.
+  Future<Map<String, dynamic>?> _read(File file) async {
+    if (!await file.exists()) return null;
+    try {
+      final json = jsonDecode(await file.readAsString());
+      return json is Map<String, dynamic> ? json : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// Every readable JSON object in [folder], in any order.
+  Future<List<Map<String, dynamic>>> _readAll(Directory folder) async {
+    if (!await folder.exists()) return [];
+    final rows = <Map<String, dynamic>>[];
+    await for (final entity in folder.list()) {
+      if (entity is! File || !entity.path.endsWith('.json')) continue;
+      if (await _read(entity) case final json?) rows.add(json);
+    }
+    return rows;
+  }
+
+  /// Writes [json] to a temporary file, then renames it into place, so a
+  /// crash never leaves a half-written file.
+  Future<void> _write(File file, Map<String, dynamic> json) async {
+    await file.parent.create(recursive: true);
+    final temp = File('${file.path}.tmp');
+    await temp.writeAsString(jsonEncode(json), flush: true);
+    await temp.rename(file.path);
+  }
+
+  Future<void> _delete(File file) async {
+    if (await file.exists()) await file.delete();
+  }
 }
+````
 
-DioLens.init(navigatorKey: navigatorKey, storage: MyStorage());
+Use it with any folder. For example, with
+[path_provider](https://pub.dev/packages/path_provider) in your app:
+
+```dart
+import 'dart:io';
+
+import 'package:dio_lens/dio_lens.dart';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final support = await getApplicationSupportDirectory();
+
+  DioLens.init(
+    navigatorKey: navigatorKey,
+    storage: FileDioLensStorage(Directory('${support.path}/dio_lens')),
+  );
+
+  runApp(const MyApp());
+}
 ```
-
-- Records are plain JSON-encodable maps, so storage needs no Dio Lens types.
-- Each request has a full record and a small summary used for lists. Store
-  them separately so startup reads only summaries. If you don't, return the
-  full records from `readSummaries`.
-- Dio Lens applies the request limit and retention itself, and never calls
-  two storage methods at once.
 
 ## API
 
-| Member | Description |
-| --- | --- |
-| `DioLens.init(...)` | Sets Dio Lens up. Call once, before the first request. |
-| `DioLens.open()` | Opens the Dio Lens home. |
-| `DioLens.openRequest(id)` | Opens the detail page of one request. |
-| `DioLens.settings` | Current settings, as a `ValueListenable`. |
-| `DioLens.updateSettings(settings)` | Applies and stores settings. |
-| `DioLens.resetSettings()` | Goes back to the settings passed to `init`. |
-| `DioLens.export(format)` | Builds an export of every request. |
-| `DioLens.clear()` | Removes every captured request. |
+| Member                                       | Description                                                                 |
+| -------------------------------------------- | --------------------------------------------------------------------------- |
+| `DioLens.init(...)`                          | Sets Dio Lens up. Call once, before the first request.                      |
+| `DioLens.open()`                             | Opens the Dio Lens home.                                                    |
+| `DioLens.openRequest(id)`                    | Opens the detail page of one request.                                       |
+| `DioLens.settings`                           | Current settings, as a `ValueListenable`.                                   |
+| `DioLens.updateSettings(settings)`           | Applies and stores settings.                                                |
+| `DioLens.resetSettings()`                    | Goes back to the settings passed to `init`.                                 |
+| `DioLens.export(format)`                     | Builds an export of every request.                                          |
+| `DioLens.clear()`                            | Removes every captured request.                                             |
 | `DioLens.isInitialized`, `DioLens.isEnabled` | Whether `init` was called, and whether requests are recorded in this build. |
 
 ## Platform support
