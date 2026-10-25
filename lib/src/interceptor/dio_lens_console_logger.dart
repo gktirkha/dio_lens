@@ -13,8 +13,8 @@ class DioLensConsoleLogger {
   DioLensConsoleLogger({
     ConsoleLoggerSettings? settings,
     void Function(Object)? logPrint,
-  })  : _settings = settings ?? const ConsoleLoggerSettings(),
-        logPrint = logPrint ?? ((Object o) => debugPrint(o.toString()));
+  }) : _settings = settings ?? const ConsoleLoggerSettings(),
+       logPrint = logPrint ?? ((Object o) => debugPrint(o.toString()));
 
   final ConsoleLoggerSettings _settings;
 
@@ -22,8 +22,10 @@ class DioLensConsoleLogger {
   final void Function(Object object) logPrint;
 
   static const String _timeStampKey = '_dio_lens_timeStamp_';
+
   /// Initial tab count for pretty printing.
   static const int kInitialTab = 1;
+
   /// Tab step for indentation.
   static const String tabStep = '    ';
 
@@ -33,7 +35,7 @@ class DioLensConsoleLogger {
 
     final stateLabel = _settings.showStateInHeader ? '[REQUEST]' : '';
     _printBoxed(
-      header: '$stateLabel Request ║ ${options.method} ',
+      header: '$stateLabel ║ ${options.method} ',
       text: options.uri.toString(),
     );
 
@@ -45,7 +47,7 @@ class DioLensConsoleLogger {
             : value;
       });
       if (queryParams.isNotEmpty) {
-        _printMapAsTable(queryParams, header: 'Query Parameters');
+        _printMapAsTable(queryParams, header: '[REQUEST] ║ Query Parameters');
       }
 
       final reqHeaders = <String, dynamic>{};
@@ -64,7 +66,7 @@ class DioLensConsoleLogger {
         reqHeaders['receiveTimeout'] = options.receiveTimeout?.toString();
       }
 
-      _printMapAsTable(reqHeaders, header: 'Request Headers');
+      _printMapAsTable(reqHeaders, header: '[REQUEST] ║ Headers');
       if (options.extra.isNotEmpty) {
         final extra = Map<String, dynamic>.from(options.extra)
           ..remove(_timeStampKey)
@@ -119,7 +121,7 @@ class DioLensConsoleLogger {
     final stateLabel = _settings.showStateInHeader ? '[RESPONSE]' : '';
     _printBoxed(
       header:
-          '$stateLabel Response ║ ${response.requestOptions.method} ║ Status: ${response.statusCode} ${response.statusMessage ?? ''}  ║ Time: ${_calculateTimeDifference(response.requestOptions.extra)} ms',
+          '$stateLabel ║ ${response.requestOptions.method} ║ Status: ${response.statusCode} ${response.statusMessage ?? ''}  ║ Time: ${_calculateTimeDifference(response.requestOptions.extra)} ms',
       text: response.requestOptions.uri.toString(),
     );
 
@@ -131,12 +133,12 @@ class DioLensConsoleLogger {
             : v.toString();
       });
       if (responseHeaders.isNotEmpty) {
-        _printMapAsTable(responseHeaders, header: 'Response Headers');
+        _printMapAsTable(responseHeaders, header: '[RESPONSE] ║ Headers');
       }
     }
 
     if (_settings.responseBody) {
-      logPrint('╔ Body');
+      logPrint('╔ [RESPONSE] ║ Body');
       logPrint('║');
       _printResponse(response, dioSettings);
       logPrint('║');
