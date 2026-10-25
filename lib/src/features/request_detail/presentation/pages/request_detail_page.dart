@@ -6,6 +6,7 @@ import '../../domain/entities/request_detail_entity.dart';
 import '../controllers/request_detail_controller.dart';
 import '../widgets/overview_tab.dart';
 import '../widgets/request_detail_header.dart';
+import '../widgets/request_tab.dart';
 
 /// One captured request: header, quick actions and Overview / Request /
 /// Response tabs.
@@ -116,7 +117,7 @@ class _DetailBody extends StatelessWidget {
             child: TabBarView(
               children: [
                 OverviewTab(request: request),
-                const _ComingSoon(label: 'Request headers and body'),
+                RequestTab(request: request),
                 const _ComingSoon(label: 'Response headers and body'),
               ],
             ),

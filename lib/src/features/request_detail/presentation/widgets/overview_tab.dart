@@ -4,6 +4,7 @@ import '../../../../core/enums/request_status_class.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_detail_entity.dart';
+import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
 /// Overview tab: every key fact as a tap-to-copy field, query params and
@@ -42,10 +43,9 @@ class OverviewTab extends StatelessWidget {
           children: [
             const OverviewLabel('Query params'),
             const SizedBox(height: 6),
-            OverviewKeyValueBox(
+            KeyValueBox(
               title: 'Query',
-              entries: params,
-              copyAllText: request.query ?? '',
+              entries: [for (final p in params) KeyValueEntry(p.key, p.value)],
               copyAllLabel: 'Query params',
             ),
           ],

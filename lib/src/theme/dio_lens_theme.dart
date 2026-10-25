@@ -343,7 +343,10 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: surface3,
-        contentTextStyle: TextStyle(color: text, fontSize: 13),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: text,
+          fontSize: 13,
+        ),
         actionTextColor: accent,
         behavior: SnackBarBehavior.floating,
         shape: mediumShape,
