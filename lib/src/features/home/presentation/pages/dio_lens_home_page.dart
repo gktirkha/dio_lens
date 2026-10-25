@@ -20,6 +20,7 @@ class DioLensHomePage extends StatefulWidget {
     super.key,
     required this.dependencies,
     this.onReplay,
+    this.replayUnavailableReason,
     this.onExport,
     this.onShare,
   });
@@ -27,6 +28,8 @@ class DioLensHomePage extends StatefulWidget {
   final DioLensDependencies dependencies;
 
   final ValueChanged<RequestDetailEntity>? onReplay;
+
+  final String? Function(RequestDetailEntity request)? replayUnavailableReason;
 
   final DioLensShareCallback? onShare;
 
@@ -104,6 +107,7 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
                 createController: () =>
                     widget.dependencies.createRequestDetailController(item.id),
                 onReplay: widget.onReplay,
+                replayUnavailableReason: widget.replayUnavailableReason,
                 onShare: widget.onShare,
               ),
             ),

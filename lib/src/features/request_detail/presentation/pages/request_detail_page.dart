@@ -17,6 +17,7 @@ class RequestDetailPage extends StatefulWidget {
     required this.createController,
     this.onShare,
     this.onReplay,
+    this.replayUnavailableReason,
     this.onOpenHome,
   });
 
@@ -26,6 +27,8 @@ class RequestDetailPage extends StatefulWidget {
 
   final DioLensShareCallback? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
+
+  final String? Function(RequestDetailEntity request)? replayUnavailableReason;
 
   @override
   State<RequestDetailPage> createState() => _RequestDetailPageState();
@@ -51,13 +54,16 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
   }
 
   void _replay(RequestDetailEntity request) {
-    widget.onReplay?.call(request);
+    final reason = widget.replayUnavailableReason?.call(request);
+    if (reason == null) widget.onReplay?.call(request);
     ScaffoldMessenger.maybeOf(context)
       ?..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          content: Text('Request replayed'),
-          duration: Duration(milliseconds: 1400),
+        SnackBar(
+          content: Text(
+            reason == null ? 'Request replayed' : "Can't replay: $reason",
+          ),
+          duration: Duration(milliseconds: reason == null ? 1400 : 2600),
         ),
       );
   }

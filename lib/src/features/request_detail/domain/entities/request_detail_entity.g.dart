@@ -40,6 +40,9 @@ _RequestDetailEntity _$RequestDetailEntityFromJson(Map<String, dynamic> json) =>
       ),
       errorMessage: json['error_message'] as String?,
       stackTrace: json['stack_trace'] as String?,
+      clientName: json['client_name'] as String?,
+      hasFileUpload: json['has_file_upload'] as bool? ?? false,
+      requestBodyIncomplete: json['request_body_incomplete'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$RequestDetailEntityToJson(
@@ -64,6 +67,9 @@ Map<String, dynamic> _$RequestDetailEntityToJson(
   'error_type': _$DioExceptionTypeEnumMap[instance.errorType],
   'error_message': instance.errorMessage,
   'stack_trace': instance.stackTrace,
+  'client_name': instance.clientName,
+  'has_file_upload': instance.hasFileUpload,
+  'request_body_incomplete': instance.requestBodyIncomplete,
 };
 
 const _$RequestStateEnumMap = {

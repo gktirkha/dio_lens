@@ -15,6 +15,7 @@ abstract final class RequestCapture {
     required DateTime startedAt,
     required RequestOptions options,
     int? maxBodyBytes,
+    String? clientName,
   }) async {
     final data = options.data;
     final contentType = data == null ? null : _requestContentType(options);
@@ -32,6 +33,16 @@ abstract final class RequestCapture {
       requestContentType: captured.body == null ? null : contentType,
       requestBody: captured.body,
       requestSize: captured.size,
+      clientName: clientName,
+      hasFileUpload: data is FormData && data.files.isNotEmpty,
+      requestBodyIncomplete: switch (data) {
+        null || FormData() => false,
+        Stream<dynamic>() => true,
+        _ =>
+          captured.body == null
+              ? (captured.size ?? 0) > 0
+              : maxBodyBytes != null && (captured.size ?? 0) > maxBodyBytes,
+      },
     );
   }
 

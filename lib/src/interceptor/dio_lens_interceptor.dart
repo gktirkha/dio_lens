@@ -6,9 +6,11 @@ import '../features/request_detail/domain/entities/request_detail_entity.dart';
 import 'request_capture.dart';
 
 class DioLensInterceptor extends Interceptor {
-  DioLensInterceptor([this._dio]);
+  DioLensInterceptor({this._dio, this._name});
 
   final Dio? _dio;
+
+  final String? _name;
 
   static const String _captureKey = 'dio_lens_capture';
 
@@ -20,7 +22,7 @@ class DioLensInterceptor extends Interceptor {
       final store = runtime.store;
       final id = runtime.nextRequestId();
       if (_dio case final dio?) {
-        runtime.replayer.register(id, dio);
+        runtime.replayer.register(id, dio, options: options, name: _name);
       } else {
         _warnMissingDio();
       }
@@ -30,6 +32,7 @@ class DioLensInterceptor extends Interceptor {
             startedAt: DateTime.now(),
             options: options,
             maxBodyBytes: store.settings.value.maxBodyBytes,
+            clientName: _name,
           ).then((request) async {
             await store.add(request);
             return request;
@@ -116,7 +119,7 @@ class DioLensInterceptor extends Interceptor {
       'DioLens: DioLensInterceptor was added without its Dio, so Replay '
       'falls back to a plain Dio (your interceptors, base options and '
       'adapter will not apply). Pass the Dio to the interceptor:\n'
-      '  dio.interceptors.add(DioLensInterceptor(dio));',
+      '  dio.interceptors.add(DioLensInterceptor(dio: dio));',
     );
   }
 

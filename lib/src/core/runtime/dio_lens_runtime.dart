@@ -106,6 +106,7 @@ class DioLensRuntime {
     (_) => RequestDetailPage(
       createController: () => dependencies.createRequestDetailController(id),
       onReplay: replayer.replay,
+      replayUnavailableReason: replayer.unavailableReason,
       onShare: onShare,
       onOpenHome: () => _push(_home, replace: true),
     ),
@@ -114,6 +115,7 @@ class DioLensRuntime {
   Widget _home(BuildContext context) => DioLensHomePage(
     dependencies: dependencies,
     onReplay: replayer.replay,
+    replayUnavailableReason: replayer.unavailableReason,
     onExport: onExport == null ? null : exportToApp,
     onShare: onShare,
   );

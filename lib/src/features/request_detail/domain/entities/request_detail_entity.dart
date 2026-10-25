@@ -42,6 +42,11 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     @JsonKey(name: 'error_type') DioExceptionType? errorType,
     @JsonKey(name: 'error_message') String? errorMessage,
     @JsonKey(name: 'stack_trace') String? stackTrace,
+    @JsonKey(name: 'client_name') String? clientName,
+    @JsonKey(name: 'has_file_upload') @Default(false) bool hasFileUpload,
+    @JsonKey(name: 'request_body_incomplete')
+    @Default(false)
+    bool requestBodyIncomplete,
   }) = _RequestDetailEntity;
 
   factory RequestDetailEntity.fromJson(Map<String, dynamic> json) =>
