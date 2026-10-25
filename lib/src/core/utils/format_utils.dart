@@ -16,6 +16,44 @@ abstract final class FormatUtils {
     return '${(value / (1024 * 1024)).toStringAsFixed(1)} MB';
   }
 
+  /// File extension for a MIME type: `.json`, `.jpg`, `.png`, `.txt`,
+  /// `.html`, `.pdf`, `.bin`…; `form` for form data (no extension); `—`
+  /// when unknown.
+  static String shortContentType(String? mime) {
+    if (mime == null || mime.trim().isEmpty) return '—';
+    final type = mime.split(';').first.trim().toLowerCase();
+    final known = _contentTypeLabels[type];
+    if (known != null) return known;
+
+    final slash = type.indexOf('/');
+    var subtype = slash >= 0 ? type.substring(slash + 1) : type;
+    // Structured suffixes: application/problem+json → .json, …+xml → .xml.
+    final plus = subtype.lastIndexOf('+');
+    if (plus >= 0) subtype = subtype.substring(plus + 1);
+    subtype = subtype.replaceFirst(RegExp(r'^(x-|vnd\.)'), '');
+    return subtype.isEmpty ? mime : '.$subtype';
+  }
+
+  /// MIME types whose extension differs from their subtype.
+  static const Map<String, String> _contentTypeLabels = {
+    'application/x-www-form-urlencoded': 'form',
+    'multipart/form-data': 'form',
+    'application/octet-stream': '.bin',
+    'application/javascript': '.js',
+    'text/javascript': '.js',
+    'text/plain': '.txt',
+    'text/markdown': '.md',
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/pjpeg': '.jpg',
+    'image/svg+xml': '.svg',
+    'image/x-icon': '.ico',
+    'image/vnd.microsoft.icon': '.ico',
+    'application/gzip': '.gz',
+    'audio/mpeg': '.mp3',
+    'video/quicktime': '.mov',
+  };
+
   /// `Just now`, `5m ago`, `3h ago`, then `HH:mm` / `dd/MM HH:mm`.
   static String relativeTime(DateTime time, {DateTime? now}) {
     final current = now ?? DateTime.now();

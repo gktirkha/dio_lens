@@ -1111,14 +1111,22 @@
       if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
       return (b / (1024 * 1024)).toFixed(1) + ' MB';
     }
+    /* File extension for a MIME type: .json, .jpg, .pdf, .txt…; 'form' for form data. */
+    var CT_EXT = {
+      'application/x-www-form-urlencoded':'form', 'multipart/form-data':'form',
+      'application/octet-stream':'.bin', 'application/javascript':'.js', 'text/javascript':'.js',
+      'text/plain':'.txt', 'text/markdown':'.md', 'image/jpeg':'.jpg', 'image/jpg':'.jpg', 'image/pjpeg':'.jpg',
+      'image/svg+xml':'.svg', 'image/x-icon':'.ico', 'image/vnd.microsoft.icon':'.ico',
+      'application/gzip':'.gz', 'audio/mpeg':'.mp3', 'video/quicktime':'.mov'
+    };
     function shortCT(mime) {
-      if (!mime) return '—';
-      if (/json/i.test(mime)) return 'JSON';
-      if (/x-www-form-urlencoded|multipart\/form-data/i.test(mime)) return 'Form';
-      if (/^text\//i.test(mime)) return 'Text';
-      if (/^image\//i.test(mime)) return 'Image';
-      var m = mime.split('/')[1];
-      return m ? m.toUpperCase() : mime;
+      if (!mime || !mime.trim()) return '—';
+      var type = mime.split(';')[0].trim().toLowerCase();
+      if (CT_EXT[type]) return CT_EXT[type];
+      var sub = type.indexOf('/') >= 0 ? type.slice(type.indexOf('/') + 1) : type;
+      if (sub.lastIndexOf('+') >= 0) sub = sub.slice(sub.lastIndexOf('+') + 1);
+      sub = sub.replace(/^(x-|vnd\.)/, '');
+      return sub ? '.' + sub : mime;
     }
     function statusLabel(req) {
       if (req.statusClass === 'pending') return 'PENDING';

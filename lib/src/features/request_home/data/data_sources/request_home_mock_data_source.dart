@@ -65,6 +65,8 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
       int? ms,
       int? size,
       String? error,
+      String? reqCt,
+      String? resCt,
       Duration ago = Duration.zero,
     }) {
       n++;
@@ -78,6 +80,12 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         duration: ms == null ? null : Duration(milliseconds: ms),
         responseSize: size,
         errorType: error,
+        requestContentType: reqCt,
+        responseContentType:
+            resCt ??
+            (state == RequestState.completed && (size ?? 0) > 0
+                ? (url.endsWith('.jpg') ? 'image/jpeg' : 'application/json')
+                : null),
       );
     }
 
@@ -100,6 +108,7 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         'POST',
         'https://api.example.com/v1/auth/login',
         RequestState.completed,
+        reqCt: 'application/x-www-form-urlencoded',
         code: 200,
         ms: 341,
         size: 612,
@@ -144,6 +153,7 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         'PUT',
         'https://api.example.com/v1/profile',
         RequestState.completed,
+        reqCt: 'application/json',
         code: 200,
         ms: 228,
         size: 540,
@@ -171,10 +181,21 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         'PATCH',
         'https://api.example.com/v1/settings',
         RequestState.completed,
+        reqCt: 'application/json',
         code: 403,
         ms: 77,
         size: 92,
         ago: const Duration(hours: 3),
+      ),
+      item(
+        'GET',
+        'https://api.example.com/v1/status',
+        RequestState.completed,
+        code: 200,
+        ms: 22,
+        size: 2,
+        resCt: 'text/plain; charset=utf-8',
+        ago: const Duration(hours: 4),
       ),
     ];
   }

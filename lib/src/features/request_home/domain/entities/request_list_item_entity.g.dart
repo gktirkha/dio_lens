@@ -20,6 +20,8 @@ _RequestListItemEntity _$RequestListItemEntityFromJson(
       : Duration(microseconds: (json['duration'] as num).toInt()),
   responseSize: (json['response_size'] as num?)?.toInt(),
   errorType: json['error_type'] as String?,
+  requestContentType: json['request_content_type'] as String?,
+  responseContentType: json['response_content_type'] as String?,
 );
 
 Map<String, dynamic> _$RequestListItemEntityToJson(
@@ -34,6 +36,8 @@ Map<String, dynamic> _$RequestListItemEntityToJson(
   'duration': instance.duration?.inMicroseconds,
   'response_size': instance.responseSize,
   'error_type': instance.errorType,
+  'request_content_type': instance.requestContentType,
+  'response_content_type': instance.responseContentType,
 };
 
 const _$RequestStateEnumMap = {

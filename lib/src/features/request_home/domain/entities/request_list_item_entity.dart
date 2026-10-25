@@ -32,6 +32,13 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
 
     /// `DioExceptionType` name for failed requests, e.g. `connectionTimeout`.
     @JsonKey(name: 'error_type') String? errorType,
+
+    /// MIME type of the request body, e.g. `application/json`; null when
+    /// there is no body.
+    @JsonKey(name: 'request_content_type') String? requestContentType,
+
+    /// MIME type of the response body; null when there is none.
+    @JsonKey(name: 'response_content_type') String? responseContentType,
   }) = _RequestListItemEntity;
 
   factory RequestListItemEntity.fromJson(Map<String, dynamic> json) =>
