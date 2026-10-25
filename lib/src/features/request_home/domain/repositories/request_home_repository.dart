@@ -14,4 +14,7 @@ abstract interface class RequestHomeRepository {
   Future<Unit> deleteRequest(String id);
 
   Future<Unit> clearAll();
+
+  /// Removes requests older than the retention allows.
+  Future<Unit> removeExpired();
 }

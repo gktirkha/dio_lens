@@ -9,6 +9,7 @@ import '../../domain/entities/request_list_item_entity.dart';
 import '../../domain/entities/request_status_filter.dart';
 import '../../domain/use_cases/clear_all_requests_use_case.dart';
 import '../../domain/use_cases/delete_request_use_case.dart';
+import '../../domain/use_cases/remove_expired_requests_use_case.dart';
 import '../../domain/use_cases/watch_requests_use_case.dart';
 
 /// State for the request home page: the active filter and the requests that
@@ -20,11 +21,13 @@ class RequestHomeController extends ChangeNotifier {
     required this._watchRequests,
     required this._deleteRequest,
     required this._clearAllRequests,
+    required this._removeExpiredRequests,
   });
 
   final WatchRequestsUseCase _watchRequests;
   final DeleteRequestUseCase _deleteRequest;
   final ClearAllRequestsUseCase _clearAllRequests;
+  final RemoveExpiredRequestsUseCase _removeExpiredRequests;
 
   /// Delay after the last keystroke before search re-filters the list.
   static const Duration searchDebounce = Duration(milliseconds: 250);
@@ -52,6 +55,7 @@ class RequestHomeController extends ChangeNotifier {
     super.addListener(listener);
     if (!_started) {
       _started = true;
+      _removeExpiredRequests(unit);
       _subscribe();
     }
   }
@@ -86,10 +90,12 @@ class RequestHomeController extends ChangeNotifier {
     await _deleteRequest(id);
   }
 
-  /// Re-reads the list; completes once fresh data has arrived.
-  Future<void> refresh() {
+  /// Drops expired requests and re-reads the list; completes once fresh
+  /// data has arrived.
+  Future<void> refresh() async {
     _started = true;
-    return _subscribe();
+    await _removeExpiredRequests(unit);
+    await _subscribe();
   }
 
   Future<void> clearAll() async {

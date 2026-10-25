@@ -45,6 +45,11 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
   }
 
   @override
+  /// Samples never expire.
+  @override
+  Future<void> removeExpired() async {}
+
+  @override
   Future<void> clearAll() async {
     if (_requests.isEmpty) return;
     _requests.clear();

@@ -31,6 +31,12 @@ class RequestHomeRepositoryImpl implements RequestHomeRepository {
     return unit;
   }
 
+  @override
+  Future<Unit> removeExpired() async {
+    await _dataSource.removeExpired();
+    return unit;
+  }
+
   static List<RequestListItemEntity> _apply(
     List<RequestListItemEntity> all,
     RequestFilterParams params,

@@ -13,4 +13,7 @@ abstract interface class RequestHomeDataSource {
   Future<void> deleteRequest(String id);
 
   Future<void> clearAll();
+
+  /// Removes requests older than the retention allows.
+  Future<void> removeExpired();
 }

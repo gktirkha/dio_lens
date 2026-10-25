@@ -101,6 +101,13 @@ class DioLensStore {
     _emit();
   }
 
+  /// Removes requests past the retention (or the limit) now, instead of
+  /// waiting for the next request.
+  Future<void> removeExpired() async {
+    await ready;
+    if (_trim()) _emit();
+  }
+
   /// Applies and stores [settings]; a lower limit or shorter retention
   /// removes the requests that no longer fit.
   Future<void> updateSettings(DioLensSettings settings) async {

@@ -16,6 +16,7 @@ import '../features/request_home/domain/repositories/request_home_repository.dar
 import '../features/request_home/domain/use_cases/clear_all_requests_use_case.dart';
 import '../features/request_home/domain/use_cases/delete_request_use_case.dart';
 import '../features/request_home/domain/use_cases/get_requests_use_case.dart';
+import '../features/request_home/domain/use_cases/remove_expired_requests_use_case.dart';
 import '../features/request_home/domain/use_cases/watch_requests_use_case.dart';
 import '../features/request_home/presentation/controllers/request_home_controller.dart';
 import '../features/settings/data/data_sources/settings_data_source.dart';
@@ -84,11 +85,15 @@ class DioLensDependencies {
   late final ClearAllRequestsUseCase clearAllRequestsUseCase =
       ClearAllRequestsUseCase(requestHomeRepository);
 
+  late final RemoveExpiredRequestsUseCase removeExpiredRequestsUseCase =
+      RemoveExpiredRequestsUseCase(requestHomeRepository);
+
   /// A new controller for one request home page; the caller disposes it.
   RequestHomeController createRequestHomeController() => RequestHomeController(
     watchRequests: watchRequestsUseCase,
     deleteRequest: deleteRequestUseCase,
     clearAllRequests: clearAllRequestsUseCase,
+    removeExpiredRequests: removeExpiredRequestsUseCase,
   );
 
   // ---- Stats ----

@@ -26,6 +26,9 @@ class RequestHomeLocalDataSource implements RequestHomeDataSource {
   @override
   Future<void> clearAll() => _store.clear();
 
+  @override
+  Future<void> removeExpired() => _store.removeExpired();
+
   static List<RequestListItemEntity> _toItems(
     List<RequestDetailEntity> requests,
   ) => [for (final r in requests) r.toListItem()];
