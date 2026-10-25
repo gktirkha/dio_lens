@@ -14,10 +14,10 @@ class RequestReplayer {
   /// `DioLensInterceptor(dio)`), oldest first.
   final LinkedHashMap<String, Dio> _clients = LinkedHashMap();
 
-  /// Most recently registered Dio: replays requests from earlier runs.
-  Dio? _lastClient;
+  /// Every Dio seen this run, most recently used last.
+  final LinkedHashSet<Dio> _knownClients = LinkedHashSet.identity();
 
-  /// Used when the app never passed a Dio to the interceptor.
+  /// Used when no known Dio fits the request.
   late final Dio _fallback = () {
     final dio = Dio();
     // Passes itself, so it never triggers the missing-Dio warning.
@@ -31,14 +31,34 @@ class RequestReplayer {
   /// Remembers that the request [requestId] went through [dio].
   void register(String requestId, Dio dio) {
     _clients[requestId] = dio;
-    _lastClient = dio;
+    _knownClients
+      ..remove(dio)
+      ..add(dio);
     if (_clients.length > maxRemembered) _clients.remove(_clients.keys.first);
+  }
+
+  /// The Dio [request] went through, when it was captured this run. For
+  /// requests from earlier runs, the most recently used Dio whose base URL
+  /// has the same scheme and host; failing that, a plain Dio, rather than
+  /// guessing (a different Dio may carry the wrong auth or adapter).
+  Dio _clientFor(RequestDetailEntity request) {
+    if (_clients[request.id] case final dio?) return dio;
+    final uri = request.uri;
+    for (final dio in _knownClients.toList().reversed) {
+      final base = Uri.tryParse(dio.options.baseUrl);
+      if (base == null || base.host.isEmpty) continue;
+      if (base.host.toLowerCase() == uri.host.toLowerCase() &&
+          base.scheme == uri.scheme) {
+        return dio;
+      }
+    }
+    return _fallback;
   }
 
   /// Sends [request] again. Completes once it finished; any status or
   /// error is captured like a normal request, never thrown.
   Future<void> replay(RequestDetailEntity request) async {
-    final dio = _clients[request.id] ?? _lastClient ?? _fallback;
+    final dio = _clientFor(request);
     final contentType = (request.requestContentType ?? '').toLowerCase();
     final multipart = contentType.contains('multipart/form-data');
     final body = request.requestBody;
