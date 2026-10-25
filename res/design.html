@@ -1521,13 +1521,15 @@
       var metaBits = [];
       if (r.statusClass === 'pending') {
         metaBits.push('<span>Waiting…</span>');
+        if (r.reqContentType) metaBits.push('<span>' + shortCT(r.reqContentType) + ' → …</span>');
       } else if (r.statusClass === 'error') {
         metaBits.push('<span class="dl-err-text">' + esc(r.error.type.replace('DioExceptionType.', '')) + '</span>');
         metaBits.push('<span>' + fmtMs(r.duration) + '</span>');
       } else {
         metaBits.push('<span>' + fmtMs(r.duration) + '</span>');
         metaBits.push('<span>' + fmtBytes(r.resSize) + '</span>');
-        metaBits.push('<span>' + shortCT(r.reqContentType) + ' → ' + shortCT(r.resContentType) + '</span>');
+        // Body types only when at least one side has a body.
+        if (r.reqContentType || r.resContentType) metaBits.push('<span>' + shortCT(r.reqContentType) + ' → ' + shortCT(r.resContentType) + '</span>');
       }
       return '' +
         '<div class="dl-row-swipe" style="animation-delay:' + Math.min(idx * 35, 280) + 'ms">' +

@@ -138,7 +138,9 @@ class RequestListTile extends StatelessWidget {
 }
 
 /// Bottom line: `Waiting…`, `connectionTimeout · 30.00 s`, or
-/// `96 ms · 1.8 KB · .json → .json`.
+/// `96 ms · 1.8 KB · .json → .json`. The body types (request → response)
+/// only show when at least one side has a body; `…` marks a response that
+/// has not arrived yet.
 class _Meta extends StatelessWidget {
   const _Meta({required this.item});
 
@@ -159,9 +161,14 @@ class _Meta extends StatelessWidget {
       parts.add(TextSpan(text: text, style: style));
     }
 
+    final requestType = item.requestContentType;
+    final responseType = item.responseContentType;
+    String type(String? mime) => FormatUtils.shortContentType(mime);
+
     switch (item.state) {
       case RequestState.pending:
         add('Waiting…');
+        if (requestType != null) add('${type(requestType)} → …');
       case RequestState.failed:
         add(
           item.errorType?.name ?? 'error',
@@ -171,10 +178,9 @@ class _Meta extends StatelessWidget {
       case RequestState.completed:
         add(FormatUtils.duration(item.duration));
         add(FormatUtils.bytes(item.responseSize));
-        add(
-          '${FormatUtils.shortContentType(item.requestContentType)} → '
-          '${FormatUtils.shortContentType(item.responseContentType)}',
-        );
+        if (requestType != null || responseType != null) {
+          add('${type(requestType)} → ${type(responseType)}');
+        }
     }
 
     return Text.rich(
