@@ -62,6 +62,7 @@ class RequestFinishedBanner extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(

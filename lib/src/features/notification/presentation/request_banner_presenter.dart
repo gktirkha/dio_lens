@@ -143,38 +143,60 @@ class _AnimatedBannerState extends State<_AnimatedBanner>
       curve: Curves.easeOut,
       reverseCurve: Curves.easeIn,
     );
-    final top = widget.position == DioLensNotificationPosition.top;
-    return Positioned(
-      top: top ? 0 : null,
-      bottom: top ? null : 0,
-      left: 0,
-      right: 0,
-      child: SafeArea(
-        top: top,
-        bottom: !top,
-        child: Padding(
-          // At the bottom, clear typical bottom bars (design: 82px).
-          padding: top
-              ? const EdgeInsets.fromLTRB(12, 8, 12, 0)
-              : const EdgeInsets.fromLTRB(12, 0, 12, 82),
-          child: FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween(
-                begin: Offset(0, top ? -0.12 : 0.12),
-                end: Offset.zero,
-              ).animate(curved),
-              child: Semantics(
-                liveRegion: true,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: widget.child,
-                ),
-              ),
+    final banner = FadeTransition(
+      opacity: curved,
+      child: SlideTransition(
+        position: Tween(
+          begin: Offset(0, switch (widget.position) {
+            DioLensNotificationPosition.top => -0.12,
+            DioLensNotificationPosition.center => 0.06,
+            DioLensNotificationPosition.bottom => 0.12,
+          }),
+          end: Offset.zero,
+        ).animate(curved),
+        child: Semantics(
+          liveRegion: true,
+          child: Material(type: MaterialType.transparency, child: widget.child),
+        ),
+      ),
+    );
+    return switch (widget.position) {
+      DioLensNotificationPosition.top => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            child: banner,
+          ),
+        ),
+      ),
+      // Only the banner takes touches; the rest of the screen stays live.
+      DioLensNotificationPosition.center => Positioned.fill(
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: banner,
             ),
           ),
         ),
       ),
-    );
+      DioLensNotificationPosition.bottom => Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            // Clear typical bottom bars (design: 82px).
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 82),
+            child: banner,
+          ),
+        ),
+      ),
+    };
   }
 }

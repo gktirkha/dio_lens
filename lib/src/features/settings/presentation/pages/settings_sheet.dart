@@ -262,9 +262,9 @@ class _SettingsBody extends StatelessWidget {
             if (s.showNotification) ...[
               SettingsRow(
                 title: 'Notification position',
-                description: 'Top or bottom of screen',
+                description: 'Top, center or bottom of screen',
+                stacked: true,
                 control: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     for (final (position, label, icon) in const [
                       (
@@ -273,20 +273,27 @@ class _SettingsBody extends StatelessWidget {
                         Icons.arrow_upward_rounded,
                       ),
                       (
+                        DioLensNotificationPosition.center,
+                        'Center',
+                        Icons.vertical_align_center_rounded,
+                      ),
+                      (
                         DioLensNotificationPosition.bottom,
                         'Bottom',
                         Icons.arrow_downward_rounded,
                       ),
                     ]) ...[
                       if (position != DioLensNotificationPosition.top)
-                        const SizedBox(width: 6),
-                      SettingsOption(
-                        label: label,
-                        icon: icon,
-                        compact: true,
-                        selected: s.notificationPosition == position,
-                        onTap: () => onChanged(
-                          (s) => s.copyWith(notificationPosition: position),
+                        const SizedBox(width: 8),
+                      Expanded(
+                        child: SettingsOption(
+                          label: label,
+                          icon: icon,
+                          compact: true,
+                          selected: s.notificationPosition == position,
+                          onTap: () => onChanged(
+                            (s) => s.copyWith(notificationPosition: position),
+                          ),
                         ),
                       ),
                     ],

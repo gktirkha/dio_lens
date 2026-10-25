@@ -78,6 +78,7 @@ const _$DioLensRetentionEnumMap = {
 
 const _$DioLensNotificationPositionEnumMap = {
   DioLensNotificationPosition.top: 'top',
+  DioLensNotificationPosition.center: 'center',
   DioLensNotificationPosition.bottom: 'bottom',
 };
 

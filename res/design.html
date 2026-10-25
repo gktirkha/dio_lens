@@ -844,6 +844,7 @@
     }
     #dl-notif-root.pos-top { top: var(--phone-safe-top, 50px); }
     #dl-notif-root.pos-bottom { bottom: 82px; }
+    #dl-notif-root.pos-center { top: 50%; transform: translateY(-50%); padding-top: 0; }
     .dl-notif {
       pointer-events:auto; display:flex; align-items:flex-start; gap:10px; padding: 12px 12px 12px 14px;
       border-radius: var(--dl-r-lg); background: var(--dl-surface-2); border:1px solid var(--dl-border-strong);
@@ -1289,6 +1290,7 @@
       var bad = req.statusClass === '5xx' || req.statusClass === 'error';
       var warn = req.statusClass === '4xx';
       var iconCls = bad ? 'cbad' : warn ? 'cwarn' : '';
+      notifRoot.className = 'pos-' + (state.settings.notificationPosition || 'top');
       notifRoot.innerHTML =
         '<div class="dl-notif">' +
           '<div class="dl-notif-icon ' + iconCls + '">' + icon(bad || warn ? 'alert' : 'check') + '</div>' +
@@ -1977,8 +1979,8 @@
         '</div>' +
         '<div class="dl-set-section"><h3>Entry point</h3>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Show notification</div><div class="set-desc">Persistent notification while capturing in the background</div></div>' + switchEl('notification', s.notification) + '</div>' +
-          (s.notification ? '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification position</div><div class="set-desc">Top or bottom of screen</div></div>' +
-            '<div class="dl-theme-group"><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='top') + '" data-action="set-notif-pos" data-pos="top">' + icon('arrowUp') + '<span>Top</span></button><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='bottom') + '" data-action="set-notif-pos" data-pos="bottom">' + icon('arrowDown') + '<span>Bottom</span></button></div>' +
+          (s.notification ? '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification position</div><div class="set-desc">Top, center or bottom of screen</div></div>' +
+            '<div class="dl-theme-group"><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='top') + '" data-action="set-notif-pos" data-pos="top">' + icon('arrowUp') + '<span>Top</span></button><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='center') + '" data-action="set-notif-pos" data-pos="center">' + icon('arrowUp') + '<span>Center</span></button><button type="button" class="dl-theme-opt" role="radio" aria-checked="' + (s.notificationPosition==='bottom') + '" data-action="set-notif-pos" data-pos="bottom">' + icon('arrowDown') + '<span>Bottom</span></button></div>' +
           '</div>' : '') +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Notification duration</div><div class="set-desc">How long the finished-request alert stays on screen</div></div>' +
             '<div class="dl-mini-stepper">' +
