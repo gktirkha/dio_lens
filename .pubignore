@@ -37,3 +37,4 @@ migrate_working_dir/
 /res/
 /.vscode/
 /devtools_options.yaml
+/screenshots/demo.gif

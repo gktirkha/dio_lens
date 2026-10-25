@@ -12,6 +12,20 @@ topics:
   - inspector
   - debugging
 
+screenshots:
+  - description: Request list with status and method filters.
+    path: screenshots/requests.png
+  - description: Request detail with a redacted header and a JSON body.
+    path: screenshots/detail_request.png
+  - description: Stats with latency, status distribution and rankings.
+    path: screenshots/stats.png
+  - description: Settings sheet.
+    path: screenshots/settings.png
+  - description: Request-finished banner over the host app.
+    path: screenshots/banner.png
+  - description: Request list in the light theme.
+    path: screenshots/requests_light.png
+
 environment:
   sdk: ^3.13.7
   flutter: ">=3.47.0"

@@ -94,7 +94,8 @@ class _JsonTreeViewState extends State<JsonTreeView> {
         ];
       }
       final expanded = _open.contains(path);
-      final count = '${entries.length} ${value is Map ? 'keys' : 'items'}';
+      final noun = value is Map ? 'key' : 'item';
+      final count = '${entries.length} $noun${entries.length == 1 ? '' : 's'}';
       return [
         _row(
           _ExpandIcon(expanded: expanded),
