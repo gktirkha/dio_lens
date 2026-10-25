@@ -30,6 +30,7 @@ class RequestHomeHeader extends StatelessWidget {
     'PUT',
     'PATCH',
     'DELETE',
+    'QUERY',
   ];
 
   final bool searchOpen;

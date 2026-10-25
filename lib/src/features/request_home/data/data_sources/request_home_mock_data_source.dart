@@ -124,6 +124,16 @@ class RequestHomeMockDataSource implements RequestHomeDataSource {
         ago: const Duration(seconds: 40),
       ),
       item(
+        'QUERY',
+        'https://api.example.com/v1/orders/search',
+        RequestState.completed,
+        code: 200,
+        ms: 134,
+        size: 248,
+        reqCt: 'application/json',
+        ago: const Duration(seconds: 50),
+      ),
+      item(
         'GET',
         'https://cdn.example.com/images/avatar-42.jpg',
         RequestState.completed,

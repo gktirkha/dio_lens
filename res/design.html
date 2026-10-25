@@ -287,6 +287,7 @@
       --m-put: #f3ab35; --m-put-bg: rgba(243,171,53,.18);
       --m-patch: #b084f5; --m-patch-bg: rgba(176,132,245,.18);
       --m-delete: #f35468; --m-delete-bg: rgba(243,84,104,.16);
+      --m-query: #2dd4bf; --m-query-bg: rgba(45,212,191,.16);
       --dl-jt-key: #8fb0ff;
     }
     /* Theme is toggled on the document root (not .dl-app) so overlays that
@@ -321,6 +322,7 @@
       --m-put: #a86309; --m-put-bg: rgba(168,99,9,.12);
       --m-patch: #7c3aed; --m-patch-bg: rgba(124,58,237,.1);
       --m-delete: #c92e49; --m-delete-bg: rgba(201,46,73,.1);
+      --m-query: #0f7d76; --m-query-bg: rgba(15,125,118,.1);
       --dl-jt-key: #1d49b8;
     }
 
@@ -516,6 +518,7 @@
     .dl-chip.PUT { background: var(--m-put-bg); color: var(--m-put); }
     .dl-chip.PATCH { background: var(--m-patch-bg); color: var(--m-patch); }
     .dl-chip.DELETE { background: var(--m-delete-bg); color: var(--m-delete); }
+    .dl-chip.QUERY { background: var(--m-query-bg); color: var(--m-query); }
     .dl-badge { flex:none; height:21px; padding:0 8px; border-radius:6px; font-size:11.5px; font-weight:700; font-family:var(--dl-font-mono); display:inline-flex; align-items:center; gap:4px; }
     .dl-badge.c2xx { background: var(--dl-success-bg); color: var(--dl-success); }
     .dl-badge.c3xx { background: var(--dl-redirect-bg); color: var(--dl-redirect); }
@@ -579,6 +582,39 @@
     .dl-kv-grid dd.status-ok { color: var(--dl-success); font-weight:700; }
     .dl-kv-grid dd.status-warn { color: var(--dl-warn); font-weight:700; }
     .dl-kv-grid dd.status-bad { color: var(--dl-danger); font-weight:700; }
+    .dl-overview { display:flex; flex-direction:column; gap:14px; }
+    .dl-ov-item { display:flex; flex-direction:column; gap:6px; }
+    .dl-ov-label { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color: var(--dl-text-faint); }
+    .dl-ov-value { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; padding:10px 12px; border-radius:10px; border:1px solid var(--dl-border); background: color-mix(in srgb, var(--dl-surface-2) 60%, transparent); text-align:left; font:12.5px/1.6 var(--dl-font-mono); color: var(--dl-text); word-break:break-all; cursor:pointer; width:100%; }
+    .dl-ov-value:hover { background: color-mix(in srgb, var(--dl-surface-3) 70%, transparent); }
+    .dl-ov-value.static { cursor:default; }
+    .dl-ov-value.static:hover { background: color-mix(in srgb, var(--dl-surface-2) 60%, transparent); }
+    .dl-ov-value.status-ok { color: var(--dl-success); }
+    .dl-ov-value.status-warn { color: var(--dl-warn); }
+    .dl-ov-value.status-bad { color: var(--dl-danger); }
+    .dl-ov-val-text { flex:1; min-width:0; }
+    .dl-ov-copy { color: var(--dl-text-faint); display:inline-flex; align-items:center; flex:none; }
+    .dl-ov-value:hover .dl-ov-copy { color: var(--dl-text); }
+    .dl-ov-box { border:1px solid var(--dl-border); border-radius:12px; overflow:hidden; background: color-mix(in srgb, var(--dl-surface-2) 50%, transparent); }
+    .dl-ov-box-header { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-bottom:1px solid var(--dl-border); background: color-mix(in srgb, var(--dl-surface-2) 70%, transparent); }
+    .dl-ov-box-header span { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color: var(--dl-text-faint); }
+    .dl-ov-box-copy { display:inline-flex; align-items:center; gap:6px; border:none; background:transparent; color: var(--dl-text-faint); font-size:11px; cursor:pointer; padding:2px 6px; border-radius:6px; }
+    .dl-ov-box-copy:hover { color: var(--dl-text); background: color-mix(in srgb, var(--dl-surface-3) 60%, transparent); }
+    .dl-ov-kv-list { display:flex; flex-direction:column; }
+    .dl-ov-kv { display:flex; flex-direction:column; gap:4px; padding:10px 12px; text-align:left; width:100%; cursor:pointer; border:none; background:transparent; border-top:1px solid var(--dl-border); }
+    .dl-ov-kv:first-child { border-top:none; }
+    .dl-ov-kv:hover { background: color-mix(in srgb, var(--dl-surface-3) 60%, transparent); }
+    .dl-ov-kv-key { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color: var(--dl-text-faint); }
+    .dl-ov-kv-val { font:12.5px/1.6 var(--dl-font-mono); color: var(--dl-text); word-break:break-all; text-align:left; }
+    .dl-ov-kv-val.redacted { letter-spacing:2px; }
+    .dl-tabstack { display:flex; flex-direction:column; gap:14px; }
+    .dl-body-wrap { display:flex; flex-direction:column; gap:10px; }
+    .dl-curl-section { display:flex; flex-direction:column; gap:10px; margin-top:4px; padding:12px; border-radius:12px; border:1px solid var(--dl-border); background: color-mix(in srgb, var(--dl-surface-2) 50%, transparent); }
+    .dl-curl-header { display:flex; align-items:center; justify-content:space-between; font-size:11px; text-transform:uppercase; letter-spacing:.12em; color: var(--dl-text-faint); }
+    .dl-curl-pre { margin:0; padding:10px 12px; border-radius:10px; background: color-mix(in srgb, var(--dl-surface) 80%, transparent); border:1px solid var(--dl-border); overflow-x:auto; }
+    .dl-curl-pre code { font:11.5px/1.7 var(--dl-font-mono); color: var(--dl-text); white-space:pre; display:block; }
+    .dl-curl-copy { align-self:flex-start; display:inline-flex; align-items:center; gap:6px; border-radius:999px; border:1px solid var(--dl-border); background:transparent; color: var(--dl-text); font-size:12px; padding:6px 12px; cursor:pointer; }
+    .dl-curl-copy:hover { background: color-mix(in srgb, var(--dl-surface-3) 70%, transparent); }
 
     .dl-section { border:1px solid var(--dl-border); border-radius: var(--dl-r-md); margin-bottom:12px; overflow:hidden; background: var(--dl-surface); }
     .dl-section-head {
@@ -604,19 +640,21 @@
     .dl-copy-btn .dl-icon { --od-icon-size:13px; }
     .dl-copy-btn:hover { color: var(--dl-text); }
 
-    .dl-json-raw { font-family: var(--dl-font-mono); font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; color: var(--dl-text); }
-    .dl-json-tree { font-family: var(--dl-font-mono); font-size:12.5px; line-height:1.7; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-    .dl-json-tree .jt-node { margin-left: 14px; }
-    .dl-json-tree .jt-row { display:flex; align-items:flex-start; gap:4px; white-space:nowrap; }
-    .dl-json-tree .jt-toggle { flex:none; width:16px; height:18px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; color: var(--dl-text-faint); cursor:pointer; padding:0; }
-    .dl-json-tree .jt-toggle .dl-icon { --od-icon-size:12px; transition: transform .15s ease; }
-    .dl-json-tree .jt-toggle[aria-expanded="true"] .dl-icon { transform: rotate(90deg); }
+    .dl-json-raw { font-family: var(--dl-font-mono); font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; color: var(--dl-text); padding:12px; background: color-mix(in srgb, var(--dl-surface-2) 40%, transparent); border:1px solid var(--dl-border); border-radius:10px; }
+    .dl-json-tree { font-family: var(--dl-font-mono); font-size:12px; line-height:1.7; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:12px; background: color-mix(in srgb, var(--dl-surface-2) 40%, transparent); border:1px solid var(--dl-border); border-radius:10px; }
+    .dl-json-tree .jt-item { display:flex; flex-direction:column; }
+    .dl-json-tree .jt-node { display:flex; flex-direction:column; margin-left: 20px; padding-left: 0; }
+    .dl-json-tree .jt-row { display:flex; align-items:center; gap:6px; white-space:nowrap; min-height: 22px; }
+    .dl-json-tree .jt-toggle { flex:none; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; color: var(--dl-text-faint); cursor:pointer; padding:0; }
+    .dl-json-tree .jt-toggle:hover { color: var(--dl-text); }
+    .dl-json-tree .jt-toggle .dl-icon { --od-icon-size:10px; }
+    .dl-json-tree .jt-toggle-spacer { flex:none; width:16px; height:16px; display:inline-block; }
     .dl-json-tree .jt-key { color: var(--dl-jt-key); }
     .dl-json-tree .jt-str { color: var(--dl-success); }
     .dl-json-tree .jt-num { color: #e0ac55; }
     .dl-json-tree .jt-bool, .dl-json-tree .jt-null { color: #b084f5; }
     .dl-json-tree .jt-punct { color: var(--dl-text-faint); }
-    .dl-json-tree .jt-count { color: var(--dl-text-faint); font-size:11px; margin-left:2px; }
+    .dl-json-tree .jt-count { color: var(--dl-text-faint); font-size:11px; margin-left:4px; }
     .dl-json-tree .jt-img { display:inline-flex; align-items:center; gap:4px; border:none; background:transparent; padding:0; margin:0; cursor:pointer; font:inherit; }
     .dl-json-tree .jt-img .dl-icon { --od-icon-size:12px; color: var(--dl-accent); flex:none; }
     .dl-json-tree .jt-img .jt-str { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--dl-accent) 55%, transparent); text-underline-offset:2px; }
@@ -928,6 +966,16 @@
 
     /* ---------------------------------------------------------------- data */
     var requests = [
+      { id:'r13', method:'QUERY', host:'api.example.com', path:'/v1/orders/search', query:null, status:200, statusClass:'2xx',
+        duration:134, reqSize:86, resSize:248, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:25.600',
+        reqContentType:'application/json', resContentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/json', 'Accept':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
+        resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'X-Request-Id':'req_6d2f0a' },
+        reqQuery:{},
+        reqBody:{ filter:{ status:[ 'shipped', 'processing' ], minTotal:50 }, sort:'-createdAt', limit:20 },
+        resBody:{ data:[ { id:5031, status:'shipped', total:212.4, items:2 }, { id:5030, status:'processing', total:76.0, items:1 } ], meta:{ matched:2, limit:20 } },
+        timing:{ dns:3, connect:12, tls:14, send:2, wait:95, receive:8 } },
+
       { id:'r1', method:'GET', host:'api.example.com', path:'/v1/users', query:null, status:200, statusClass:'2xx',
         duration:182, reqSize:0, resSize:2140, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:07.182',
         reqContentType:null, resContentType:'application/json',
@@ -1161,7 +1209,8 @@
       { method:'POST', path:'/v1/cart/items', reqBody:{ itemId:301, quantity:1 }, resBody:{ cartId:'c_88f2', itemId:301, quantity:1 } },
       { method:'GET', path:'/v1/profile', reqBody:null, resBody:{ id:1, name:'Ava Thompson', email:'ava.thompson@example.com' } },
       { method:'PATCH', path:'/v1/preferences', reqBody:{ marketingEmails:true, theme:'dark' }, resBody:{ marketingEmails:true, theme:'dark', updatedAt:'2026-10-24T10:02:11Z' } },
-      { method:'DELETE', path:'/v1/sessions/current', reqBody:null, resBody:null }
+      { method:'DELETE', path:'/v1/sessions/current', reqBody:null, resBody:null },
+      { method:'QUERY', path:'/v1/orders/search', reqBody:{ filter:{ status:['shipped'], minTotal:50 }, sort:'-createdAt', limit:20 }, resBody:{ data:[ { id:5031, status:'shipped', total:212.4, items:2 } ], meta:{ matched:1, limit:20 } } }
     ];
     function rollOutcome() {
       var r = Math.random();
@@ -1279,7 +1328,10 @@
       return parts.join(' \\\n  ');
     }
 
-    /* ---------------------------------------------------------------- JSON tree */
+    /* ---------------------------------------------------------------- JSON tree (collapsible) */
+    function looksLikeImageUrl(v) {
+      return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(v) || /^data:image\//i.test(v);
+    }
     function jsonTreeRoot(value, treeKey) {
       if (!state.openJsonPaths[treeKey]) {
         var seed = new Set(['$']);
@@ -1297,21 +1349,39 @@
       if (Array.isArray(value)) {
         if (!value.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">[]</span></div>';
         var rowsA = value.map(function (v, i) { return jsonNode(v, path + '[' + i + ']', treeKey, null); }).join('');
-        return '<div class="jt-row">' +
-          '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="' + isOpen + '">' + icon('chevronRight') + '</button>' +
-          keyHtml + '<span class="jt-punct">[</span><span class="jt-count">' + value.length + ' items</span>' +
-          (isOpen ? '<div class="jt-node">' + rowsA + '</div><span class="jt-punct">]</span>' : '<span class="jt-punct">…]</span>') +
-          '</div>';
+        if (isOpen) {
+          return '<div class="jt-item">' +
+            '<div class="jt-row">' +
+              '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="true">' + icon('chevronDown') + '</button>' +
+              keyHtml + '<span class="jt-punct">[</span><span class="jt-count">' + value.length + ' items</span><span class="jt-punct">]</span>' +
+            '</div>' +
+            '<div class="jt-node">' + rowsA + '</div>' +
+            '</div>';
+        } else {
+          return '<div class="jt-row">' +
+            '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="false">' + icon('chevronRight') + '</button>' +
+            keyHtml + '<span class="jt-punct">[</span><span class="jt-count">' + value.length + ' items</span><span class="jt-punct">]</span>' +
+            '</div>';
+        }
       }
       if (value && typeof value === 'object') {
         var keys = Object.keys(value);
         if (!keys.length) return '<div class="jt-row">' + keyHtml + '<span class="jt-punct">{}</span></div>';
         var rowsO = keys.map(function (k) { return jsonNode(value[k], path + '.' + k, treeKey, k); }).join('');
-        return '<div class="jt-row">' +
-          '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="' + isOpen + '">' + icon('chevronRight') + '</button>' +
-          keyHtml + '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + ' keys</span>' +
-          (isOpen ? '<div class="jt-node">' + rowsO + '</div><span class="jt-punct">}</span>' : '<span class="jt-punct">…}</span>') +
-          '</div>';
+        if (isOpen) {
+          return '<div class="jt-item">' +
+            '<div class="jt-row">' +
+              '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="true">' + icon('chevronDown') + '</button>' +
+              keyHtml + '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + ' keys</span><span class="jt-punct">}</span>' +
+            '</div>' +
+            '<div class="jt-node">' + rowsO + '</div>' +
+            '</div>';
+        } else {
+          return '<div class="jt-row">' +
+            '<button type="button" class="jt-toggle" data-action="toggle-json" data-path="' + esc(path) + '" data-tree-key="' + esc(treeKey) + '" aria-expanded="false">' + icon('chevronRight') + '</button>' +
+            keyHtml + '<span class="jt-punct">{</span><span class="jt-count">' + keys.length + ' keys</span><span class="jt-punct">}</span>' +
+            '</div>';
+        }
       }
       var rendered;
       if (typeof value === 'string' && looksLikeImageUrl(value)) {
@@ -1325,10 +1395,7 @@
       } else {
         rendered = '<span class="jt-null">null</span>';
       }
-      return '<div class="jt-row"><span class="jt-toggle" aria-hidden="true"></span>' + keyHtml + rendered + '</div>';
-    }
-    function looksLikeImageUrl(v) {
-      return /\.(png|jpe?g|gif|webp|svg)(\?.*)?$/i.test(v) || /^data:image\//i.test(v);
+      return '<div class="jt-row"><span class="jt-toggle-spacer" aria-hidden="true"></span>' + keyHtml + rendered + '</div>';
     }
 
     /* ---------------------------------------------------------------- render: host */
@@ -1384,7 +1451,7 @@
 
     function popoverHtml() {
       if (state.popover === 'filter') {
-        var methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+        var methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'QUERY'];
         return '<div class="dl-popover" role="menu" aria-label="Filter by method">' +
           '<div class="dl-pop-title">Method</div>' +
           methods.map(function (m) {
@@ -1520,13 +1587,27 @@
         (open ? '<div class="dl-section-body">' + bodyHtml + '</div>' : '') +
       '</div>';
     }
-    function headerRows(obj, redactList) {
-      var keys = Object.keys(obj || {});
-      if (!keys.length) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No headers.</p>';
-      return '<div class="dl-kv-mono">' + keys.map(function (k) {
+    function headerRows(obj, redactList, title) {
+      if (!obj || !Object.keys(obj).length) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">None</p>';
+      redactList = redactList || [];
+      var keys = Object.keys(obj);
+      var allText = keys.map(function (k) {
         var redact = state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1;
-        return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v' + (redact ? ' redacted' : '') + '">' + (redact ? '••••••• (redacted)' : esc(obj[k])) + '</span></div>';
-      }).join('') + '</div>';
+        return k + ': ' + (redact ? '••••••• (redacted)' : obj[k]);
+      }).join('\n');
+      return '<div class="dl-ov-box">' +
+        '<div class="dl-ov-box-header"><span>' + esc(title || 'Headers') + '</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allText) + '" data-label="' + esc(title || 'Headers') + ' copied">' + icon('copy') + ' Copy all</button></div>' +
+        '<div class="dl-ov-kv-list">' +
+          keys.map(function (k) {
+            var redact = state.settings.redactHeaders && redactList.indexOf(k.toLowerCase()) !== -1;
+            var val = redact ? '••••••• (redacted)' : String(obj[k]);
+            return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(val) + '" data-label="' + esc(k) + ' copied">' +
+              '<span class="dl-ov-kv-key">' + esc(k) + '</span>' +
+              '<span class="dl-ov-kv-val' + (redact ? ' redacted' : '') + '">' + esc(val) + '</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
     }
     function bodyBlock(req, which) {
       var data = which === 'request' ? req.reqBody : req.resBody;
@@ -1560,14 +1641,19 @@
       (mode === 'pretty' ? jsonTreeRoot(data, modeKey) : '<div class="dl-json-raw">' + esc(raw) + '</div>');
     }
     function formBodyBlock(req, which, data) {
-      var encoded = Object.keys(data).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }).join('&');
-      return '<div class="dl-body-toolbar">' +
-        '<span class="dl-body-ct-tag">Form data</span>' +
-        '<button type="button" class="dl-copy-btn" data-action="copy-text" data-copy="' + encodeURIComponent(encoded) + '" data-label="Form data copied">' + icon('copy') + ' Copy</button>' +
-      '</div>' +
-      '<div class="dl-kv-mono">' + Object.keys(data).map(function (k) {
-        return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v">' + esc(String(data[k])) + '</span></div>';
-      }).join('') + '</div>';
+      var keys = Object.keys(data);
+      var encoded = keys.map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }).join('&');
+      return '<div class="dl-ov-box">' +
+        '<div class="dl-ov-box-header"><span>Form data</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(encoded) + '" data-label="Form data copied">' + icon('copy') + ' Copy all</button></div>' +
+        '<div class="dl-ov-kv-list">' +
+          keys.map(function (k) {
+            return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(String(data[k])) + '" data-label="' + esc(k) + ' copied">' +
+              '<span class="dl-ov-kv-key">' + esc(k) + '</span>' +
+              '<span class="dl-ov-kv-val">' + esc(String(data[k])) + '</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+      '</div>';
     }
     function textBodyBlock(req, which, text) {
       return '<div class="dl-body-toolbar">' +
@@ -1577,31 +1663,88 @@
       '<div class="dl-json-raw">' + esc(text) + '</div>';
     }
 
+    function copyableField(label, value) {
+      if (value == null || value === '') value = '—';
+      var str = String(value);
+      return '<div class="dl-ov-item">' +
+        '<div class="dl-ov-label">' + esc(label) + '</div>' +
+        '<button type="button" class="dl-ov-value" data-action="copy-text" data-copy="' + encodeURIComponent(str) + '" data-label="' + esc(label) + ' copied">' +
+          '<span class="dl-ov-val-text">' + esc(str) + '</span>' +
+          '<span class="dl-ov-copy">' + icon('copy') + '</span>' +
+        '</button>' +
+      '</div>';
+    }
+    function copyableKvField(label, key, value) {
+      if (value == null || value === '') value = '—';
+      var str = String(value);
+      var copyKey = key == null ? label : key;
+      return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(str) + '" data-label="' + esc(copyKey) + ' copied">' +
+        '<span class="dl-ov-kv-key">' + esc(key == null ? label : key) + '</span>' +
+        '<span class="dl-ov-kv-val">' + esc(str) + '</span>' +
+      '</button>';
+    }
     function tabOverview(req) {
       var statusCls = req.statusClass === '2xx' ? 'status-ok' :
         req.statusClass === '4xx' ? 'status-warn' :
         (req.statusClass === '5xx' || req.statusClass === 'error') ? 'status-bad' : '';
-      return '<dl class="dl-kv-grid">' +
-        '<dt>URL</dt><dd>https://' + esc(req.host) + esc(req.path) + (req.query ? '?' + esc(req.query) : '') + '</dd>' +
-        '<dt>Method</dt><dd>' + req.method + '</dd>' +
-        '<dt>Status</dt><dd class="' + statusCls + '">' + statusLabel(req) + (req.statusClass==='error' ? ' · ' + esc(req.error.type) : '') + '</dd>' +
-        '<dt>Protocol</dt><dd>' + esc(req.protocol) + '</dd>' +
-        '<dt>Start time</dt><dd>' + esc(req.startTime) + '</dd>' +
-        '<dt>Duration</dt><dd>' + fmtMs(req.duration) + '</dd>' +
-        '<dt>Request size</dt><dd>' + fmtBytes(req.reqSize) + '</dd>' +
-        '<dt>Response size</dt><dd>' + fmtBytes(req.resSize) + '</dd>' +
-        '<dt>Request type</dt><dd>' + (req.reqContentType ? esc(req.reqContentType) : '—') + '</dd>' +
-        '<dt>Response type</dt><dd>' + (req.resContentType ? esc(req.resContentType) : '—') + '</dd>' +
-      '</dl>';
+      var statusText = statusLabel(req) + (req.statusClass==='error' ? ' · ' + req.error.type : '');
+      var curlCmd = buildCurl(req);
+      var fullUrl = 'https://' + req.host + req.path + (req.query ? '?' + req.query : '');
+      var qobj = req.reqQuery || {};
+      var qkeys = Object.keys(qobj);
+      if (qkeys.length === 0 && req.query) {
+        try {
+          req.query.split('&').forEach(function (p) {
+            if (!p) return;
+            var parts = p.split('=');
+            qobj[decodeURIComponent(parts[0])] = parts.slice(1).join('=');
+          });
+          qkeys = Object.keys(qobj);
+        } catch (e) {}
+      }
+      var allQuery = qkeys.map(function (k) { return k + '=' + qobj[k]; }).join('&') || req.query || '';
+      var qpHtml = qkeys.length
+        ? '<div class="dl-ov-box">' +
+            '<div class="dl-ov-box-header"><span>Query</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allQuery) + '" data-label="Query params copied">' + icon('copy') + ' Copy all</button></div>' +
+            '<div class="dl-ov-kv-list">' + qkeys.map(function (k) { return copyableKvField('Query', k, qobj[k]); }).join('') + '</div>' +
+          '</div>'
+        : (req.query ? copyableField('Query params', req.query) : '');
+      return '<div class="dl-overview">' +
+        copyableField('Full URL', fullUrl) +
+        copyableField('Host', req.host) +
+        copyableField('Path', req.path) +
+        (qpHtml ? '<div class="dl-ov-item"><div class="dl-ov-label">Query params</div>' + qpHtml + '</div>' : '') +
+        copyableField('Method', req.method) +
+        '<div class="dl-ov-item">' +
+          '<div class="dl-ov-label">Status</div>' +
+          '<div class="dl-ov-value static ' + statusCls + '">' + esc(statusText) + '</div>' +
+        '</div>' +
+        copyableField('Protocol', req.protocol) +
+        copyableField('Start time', req.startTime) +
+        copyableField('Duration', fmtMs(req.duration)) +
+        copyableField('Request size', fmtBytes(req.reqSize)) +
+        copyableField('Response size', fmtBytes(req.resSize)) +
+        copyableField('Request type', req.reqContentType || '—') +
+        copyableField('Response type', req.resContentType || '—') +
+        '<div class="dl-curl-section">' +
+          '<div class="dl-curl-header"><span>cURL</span></div>' +
+          '<pre class="dl-curl-pre"><code>' + esc(curlCmd) + '</code></pre>' +
+          '<button type="button" class="dl-curl-copy" data-action="copy-text" data-copy="' + encodeURIComponent(curlCmd) + '" data-label="cURL copied">' + icon('copy') + ' Copy cURL</button>' +
+        '</div>' +
+      '</div>';
     }
     function tabRequest(req) {
-      return section('req-headers:' + req.id, 'Headers', Object.keys(req.reqHeaders || {}).length, headerRows(req.reqHeaders, ['authorization', 'cookie'])) +
-        section('req-query:' + req.id, 'Query params', Object.keys(req.reqQuery || {}).length, headerRows(req.reqQuery, [])) +
-        section('req-body:' + req.id, 'Body', null, bodyBlock(req, 'request'));
+      return '<div class="dl-tabstack">' +
+        headerRows(req.reqHeaders, ['authorization', 'cookie'], 'Headers') +
+        (Object.keys(req.reqQuery || {}).length ? headerRows(req.reqQuery, [], 'Query params') : '') +
+        '<div class="dl-ov-item"><div class="dl-ov-label">Body</div><div class="dl-body-wrap">' + bodyBlock(req, 'request') + '</div></div>' +
+      '</div>';
     }
     function tabResponse(req) {
-      return section('res-headers:' + req.id, 'Headers', Object.keys(req.resHeaders || {}).length, headerRows(req.resHeaders, ['set-cookie'])) +
-        section('res-body:' + req.id, 'Body', null, bodyBlock(req, 'response'));
+      return '<div class="dl-tabstack">' +
+        headerRows(req.resHeaders, ['set-cookie'], 'Headers') +
+        '<div class="dl-ov-item"><div class="dl-ov-label">Body</div><div class="dl-body-wrap">' + bodyBlock(req, 'response') + '</div></div>' +
+      '</div>';
     }
     function tabTiming(req) {
       if (!req.timing) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No timing data for a pending request.</p>';
@@ -1638,13 +1781,14 @@
         '<span class="dl-badge c' + req.statusClass + '">' + statusLabel(req) + '</span>';
       var tabs = [
         { key: 'overview', label: 'Overview' }, { key: 'request', label: 'Request' },
-        { key: 'response', label: 'Response' }, { key: 'timing', label: 'Timing' }
+        { key: 'response', label: 'Response' }
       ];
       var panel;
+      if (state.tab === 'timing') state.tab = 'overview';
       if (req.statusClass === 'error' && state.tab === 'response') {
         panel = errorVariant(req);
       } else {
-        panel = state.tab === 'overview' ? tabOverview(req) : state.tab === 'request' ? tabRequest(req) : state.tab === 'response' ? tabResponse(req) : tabTiming(req);
+        panel = state.tab === 'overview' ? tabOverview(req) : state.tab === 'request' ? tabRequest(req) : tabResponse(req);
       }
       return '<div class="dl-screen od-screen">' +
         '<div class="dl-detail-header">' +

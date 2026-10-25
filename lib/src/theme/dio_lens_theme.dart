@@ -45,6 +45,8 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     required this.methodPatchBackground,
     required this.methodDelete,
     required this.methodDeleteBackground,
+    required this.methodQuery,
+    required this.methodQueryBackground,
     required this.jsonKey,
     required this.jsonString,
     required this.jsonNumber,
@@ -102,6 +104,8 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
   final Color methodPatchBackground;
   final Color methodDelete;
   final Color methodDeleteBackground;
+  final Color methodQuery;
+  final Color methodQueryBackground;
 
   // JSON tree syntax colors
   final Color jsonKey;
@@ -450,6 +454,8 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
     Color? methodPatchBackground,
     Color? methodDelete,
     Color? methodDeleteBackground,
+    Color? methodQuery,
+    Color? methodQueryBackground,
     Color? jsonKey,
     Color? jsonString,
     Color? jsonNumber,
@@ -497,6 +503,9 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       methodDelete: methodDelete ?? this.methodDelete,
       methodDeleteBackground:
           methodDeleteBackground ?? this.methodDeleteBackground,
+      methodQuery: methodQuery ?? this.methodQuery,
+      methodQueryBackground:
+          methodQueryBackground ?? this.methodQueryBackground,
       jsonKey: jsonKey ?? this.jsonKey,
       jsonString: jsonString ?? this.jsonString,
       jsonNumber: jsonNumber ?? this.jsonNumber,
@@ -556,6 +565,11 @@ class DioLensTheme extends ThemeExtension<DioLensTheme> {
       methodDeleteBackground: c(
         methodDeleteBackground,
         other.methodDeleteBackground,
+      ),
+      methodQuery: c(methodQuery, other.methodQuery),
+      methodQueryBackground: c(
+        methodQueryBackground,
+        other.methodQueryBackground,
       ),
       jsonKey: c(jsonKey, other.jsonKey),
       jsonString: c(jsonString, other.jsonString),

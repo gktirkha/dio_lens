@@ -38,6 +38,8 @@ const DioLensTheme dioLensLightTheme = DioLensTheme(
   methodPatchBackground: Color(0x1A7C3AED),
   methodDelete: Color(0xFFC92E49),
   methodDeleteBackground: Color(0x1AC92E49),
+  methodQuery: Color(0xFF0F7D76),
+  methodQueryBackground: Color(0x1A0F7D76),
   jsonKey: Color(0xFF1D49B8),
   jsonString: Color(0xFF178A4C),
   jsonNumber: Color(0xFFE0AC55),
