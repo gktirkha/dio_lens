@@ -12,10 +12,14 @@ abstract class RequestFilterParams with _$RequestFilterParams {
 
   /// Creates a filter.
   const factory RequestFilterParams({
+    /// Status filter.
     @Default(RequestStatusFilter.all) RequestStatusFilter status,
 
+    /// Upper-case methods to show; empty shows every method.
     @Default(<String>{}) Set<String> methods,
 
+    /// Text matched against method, host, path and query; empty matches
+    /// everything.
     @Default('') String search,
   }) = _RequestFilterParams;
 

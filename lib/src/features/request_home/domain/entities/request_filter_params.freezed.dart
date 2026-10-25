@@ -15,7 +15,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestFilterParams {
 
- RequestStatusFilter get status; Set<String> get methods; String get search;
+/// Status filter.
+ RequestStatusFilter get status;/// Upper-case methods to show; empty shows every method.
+ Set<String> get methods;/// Text matched against method, host, path and query; empty matches
+/// everything.
+ String get search;
 /// Create a copy of RequestFilterParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -217,14 +221,19 @@ class _RequestFilterParams extends RequestFilterParams {
   const _RequestFilterParams({this.status = RequestStatusFilter.all,  Set<String> methods = const <String>{}, this.search = ''}): _methods = methods,super._();
   
 
+/// Status filter.
 @override@JsonKey() final  RequestStatusFilter status;
+/// Upper-case methods to show; empty shows every method.
  final  Set<String> _methods;
+/// Upper-case methods to show; empty shows every method.
 @override@JsonKey() Set<String> get methods {
   if (_methods is EqualUnmodifiableSetView) return _methods;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableSetView(_methods);
 }
 
+/// Text matched against method, host, path and query; empty matches
+/// everything.
 @override@JsonKey() final  String search;
 
 /// Create a copy of RequestFilterParams

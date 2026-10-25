@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StatusShareEntity {
 
-@JsonKey(name: 'status_class') RequestStatusClass get statusClass;@JsonKey(name: 'count') int get count;
+/// The status class.
+@JsonKey(name: 'status_class') RequestStatusClass get statusClass;/// Requests in it.
+@JsonKey(name: 'count') int get count;
 /// Create a copy of StatusShareEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -219,7 +221,9 @@ class _StatusShareEntity implements StatusShareEntity {
   const _StatusShareEntity({@JsonKey(name: 'status_class') required this.statusClass, @JsonKey(name: 'count') required this.count});
   factory _StatusShareEntity.fromJson(Map<String, dynamic> json) => _$StatusShareEntityFromJson(json);
 
+/// The status class.
 @override@JsonKey(name: 'status_class') final  RequestStatusClass statusClass;
+/// Requests in it.
 @override@JsonKey(name: 'count') final  int count;
 
 /// Create a copy of StatusShareEntity

@@ -10,7 +10,10 @@ part 'status_share_entity.g.dart';
 abstract class StatusShareEntity with _$StatusShareEntity {
   /// Creates an entry.
   const factory StatusShareEntity({
+    /// The status class.
     @JsonKey(name: 'status_class') required RequestStatusClass statusClass,
+
+    /// Requests in it.
     @JsonKey(name: 'count') required int count,
   }) = _StatusShareEntity;
 

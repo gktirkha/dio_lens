@@ -34,47 +34,66 @@ abstract class DioLensSettings with _$DioLensSettings {
     'maxBodyBytes must be positive, or null for unlimited',
   )
   const factory DioLensSettings({
+    /// Most requests kept; the oldest are removed past this limit (10 to
+    /// 10,000).
     @JsonKey(name: 'max_requests') @Default(500) int maxRequests,
 
+    /// Largest body kept, in bytes (see `DioLensSizeUnit`). Bigger text and
+    /// JSON bodies are stored truncated, bigger images without a preview; sizes
+    /// still report the full body. Null keeps every body whole.
     @JsonKey(
       name: 'max_body_bytes',
-
       readValue: _readMaxBodyBytes,
-
       fromJson: _maxBodyBytesFromJson,
     )
     @Default(DioLensSettings.defaultMaxBodyBytes)
     int? maxBodyBytes,
+
+    /// How long captured requests are kept on the device.
     @JsonKey(name: 'retention')
     @Default(DioLensRetention.oneDay)
     DioLensRetention retention,
 
+    /// Show a banner over the host app when a request finishes.
     @JsonKey(name: 'show_notification') @Default(true) bool showNotification,
 
+    /// Where the request-finished banner appears.
     @JsonKey(name: 'notification_position')
     @Default(DioLensNotificationPosition.top)
     DioLensNotificationPosition notificationPosition,
 
+    /// How long the request-finished banner stays on screen (2 to 15 seconds).
     @JsonKey(name: 'notification_duration')
     @Default(Duration(seconds: 4))
     Duration notificationDuration,
 
+    /// Show the floating bubble that opens Dio Lens.
     @JsonKey(name: 'show_bubble') @Default(true) bool showBubble,
+
+    /// Corner where the floating bubble starts.
     @JsonKey(name: 'bubble_position')
     @Default(DioLensBubblePosition.bottomEnd)
     DioLensBubblePosition bubblePosition,
 
+    /// Mask the values of [redactedHeaders] in the UI, exports and shares.
     @JsonKey(name: 'redact_headers') @Default(true) bool redactHeaders,
 
+    /// Header names masked while [redactHeaders] is on, in requests and
+    /// responses; matched case-insensitively.
     @JsonKey(name: 'redacted_headers')
     @Default(DioLensSettings.defaultRedactedHeaders)
     List<String> redactedHeaders,
 
+    /// Mask the values of [redactedQueryParams] in the UI, exports and shares.
     @JsonKey(name: 'redact_query') @Default(true) bool redactQuery,
 
+    /// Query parameter names masked while [redactQuery] is on; matched
+    /// case-insensitively.
     @JsonKey(name: 'redacted_query_params')
     @Default(DioLensSettings.defaultRedactedQueryParams)
     List<String> redactedQueryParams,
+
+    /// Theme of the Dio Lens UI: light, dark or system.
     @JsonKey(name: 'theme_mode') @Default(ThemeMode.dark) ThemeMode themeMode,
   }) = _DioLensSettings;
 

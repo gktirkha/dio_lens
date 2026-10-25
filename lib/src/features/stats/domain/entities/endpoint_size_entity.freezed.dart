@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EndpointSizeEntity {
 
-@JsonKey(name: 'path') String get path;@JsonKey(name: 'bytes') int get bytes;
+/// Endpoint path.
+@JsonKey(name: 'path') String get path;/// Largest response body size, in bytes.
+@JsonKey(name: 'bytes') int get bytes;
 /// Create a copy of EndpointSizeEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -219,7 +221,9 @@ class _EndpointSizeEntity implements EndpointSizeEntity {
   const _EndpointSizeEntity({@JsonKey(name: 'path') required this.path, @JsonKey(name: 'bytes') required this.bytes});
   factory _EndpointSizeEntity.fromJson(Map<String, dynamic> json) => _$EndpointSizeEntityFromJson(json);
 
+/// Endpoint path.
 @override@JsonKey(name: 'path') final  String path;
+/// Largest response body size, in bytes.
 @override@JsonKey(name: 'bytes') final  int bytes;
 
 /// Create a copy of EndpointSizeEntity

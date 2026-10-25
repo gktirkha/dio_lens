@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EndpointLatencyEntity {
 
-@JsonKey(name: 'path') String get path;@JsonKey(name: 'average_latency') Duration get averageLatency;
+/// Endpoint path.
+@JsonKey(name: 'path') String get path;/// Average time to a response.
+@JsonKey(name: 'average_latency') Duration get averageLatency;
 /// Create a copy of EndpointLatencyEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -219,7 +221,9 @@ class _EndpointLatencyEntity implements EndpointLatencyEntity {
   const _EndpointLatencyEntity({@JsonKey(name: 'path') required this.path, @JsonKey(name: 'average_latency') required this.averageLatency});
   factory _EndpointLatencyEntity.fromJson(Map<String, dynamic> json) => _$EndpointLatencyEntityFromJson(json);
 
+/// Endpoint path.
 @override@JsonKey(name: 'path') final  String path;
+/// Average time to a response.
 @override@JsonKey(name: 'average_latency') final  Duration averageLatency;
 
 /// Create a copy of EndpointLatencyEntity

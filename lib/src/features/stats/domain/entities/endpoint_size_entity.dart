@@ -8,7 +8,10 @@ part 'endpoint_size_entity.g.dart';
 abstract class EndpointSizeEntity with _$EndpointSizeEntity {
   /// Creates an entry.
   const factory EndpointSizeEntity({
+    /// Endpoint path.
     @JsonKey(name: 'path') required String path,
+
+    /// Largest response body size, in bytes.
     @JsonKey(name: 'bytes') required int bytes,
   }) = _EndpointSizeEntity;
 

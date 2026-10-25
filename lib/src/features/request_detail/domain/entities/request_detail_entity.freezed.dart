@@ -16,7 +16,31 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$RequestDetailEntity {
 
-@JsonKey(name: 'id') String get id;@JsonKey(name: 'method') String get method;@JsonKey(name: 'uri') Uri get uri;@JsonKey(name: 'started_at') DateTime get startedAt;@JsonKey(name: 'state') RequestState get state;@JsonKey(name: 'status_code') int? get statusCode;@JsonKey(name: 'duration') Duration? get duration;@JsonKey(name: 'protocol') String? get protocol;@JsonKey(name: 'request_size') int? get requestSize;@JsonKey(name: 'response_size') int? get responseSize;@JsonKey(name: 'request_content_type') String? get requestContentType;@JsonKey(name: 'response_content_type') String? get responseContentType;@JsonKey(name: 'request_headers') Map<String, String> get requestHeaders;@JsonKey(name: 'response_headers') Map<String, String> get responseHeaders;@JsonKey(name: 'request_body') Object? get requestBody;@JsonKey(name: 'response_body') Object? get responseBody;@JsonKey(name: 'error_type') DioExceptionType? get errorType;@JsonKey(name: 'error_message') String? get errorMessage;@JsonKey(name: 'stack_trace') String? get stackTrace;@JsonKey(name: 'client_name') String? get clientName;@JsonKey(name: 'has_file_upload') bool get hasFileUpload;@JsonKey(name: 'request_body_incomplete') bool get requestBodyIncomplete;
+/// Unique id of the capture.
+@JsonKey(name: 'id') String get id;/// Upper-case HTTP method, e.g. `GET`, `QUERY`.
+@JsonKey(name: 'method') String get method;/// Full request URL.
+@JsonKey(name: 'uri') Uri get uri;/// When the request was sent.
+@JsonKey(name: 'started_at') DateTime get startedAt;/// Whether the request is pending, completed or failed.
+@JsonKey(name: 'state') RequestState get state;/// HTTP status code; null while pending or when no response arrived.
+@JsonKey(name: 'status_code') int? get statusCode;/// Time from send to response or error; null while pending.
+@JsonKey(name: 'duration') Duration? get duration;/// Protocol, e.g. `HTTP/2`; null when unknown.
+@JsonKey(name: 'protocol') String? get protocol;/// Request body size in bytes; null when unknown.
+@JsonKey(name: 'request_size') int? get requestSize;/// Response body size in bytes; null when unknown.
+@JsonKey(name: 'response_size') int? get responseSize;/// MIME type of the request body; null when there is none.
+@JsonKey(name: 'request_content_type') String? get requestContentType;/// MIME type of the response body; null when there is none.
+@JsonKey(name: 'response_content_type') String? get responseContentType;/// Request headers.
+@JsonKey(name: 'request_headers') Map<String, String> get requestHeaders;/// Response headers, multiple values joined with commas.
+@JsonKey(name: 'response_headers') Map<String, String> get responseHeaders;/// Decoded request body: a JSON map or list, a form map, text, or null.
+@JsonKey(name: 'request_body') Object? get requestBody;/// Decoded response body: a JSON map or list, text, base64 image bytes, or
+/// null.
+@JsonKey(name: 'response_body') Object? get responseBody;/// Why the request failed without a response; null otherwise.
+@JsonKey(name: 'error_type') DioExceptionType? get errorType;/// Error message of a failed request.
+@JsonKey(name: 'error_message') String? get errorMessage;/// Stack trace of a failed request.
+@JsonKey(name: 'stack_trace') String? get stackTrace;/// Name of the interceptor's Dio, used to pick the Dio on replay.
+@JsonKey(name: 'client_name') String? get clientName;/// Whether the request uploaded files, whose contents are not captured.
+@JsonKey(name: 'has_file_upload') bool get hasFileUpload;/// Whether the captured request body differs from what was sent (truncated
+/// or not captured).
+@JsonKey(name: 'request_body_incomplete') bool get requestBodyIncomplete;
 /// Create a copy of RequestDetailEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -237,39 +261,65 @@ class _RequestDetailEntity extends RequestDetailEntity {
   const _RequestDetailEntity({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'method') required this.method, @JsonKey(name: 'uri') required this.uri, @JsonKey(name: 'started_at') required this.startedAt, @JsonKey(name: 'state') required this.state, @JsonKey(name: 'status_code') this.statusCode, @JsonKey(name: 'duration') this.duration, @JsonKey(name: 'protocol') this.protocol, @JsonKey(name: 'request_size') this.requestSize, @JsonKey(name: 'response_size') this.responseSize, @JsonKey(name: 'request_content_type') this.requestContentType, @JsonKey(name: 'response_content_type') this.responseContentType, @JsonKey(name: 'request_headers')  Map<String, String> requestHeaders = const <String, String>{}, @JsonKey(name: 'response_headers')  Map<String, String> responseHeaders = const <String, String>{}, @JsonKey(name: 'request_body') this.requestBody, @JsonKey(name: 'response_body') this.responseBody, @JsonKey(name: 'error_type') this.errorType, @JsonKey(name: 'error_message') this.errorMessage, @JsonKey(name: 'stack_trace') this.stackTrace, @JsonKey(name: 'client_name') this.clientName, @JsonKey(name: 'has_file_upload') this.hasFileUpload = false, @JsonKey(name: 'request_body_incomplete') this.requestBodyIncomplete = false}): _requestHeaders = requestHeaders,_responseHeaders = responseHeaders,super._();
   factory _RequestDetailEntity.fromJson(Map<String, dynamic> json) => _$RequestDetailEntityFromJson(json);
 
+/// Unique id of the capture.
 @override@JsonKey(name: 'id') final  String id;
+/// Upper-case HTTP method, e.g. `GET`, `QUERY`.
 @override@JsonKey(name: 'method') final  String method;
+/// Full request URL.
 @override@JsonKey(name: 'uri') final  Uri uri;
+/// When the request was sent.
 @override@JsonKey(name: 'started_at') final  DateTime startedAt;
+/// Whether the request is pending, completed or failed.
 @override@JsonKey(name: 'state') final  RequestState state;
+/// HTTP status code; null while pending or when no response arrived.
 @override@JsonKey(name: 'status_code') final  int? statusCode;
+/// Time from send to response or error; null while pending.
 @override@JsonKey(name: 'duration') final  Duration? duration;
+/// Protocol, e.g. `HTTP/2`; null when unknown.
 @override@JsonKey(name: 'protocol') final  String? protocol;
+/// Request body size in bytes; null when unknown.
 @override@JsonKey(name: 'request_size') final  int? requestSize;
+/// Response body size in bytes; null when unknown.
 @override@JsonKey(name: 'response_size') final  int? responseSize;
+/// MIME type of the request body; null when there is none.
 @override@JsonKey(name: 'request_content_type') final  String? requestContentType;
+/// MIME type of the response body; null when there is none.
 @override@JsonKey(name: 'response_content_type') final  String? responseContentType;
+/// Request headers.
  final  Map<String, String> _requestHeaders;
+/// Request headers.
 @override@JsonKey(name: 'request_headers') Map<String, String> get requestHeaders {
   if (_requestHeaders is EqualUnmodifiableMapView) return _requestHeaders;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_requestHeaders);
 }
 
+/// Response headers, multiple values joined with commas.
  final  Map<String, String> _responseHeaders;
+/// Response headers, multiple values joined with commas.
 @override@JsonKey(name: 'response_headers') Map<String, String> get responseHeaders {
   if (_responseHeaders is EqualUnmodifiableMapView) return _responseHeaders;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableMapView(_responseHeaders);
 }
 
+/// Decoded request body: a JSON map or list, a form map, text, or null.
 @override@JsonKey(name: 'request_body') final  Object? requestBody;
+/// Decoded response body: a JSON map or list, text, base64 image bytes, or
+/// null.
 @override@JsonKey(name: 'response_body') final  Object? responseBody;
+/// Why the request failed without a response; null otherwise.
 @override@JsonKey(name: 'error_type') final  DioExceptionType? errorType;
+/// Error message of a failed request.
 @override@JsonKey(name: 'error_message') final  String? errorMessage;
+/// Stack trace of a failed request.
 @override@JsonKey(name: 'stack_trace') final  String? stackTrace;
+/// Name of the interceptor's Dio, used to pick the Dio on replay.
 @override@JsonKey(name: 'client_name') final  String? clientName;
+/// Whether the request uploaded files, whose contents are not captured.
 @override@JsonKey(name: 'has_file_upload') final  bool hasFileUpload;
+/// Whether the captured request body differs from what was sent (truncated
+/// or not captured).
 @override@JsonKey(name: 'request_body_incomplete') final  bool requestBodyIncomplete;
 
 /// Create a copy of RequestDetailEntity

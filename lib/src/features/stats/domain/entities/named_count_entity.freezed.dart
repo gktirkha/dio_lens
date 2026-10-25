@@ -16,7 +16,9 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$NamedCountEntity {
 
-@JsonKey(name: 'name') String get name;@JsonKey(name: 'count') int get count;
+/// The label, e.g. an endpoint path or a host.
+@JsonKey(name: 'name') String get name;/// How often it occurred.
+@JsonKey(name: 'count') int get count;
 /// Create a copy of NamedCountEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -219,7 +221,9 @@ class _NamedCountEntity implements NamedCountEntity {
   const _NamedCountEntity({@JsonKey(name: 'name') required this.name, @JsonKey(name: 'count') required this.count});
   factory _NamedCountEntity.fromJson(Map<String, dynamic> json) => _$NamedCountEntityFromJson(json);
 
+/// The label, e.g. an endpoint path or a host.
 @override@JsonKey(name: 'name') final  String name;
+/// How often it occurred.
 @override@JsonKey(name: 'count') final  int count;
 
 /// Create a copy of NamedCountEntity

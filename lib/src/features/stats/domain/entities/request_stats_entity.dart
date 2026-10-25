@@ -15,35 +15,48 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
 
   /// Creates stats.
   const factory RequestStatsEntity({
+    /// Every captured request.
     @JsonKey(name: 'total_requests') required int totalRequests,
 
+    /// Completed or failed requests, i.e. not pending.
     @JsonKey(name: 'finished_requests') required int finishedRequests,
 
+    /// 2xx responses.
     @JsonKey(name: 'success_count') required int successCount,
 
+    /// 4xx and 5xx responses, and requests that failed without a response.
     @JsonKey(name: 'error_count') required int errorCount,
 
+    /// Sum of response body sizes, in bytes.
     @JsonKey(name: 'total_bytes') required int totalBytes,
 
+    /// Average time to a response; null when none completed.
     @JsonKey(name: 'average_latency') Duration? averageLatency,
+
+    /// 95th percentile time to a response; null when none completed.
     @JsonKey(name: 'p95_latency') Duration? p95Latency,
 
+    /// Requests per status class, only classes that occur, in display order.
     @JsonKey(name: 'status_distribution')
     @Default(<StatusShareEntity>[])
     List<StatusShareEntity> statusDistribution,
 
+    /// Endpoints by average latency, slowest first.
     @JsonKey(name: 'slowest_endpoints')
     @Default(<EndpointLatencyEntity>[])
     List<EndpointLatencyEntity> slowestEndpoints,
 
+    /// Endpoints by largest response, largest first.
     @JsonKey(name: 'largest_responses')
     @Default(<EndpointSizeEntity>[])
     List<EndpointSizeEntity> largestResponses,
 
+    /// Endpoints by number of calls, most called first.
     @JsonKey(name: 'most_called_endpoints')
     @Default(<NamedCountEntity>[])
     List<NamedCountEntity> mostCalledEndpoints,
 
+    /// Hosts by number of calls, busiest first.
     @JsonKey(name: 'top_hosts')
     @Default(<NamedCountEntity>[])
     List<NamedCountEntity> topHosts,

@@ -15,23 +15,37 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
 
   /// Creates a list row.
   const factory RequestListItemEntity({
+    /// Unique id of the capture.
     @JsonKey(name: 'id') required String id,
 
+    /// Upper-case HTTP method, e.g. `GET`, `POST`.
     @JsonKey(name: 'method') required String method,
+
+    /// Full request URL.
     @JsonKey(name: 'uri') required Uri uri,
+
+    /// When the request was sent.
     @JsonKey(name: 'started_at') required DateTime startedAt,
+
+    /// Whether the request is pending, completed or failed.
     @JsonKey(name: 'state') required RequestState state,
 
+    /// HTTP status code; null while pending or when no response arrived.
     @JsonKey(name: 'status_code') int? statusCode,
 
+    /// Time from send to response or error; null while pending.
     @JsonKey(name: 'duration') Duration? duration,
 
+    /// Response body size in bytes; null when unknown.
     @JsonKey(name: 'response_size') int? responseSize,
 
+    /// Why the request failed without a response; null otherwise.
     @JsonKey(name: 'error_type') DioExceptionType? errorType,
 
+    /// MIME type of the request body; null when there is none.
     @JsonKey(name: 'request_content_type') String? requestContentType,
 
+    /// MIME type of the response body; null when there is none.
     @JsonKey(name: 'response_content_type') String? responseContentType,
   }) = _RequestListItemEntity;
 

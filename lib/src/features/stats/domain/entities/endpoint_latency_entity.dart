@@ -8,7 +8,10 @@ part 'endpoint_latency_entity.g.dart';
 abstract class EndpointLatencyEntity with _$EndpointLatencyEntity {
   /// Creates an entry.
   const factory EndpointLatencyEntity({
+    /// Endpoint path.
     @JsonKey(name: 'path') required String path,
+
+    /// Average time to a response.
     @JsonKey(name: 'average_latency') required Duration averageLatency,
   }) = _EndpointLatencyEntity;
 
