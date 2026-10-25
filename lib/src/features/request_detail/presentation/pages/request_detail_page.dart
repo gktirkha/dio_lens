@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import '../controllers/request_detail_controller.dart';
 import '../widgets/overview_tab.dart';
@@ -29,7 +30,10 @@ class RequestDetailPage extends StatefulWidget {
   /// Set when the page is opened on its own (from the banner): the header
   /// then offers a way to the Dio Lens home.
   final VoidCallback? onOpenHome;
-  final ValueChanged<RequestDetailEntity>? onShare;
+
+  /// Receives the request to share; without it, the report is copied to
+  /// the clipboard.
+  final DioLensShareCallback? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
 
   @override
@@ -43,6 +47,16 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _share(RequestDetailEntity request) async {
+    final content = await _controller.shareContent(request);
+    if (!mounted) return;
+    if (widget.onShare case final onShare?) {
+      await onShare(content);
+    } else {
+      await copyToClipboard(context, content.text, label: 'Request');
+    }
   }
 
   void _replay(RequestDetailEntity request) {
@@ -73,7 +87,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
             return _DetailBody(
               request: request,
               settings: _controller.settings,
-              onShare: widget.onShare,
+              onShare: _share,
               onReplay: widget.onReplay == null ? null : _replay,
               onOpenHome: widget.onOpenHome,
             );

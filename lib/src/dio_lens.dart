@@ -8,6 +8,7 @@ import 'core/storage/dio_lens_storage.dart';
 import 'core/storage/shared_preferences_dio_lens_storage.dart';
 import 'features/export/domain/entities/dio_lens_export_file.dart';
 import 'features/settings/domain/entities/dio_lens_settings.dart';
+import 'features/share/domain/entities/dio_lens_share_content.dart';
 
 /// Dio Lens' public entry point.
 ///
@@ -36,6 +37,10 @@ abstract final class DioLens {
   /// JSON, built in memory); the app decides whether to save, share or
   /// upload them. Without it, export is hidden.
   ///
+  /// [onShare] receives a request shared from its detail page, as a
+  /// readable text report; the app decides how to share it. Without it,
+  /// the report is copied to the clipboard.
+  ///
   /// [mode] picks the build modes Dio Lens is enabled in (debug builds
   /// only by default); outside them nothing is recorded.
   static void init({
@@ -44,11 +49,13 @@ abstract final class DioLens {
     DioLensStorage? storage,
     DioLensMode mode = DioLensMode.debug,
     DioLensExportCallback? onExport,
+    DioLensShareCallback? onShare,
   }) {
     final runtime = DioLensRuntime.current = DioLensRuntime(
       navigatorKey: navigatorKey,
       enabled: mode.isEnabled,
       onExport: onExport,
+      onShare: onShare,
       initialSettings: settings,
       storage: storage != null
           ? () => storage

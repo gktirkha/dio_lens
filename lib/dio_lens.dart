@@ -13,4 +13,5 @@ export 'src/features/settings/domain/enums/dio_lens_bubble_position.dart';
 export 'src/features/settings/domain/enums/dio_lens_notification_position.dart';
 export 'src/features/settings/domain/enums/dio_lens_retention.dart';
 export 'src/features/settings/domain/enums/dio_lens_size_unit.dart';
+export 'src/features/share/domain/entities/dio_lens_share_content.dart';
 export 'src/interceptor/dio_lens_interceptor.dart';

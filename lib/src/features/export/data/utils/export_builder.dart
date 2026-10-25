@@ -6,13 +6,11 @@ import '../../../../core/enums/export_format.dart';
 import '../../../../core/enums/request_state.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/utils/request_redactor.dart';
 
 /// Builds export files from captured requests. Pure, so it can run in an
 /// isolate.
 abstract final class ExportBuilder {
-  /// Replaces masked header and query values.
-  static const String redacted = '[REDACTED]';
-
   /// [requests] in [format], UTF-8 encoded, with values masked as
   /// [settings] say.
   static Uint8List build(
@@ -21,7 +19,9 @@ abstract final class ExportBuilder {
     DioLensSettings settings,
     DateTime createdAt,
   ) {
-    final masked = [for (final r in requests) redact(r, settings)];
+    final masked = [
+      for (final r in requests) RequestRedactor.redact(r, settings),
+    ];
     final json = switch (format) {
       DioLensExportFormat.har => har(masked),
       DioLensExportFormat.json => {
@@ -32,32 +32,6 @@ abstract final class ExportBuilder {
       },
     };
     return utf8.encode(const JsonEncoder.withIndent('  ').convert(json));
-  }
-
-  /// [request] with redacted headers and query values masked.
-  static RequestDetailEntity redact(
-    RequestDetailEntity request,
-    DioLensSettings settings,
-  ) {
-    Map<String, String> headers(Map<String, String> all) => {
-      for (final e in all.entries)
-        e.key: settings.isHeaderRedacted(e.key) ? redacted : e.value,
-    };
-    final uri = request.uri;
-    final query = request.query;
-    return request.copyWith(
-      requestHeaders: headers(request.requestHeaders),
-      responseHeaders: headers(request.responseHeaders),
-      uri: query == null
-          ? uri
-          : uri.replace(
-              query: [
-                for (final p in request.queryParameters)
-                  '${Uri.encodeQueryComponent(p.key)}='
-                      '${settings.isQueryParamRedacted(p.key) ? redacted : Uri.encodeQueryComponent(p.value)}',
-              ].join('&'),
-            ),
-    );
   }
 
   /// HTTP Archive 1.2 (http://www.softwareishard.com/blog/har-12-spec/).

@@ -10,6 +10,7 @@ import '../../features/home/presentation/pages/dio_lens_home_page.dart';
 import '../../features/notification/presentation/request_banner_presenter.dart';
 import '../../features/request_detail/data/data_sources/request_detail_local_data_source.dart';
 import '../../features/request_detail/presentation/pages/request_detail_page.dart';
+import '../../features/share/domain/entities/dio_lens_share_content.dart';
 import '../../features/request_home/data/data_sources/request_home_local_data_source.dart';
 import '../../features/settings/data/data_sources/settings_local_data_source.dart';
 import '../../features/settings/domain/entities/dio_lens_settings.dart';
@@ -34,7 +35,11 @@ class DioLensRuntime {
     required this._initialSettings,
     required DioLensStorage Function() storage,
     this.onExport,
+    this.onShare,
   }) : _storageFactory = storage;
+
+  /// The app's share handler; null copies the report to the clipboard.
+  final DioLensShareCallback? onShare;
 
   /// The app's export handler; null hides export in the UI.
   final DioLensExportCallback? onExport;
@@ -119,6 +124,7 @@ class DioLensRuntime {
     (_) => RequestDetailPage(
       createController: () => dependencies.createRequestDetailController(id),
       onReplay: replayer.replay,
+      onShare: onShare,
       onOpenHome: () => _push(_home, replace: true),
     ),
   );
@@ -127,6 +133,7 @@ class DioLensRuntime {
     dependencies: dependencies,
     onReplay: replayer.replay,
     onExport: onExport == null ? null : exportToApp,
+    onShare: onShare,
   );
 
   /// Every stored request in [format], built in memory.

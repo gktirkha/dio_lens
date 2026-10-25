@@ -11,6 +11,7 @@ import '../../../request_detail/presentation/pages/request_detail_page.dart';
 import '../../../request_home/presentation/controllers/request_home_controller.dart';
 import '../../../request_home/presentation/pages/request_home_page.dart';
 import '../../../settings/presentation/pages/settings_sheet.dart';
+import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../../stats/presentation/controllers/stats_controller.dart';
 import '../../../stats/presentation/pages/stats_page.dart';
 
@@ -25,12 +26,16 @@ class DioLensHomePage extends StatefulWidget {
     required this.dependencies,
     this.onReplay,
     this.onExport,
+    this.onShare,
   });
 
   final DioLensDependencies dependencies;
 
   /// Re-sends a request from its detail page.
   final ValueChanged<RequestDetailEntity>? onReplay;
+
+  /// Passed to detail pages (see `RequestDetailPage.onShare`).
+  final DioLensShareCallback? onShare;
 
   /// Builds an export and hands it to the app; null hides export.
   final Future<DioLensExportFile> Function(DioLensExportFormat format)?
@@ -109,6 +114,7 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
                 createController: () =>
                     widget.dependencies.createRequestDetailController(item.id),
                 onReplay: widget.onReplay,
+                onShare: widget.onShare,
               ),
             ),
             onOpenSettings: _openSettings,

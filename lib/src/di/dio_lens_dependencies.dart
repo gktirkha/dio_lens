@@ -19,6 +19,7 @@ import '../features/request_home/domain/use_cases/get_requests_use_case.dart';
 import '../features/request_home/domain/use_cases/watch_requests_use_case.dart';
 import '../features/request_home/presentation/controllers/request_home_controller.dart';
 import '../features/settings/data/data_sources/settings_data_source.dart';
+import '../features/share/domain/use_cases/build_share_content_use_case.dart';
 import '../features/settings/data/data_sources/settings_mock_data_source.dart';
 import '../features/settings/data/repositories/settings_repository_impl.dart';
 import '../features/settings/domain/repositories/settings_repository.dart';
@@ -124,7 +125,11 @@ class DioLensDependencies {
         requestId: requestId,
         watchRequestDetail: watchRequestDetailUseCase,
         watchSettings: watchSettingsUseCase,
+        buildShareContent: buildShareContentUseCase,
       );
+
+  late final BuildShareContentUseCase buildShareContentUseCase =
+      const BuildShareContentUseCase();
 
   // ---- Settings ----
 
