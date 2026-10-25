@@ -599,6 +599,7 @@
     .dl-body-toggle { display:inline-flex; border:1px solid var(--dl-border); border-radius:8px; overflow:hidden; }
     .dl-body-toggle button { padding: 5px 11px; border:none; background: var(--dl-surface-2); color: var(--dl-text-muted); font-size:11.5px; font-weight:650; cursor:pointer; }
     .dl-body-toggle button[aria-pressed="true"] { background: var(--dl-accent); color: var(--dl-on-accent); }
+    .dl-body-ct-tag { font-size:11px; font-weight:700; color: var(--dl-text-faint); text-transform:uppercase; letter-spacing:.03em; }
     .dl-copy-btn { margin-left:auto; display:inline-flex; align-items:center; gap:5px; border:1px solid var(--dl-border); background:var(--dl-surface-2); color:var(--dl-text-muted); border-radius:8px; padding:5px 10px; font-size:11.5px; font-weight:600; cursor:pointer; }
     .dl-copy-btn .dl-icon { --od-icon-size:13px; }
     .dl-copy-btn:hover { color: var(--dl-text); }
@@ -929,7 +930,7 @@
     var requests = [
       { id:'r1', method:'GET', host:'api.example.com', path:'/v1/users', query:null, status:200, statusClass:'2xx',
         duration:182, reqSize:0, resSize:2140, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:07.182',
-        contentType:'application/json',
+        reqContentType:null, resContentType:'application/json',
         reqHeaders:{ 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig', 'Accept-Encoding':'gzip' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Content-Length':'2140', 'Cache-Control':'no-store', 'X-Request-Id':'req_4a1c9f' },
         reqQuery:{}, reqBody:null,
@@ -938,8 +939,8 @@
 
       { id:'r2', method:'POST', host:'api.example.com', path:'/v1/auth/login', query:null, status:200, statusClass:'2xx',
         duration:341, reqSize:64, resSize:612, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:52.906',
-        contentType:'application/json',
-        reqHeaders:{ 'Content-Type':'application/json', 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)' },
+        reqContentType:'application/x-www-form-urlencoded', resContentType:'application/json',
+        reqHeaders:{ 'Content-Type':'application/x-www-form-urlencoded', 'Accept':'application/json', 'User-Agent':'Dio/5.4.0 (Flutter; iOS 17.4)' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Set-Cookie':'session=REDACTED; HttpOnly', 'X-Request-Id':'req_9b2e11' },
         reqQuery:{}, reqBody:{ email:'ava.thompson@example.com', password:'SuperSecret!23' },
         resBody:{ accessToken:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIn0', refreshToken:'8f14e45fceea167a5a36dedd4bea2543', expiresIn:3600, user:{ id:1, name:'Ava Thompson', role:'admin', avatar:'https://cdn.example.com/avatars/ava-thompson.jpg' } },
@@ -947,7 +948,7 @@
 
       { id:'r3', method:'GET', host:'api.example.com', path:'/v1/orders', query:'page=2&limit=20', status:200, statusClass:'2xx',
         duration:96, reqSize:0, resSize:1860, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:40.221',
-        contentType:'application/json',
+        reqContentType:null, resContentType:'application/json',
         reqHeaders:{ 'Accept':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'Content-Length':'1860' },
         reqQuery:{ page:'2', limit:'20' },
@@ -957,7 +958,7 @@
 
       { id:'r4', method:'GET', host:'cdn.example.com', path:'/images/avatar-42.jpg', query:null, status:200, statusClass:'2xx',
         duration:64, reqSize:0, resSize:18400, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:35.004',
-        contentType:'image/jpeg', isImage:true, imageMeta:{ width:256, height:256 },
+        reqContentType:null, resContentType:'image/jpeg', isImage:true, imageMeta:{ width:256, height:256 },
         reqHeaders:{ 'Accept':'image/*' },
         resHeaders:{ 'Content-Type':'image/jpeg', 'Content-Length':'18400', 'Cache-Control':'public, max-age=604800' },
         reqQuery:{}, reqBody:null, resBody:null,
@@ -965,7 +966,7 @@
 
       { id:'r5', method:'GET', host:'api.example.com', path:'/v1/payments/intent', query:null, status:500, statusClass:'5xx',
         duration:812, reqSize:48, resSize:188, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:31:12.558',
-        contentType:'application/json',
+        reqContentType:'application/json', resContentType:'application/json',
         reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8', 'X-Request-Id':'req_8f3ac1' },
         reqQuery:{}, reqBody:{ amount:4200, currency:'USD', orderId:5021 },
@@ -974,18 +975,18 @@
 
       { id:'r6', method:'GET', host:'api.example.com', path:'/v1/notifications', query:null, status:null, statusClass:'pending',
         duration:null, reqSize:0, resSize:null, group:'now', timeLabel:'Just now', protocol:'HTTP/2', startTime:'14:32:11.900',
-        contentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null, timing:null },
+        reqContentType:null, resContentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null, timing:null },
 
       { id:'r7', method:'GET', host:'api.example.com', path:'/v1/sync', query:null, status:'error', statusClass:'error',
         duration:10000, reqSize:0, resSize:null, group:'earlier', timeLabel:'18 min ago', protocol:'HTTP/2', startTime:'14:14:02.447',
-        contentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null,
+        reqContentType:null, resContentType:null, reqHeaders:{ 'Accept':'application/json' }, resHeaders:{}, reqQuery:{}, reqBody:null, resBody:null,
         error:{ type:'DioExceptionType.connectionTimeout', message:'The request connection took longer than 0:00:10.000000 and it was aborted.\nThis happens when the client sends a request but the server fails to respond in the given time frame.',
           stack:'DioException [connectionTimeout]: The request connection took longer than 0:00:10.000000\n    at DioMixin._dispatchRequest (package:dio/src/dio_mixin.dart:432)\n    at DioMixin.fetch (package:dio/src/dio_mixin.dart:386)\n    at DioMixin.get (package:dio/src/dio_mixin.dart:118)\n    at SyncRepository.pull (package:app/data/sync_repository.dart:47)\n    at SyncService._run (package:app/services/sync_service.dart:63)\n    <asynchronous suspension>' },
         timing:{ dns:5, connect:20, tls:0, send:0, wait:9975, receive:0 } },
 
       { id:'r8', method:'PUT', host:'api.example.com', path:'/v1/profile', query:null, status:200, statusClass:'2xx',
         duration:155, reqSize:58, resSize:140, group:'earlier', timeLabel:'42 min ago', protocol:'HTTP/2', startTime:'13:50:33.112',
-        contentType:'application/json',
+        reqContentType:'application/json', resContentType:'application/json',
         reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8' },
         reqQuery:{}, reqBody:{ name:'Ava Thompson', bio:'Product designer' },
@@ -994,7 +995,7 @@
 
       { id:'r9', method:'DELETE', host:'api.example.com', path:'/v1/cart/items/88', query:null, status:204, statusClass:'2xx',
         duration:58, reqSize:0, resSize:0, group:'earlier', timeLabel:'1 hr ago', protocol:'HTTP/2', startTime:'13:31:09.740',
-        contentType:null,
+        reqContentType:null, resContentType:null,
         reqHeaders:{ 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders:{ 'X-Request-Id':'req_2b7701' },
         reqQuery:{}, reqBody:null, resBody:null,
@@ -1002,7 +1003,7 @@
 
       { id:'r10', method:'GET', host:'api.example.com', path:'/v1/search', query:'q=sneakers&page=1', status:301, statusClass:'3xx',
         duration:40, reqSize:0, resSize:0, group:'earlier', timeLabel:'1 hr ago', protocol:'HTTP/2', startTime:'13:28:51.300',
-        contentType:null,
+        reqContentType:null, resContentType:null,
         reqHeaders:{ 'Accept':'application/json' },
         resHeaders:{ 'Location':'https://api.example.com/v2/search?q=sneakers&page=1' },
         reqQuery:{ q:'sneakers', page:'1' }, reqBody:null, resBody:null,
@@ -1010,12 +1011,20 @@
 
       { id:'r11', method:'PATCH', host:'api.example.com', path:'/v1/settings', query:null, status:403, statusClass:'4xx',
         duration:77, reqSize:36, resSize:98, group:'earlier', timeLabel:'2 hr ago', protocol:'HTTP/2', startTime:'12:46:18.009',
-        contentType:'application/json',
+        reqContentType:'application/json', resContentType:'application/json',
         reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders:{ 'Content-Type':'application/json; charset=utf-8' },
         reqQuery:{}, reqBody:{ marketingEmails:false },
         resBody:{ error:{ code:'FORBIDDEN', message:'You do not have permission to modify these settings.' } },
-        timing:{ dns:2, connect:9, tls:11, send:1, wait:50, receive:4 } }
+        timing:{ dns:2, connect:9, tls:11, send:1, wait:50, receive:4 } },
+
+      { id:'r12', method:'GET', host:'api.example.com', path:'/v1/status', query:null, status:200, statusClass:'2xx',
+        duration:22, reqSize:0, resSize:2, group:'earlier', timeLabel:'2 hr ago', protocol:'HTTP/2', startTime:'12:30:02.118',
+        reqContentType:null, resContentType:'text/plain',
+        reqHeaders:{ 'Accept':'text/plain' },
+        resHeaders:{ 'Content-Type':'text/plain; charset=utf-8' },
+        reqQuery:{}, reqBody:null, resBody:'OK',
+        timing:{ dns:1, connect:4, tls:5, send:1, wait:9, receive:2 } }
     ];
 
     var STATS = {
@@ -1102,6 +1111,15 @@
       if (b < 1024 * 1024) return (b / 1024).toFixed(1) + ' KB';
       return (b / (1024 * 1024)).toFixed(1) + ' MB';
     }
+    function shortCT(mime) {
+      if (!mime) return '—';
+      if (/json/i.test(mime)) return 'JSON';
+      if (/x-www-form-urlencoded|multipart\/form-data/i.test(mime)) return 'Form';
+      if (/^text\//i.test(mime)) return 'Text';
+      if (/^image\//i.test(mime)) return 'Image';
+      var m = mime.split('/')[1];
+      return m ? m.toUpperCase() : mime;
+    }
     function statusLabel(req) {
       if (req.statusClass === 'pending') return 'PENDING';
       if (req.statusClass === 'error') return 'ERR';
@@ -1162,7 +1180,7 @@
         id: id, method: tpl.method, host: 'api.example.com', path: tpl.path, query: null,
         status: null, statusClass: 'pending', duration: null, reqSize: tpl.reqBody ? JSON.stringify(tpl.reqBody).length : 0, resSize: null,
         group: 'now', timeLabel: 'Just now', protocol: 'HTTP/2', startTime: startTime,
-        contentType: tpl.reqBody ? 'application/json' : null,
+        reqContentType: tpl.reqBody ? 'application/json' : null, resContentType: null,
         reqHeaders: tpl.reqBody ? { 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' } : { 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
         resHeaders: {}, reqQuery: {}, reqBody: tpl.reqBody, resBody: null, timing: null
       };
@@ -1182,9 +1200,9 @@
         var duration = outcome.statusClass === '2xx' ? Math.round(60 + Math.random() * 340) : outcome.statusClass === '4xx' ? Math.round(60 + Math.random() * 180) : Math.round(400 + Math.random() * 500);
         req.statusClass = outcome.statusClass; req.status = outcome.status; req.duration = duration;
         req.resBody = outcome.statusClass === '2xx' ? tpl.resBody : { error:{ code: outcome.status === 404 ? 'NOT_FOUND' : outcome.status === 500 ? 'INTERNAL_ERROR' : 'REQUEST_FAILED', message:'The request could not be completed.' } };
-        req.contentType = req.resBody ? 'application/json' : null;
+        req.resContentType = req.resBody ? 'application/json' : null;
         req.resSize = req.resBody ? JSON.stringify(req.resBody).length : 0;
-        req.resHeaders = { 'Content-Type': req.contentType || 'text/plain', 'X-Request-Id':'req_' + id };
+        req.resHeaders = { 'Content-Type': req.resContentType || 'text/plain', 'X-Request-Id':'req_' + id };
         req.timing = makeTiming(duration);
       }
       if (requests.length > state.settings.maxStored) {
@@ -1243,7 +1261,13 @@
     function buildCurl(r) {
       var parts = ['curl -X ' + r.method, "'https://" + r.host + r.path + (r.query ? '?' + r.query : '') + "'"];
       Object.keys(r.reqHeaders || {}).forEach(function (k) { parts.push("-H '" + k + ': ' + r.reqHeaders[k] + "'"); });
-      if (r.reqBody) parts.push("-d '" + JSON.stringify(r.reqBody) + "'");
+      if (r.reqBody) {
+        var isForm = /x-www-form-urlencoded/i.test(r.reqContentType || '') && typeof r.reqBody === 'object';
+        var body = isForm
+          ? Object.keys(r.reqBody).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(r.reqBody[k]); }).join('&')
+          : typeof r.reqBody === 'string' ? r.reqBody : JSON.stringify(r.reqBody);
+        parts.push("-d '" + body + "'");
+      }
       return parts.join(' \\\n  ');
     }
 
@@ -1423,6 +1447,7 @@
       } else {
         metaBits.push('<span>' + fmtMs(r.duration) + '</span>');
         metaBits.push('<span>' + fmtBytes(r.resSize) + '</span>');
+        metaBits.push('<span>' + shortCT(r.reqContentType) + ' → ' + shortCT(r.resContentType) + '</span>');
       }
       return '' +
         '<div class="dl-row-swipe" style="animation-delay:' + Math.min(idx * 35, 280) + 'ms">' +
@@ -1504,6 +1529,16 @@
         '</div>';
       }
       if (data == null) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">No ' + which + ' body.</p>';
+      var ct = (which === 'request' ? req.reqContentType : req.resContentType) || '';
+      if (/x-www-form-urlencoded|multipart\/form-data/i.test(ct) && typeof data === 'object') {
+        return formBodyBlock(req, which, data);
+      }
+      if (/^text\//i.test(ct) || typeof data === 'string') {
+        return textBodyBlock(req, which, typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+      }
+      return jsonBodyBlock(req, which, data);
+    }
+    function jsonBodyBlock(req, which, data) {
       var modeKey = req.id + ':' + which;
       var mode = state.bodyMode[modeKey] || 'pretty';
       var raw = JSON.stringify(data, null, 2);
@@ -1515,6 +1550,23 @@
         '<button type="button" class="dl-copy-btn" data-action="copy-text" data-copy="' + encodeURIComponent(raw) + '" data-label="Body copied">' + icon('copy') + ' Copy</button>' +
       '</div>' +
       (mode === 'pretty' ? jsonTreeRoot(data, modeKey) : '<div class="dl-json-raw">' + esc(raw) + '</div>');
+    }
+    function formBodyBlock(req, which, data) {
+      var encoded = Object.keys(data).map(function (k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }).join('&');
+      return '<div class="dl-body-toolbar">' +
+        '<span class="dl-body-ct-tag">Form data</span>' +
+        '<button type="button" class="dl-copy-btn" data-action="copy-text" data-copy="' + encodeURIComponent(encoded) + '" data-label="Form data copied">' + icon('copy') + ' Copy</button>' +
+      '</div>' +
+      '<div class="dl-kv-mono">' + Object.keys(data).map(function (k) {
+        return '<div class="row"><span class="k">' + esc(k) + '</span><span class="v">' + esc(String(data[k])) + '</span></div>';
+      }).join('') + '</div>';
+    }
+    function textBodyBlock(req, which, text) {
+      return '<div class="dl-body-toolbar">' +
+        '<span class="dl-body-ct-tag">Plain text</span>' +
+        '<button type="button" class="dl-copy-btn" data-action="copy-text" data-copy="' + encodeURIComponent(text) + '" data-label="Body copied">' + icon('copy') + ' Copy</button>' +
+      '</div>' +
+      '<div class="dl-json-raw">' + esc(text) + '</div>';
     }
 
     function tabOverview(req) {
@@ -1530,7 +1582,8 @@
         '<dt>Duration</dt><dd>' + fmtMs(req.duration) + '</dd>' +
         '<dt>Request size</dt><dd>' + fmtBytes(req.reqSize) + '</dd>' +
         '<dt>Response size</dt><dd>' + fmtBytes(req.resSize) + '</dd>' +
-        '<dt>Content type</dt><dd>' + (req.contentType ? esc(req.contentType) : '—') + '</dd>' +
+        '<dt>Request type</dt><dd>' + (req.reqContentType ? esc(req.reqContentType) : '—') + '</dd>' +
+        '<dt>Response type</dt><dd>' + (req.resContentType ? esc(req.resContentType) : '—') + '</dd>' +
       '</dl>';
     }
     function tabRequest(req) {
