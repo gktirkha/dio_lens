@@ -1,27 +1,51 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../core/models/console_logger_settings.dart';
 import '../core/runtime/dio_lens_runtime.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
+import '../features/settings/domain/entities/dio_lens_settings.dart';
+import 'dio_lens_console_logger.dart';
 import 'request_capture.dart';
 
 /// Records every request made through the Dio it is added to, stores it and
 /// shows the request-finished banner. Add it last; pass the Dio so Replay can
 /// re-send through it, and a name to tell Dios with the same base URL apart.
+///
+/// Also provides console logging when enabled.
 class DioLensInterceptor extends Interceptor {
   /// Creates the interceptor for an optional Dio and name.
-  DioLensInterceptor({this._dio, this._name});
+  DioLensInterceptor({
+    this._dio,
+    this._name,
+    ConsoleLoggerSettings? consoleLoggerSettings,
+    void Function(Object)? logPrint,
+  }) : _consoleLogger = DioLensConsoleLogger(
+         settings: consoleLoggerSettings ?? const ConsoleLoggerSettings(),
+         logPrint:
+             logPrint ?? ((Object o) => log(o.toString(), name: 'Dio Lens')),
+       );
 
   final Dio? _dio;
 
   final String? _name;
 
   static const String _captureKey = 'dio_lens_capture';
+  static const String _timeStampKey = '_dio_lens_timeStamp_';
+
+  final DioLensConsoleLogger _consoleLogger;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.extra[_timeStampKey] = DateTime.now().millisecondsSinceEpoch;
+
+    final runtime = DioLensRuntime.current;
+    final settings = runtime?.store.settings.value ?? const DioLensSettings();
+    _consoleLogger.logRequest(options, settings);
+
     _guard(() {
-      final runtime = DioLensRuntime.current;
       if (runtime == null || !runtime.enabled) return;
       final store = runtime.store;
       final id = runtime.nextRequestId();
@@ -44,6 +68,7 @@ class DioLensInterceptor extends Interceptor {
       options.extra[_captureKey] = capture;
       capture.then<void>((_) {}, onError: _log);
     });
+
     handler.next(options);
   }
 
@@ -60,6 +85,9 @@ class DioLensInterceptor extends Interceptor {
         response: response,
       ),
     );
+    final runtime = DioLensRuntime.current;
+    final settings = runtime?.store.settings.value ?? const DioLensSettings();
+    _consoleLogger.logResponse(response, settings);
     handler.next(response);
   }
 
@@ -74,6 +102,9 @@ class DioLensInterceptor extends Interceptor {
         error: err,
       ),
     );
+    final runtime = DioLensRuntime.current;
+    final settings = runtime?.store.settings.value ?? const DioLensSettings();
+    _consoleLogger.logError(err, settings);
     handler.next(err);
   }
 
