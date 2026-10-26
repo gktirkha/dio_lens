@@ -1,3 +1,8 @@
+## 1.0.0
+
+- First stable release.
+- The empty Stats page ("No stats yet") is centered horizontally.
+
 ## 0.0.4
 
 - Works in a `CupertinoApp` as well as a `MaterialApp`.

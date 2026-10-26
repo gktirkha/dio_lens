@@ -171,6 +171,8 @@ class _EmptyStats extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsetsDirectional.fromSTEB(36, 70, 36, 40),
       child: Column(
+        // Full width, so the icon and centered text sit in the middle.
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Icon(Icons.bar_chart_rounded, size: 40, color: theme.textFaint),
           const SizedBox(height: 10),

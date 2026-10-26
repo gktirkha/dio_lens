@@ -250,4 +250,23 @@ void main() {
     expect(action('/v1/upload', 'Share request'), findsOneWidget);
     expect(action('/v1/upload', 'Replay request'), findsNothing);
   });
+
+  testWidgets('empty Stats is centered horizontally', (tester) async {
+    await Harness.start(tester, size: const Size(1200, 900));
+    DioLens.open();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Stats'));
+    await tester.pumpAndSettle();
+
+    final screenCenter = tester.view.physicalSize.width / 2;
+    for (final finder in [
+      find.text('No stats yet'),
+      // The empty state's icon, not the Stats tab's.
+      find.byWidgetPredicate(
+        (w) => w is Icon && w.icon == Icons.bar_chart_rounded && w.size == 40,
+      ),
+    ]) {
+      expect(tester.getCenter(finder).dx, moreOrLessEquals(screenCenter));
+    }
+  });
 }
