@@ -89,7 +89,7 @@ void main() {
       for (final m in DioLensMode.values) (m.inDebug, m.inProfile, m.inRelease),
     };
     expect(combos.length, 8);
-    expect(DioLensMode.hide.inDebug, isFalse);
+    expect(DioLensMode.none.inDebug, isFalse);
     expect(DioLensMode.debug.isEnabled, isTrue);
   });
 

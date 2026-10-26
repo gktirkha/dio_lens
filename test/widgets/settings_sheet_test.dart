@@ -231,4 +231,25 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('locked redaction is read-only in the sheet', (tester) async {
+    final h = await Harness.start(
+      tester,
+      size: const Size(420, 2800),
+      settings: const DioLensSettings(
+        showBubble: false,
+        lockRedaction: DioLensMode.all,
+        redactionMode: DioLensRedactionMode.uiClipboard,
+        redactedHeaders: ['x-secret'],
+      ),
+    );
+    DioLens.open();
+    await h.settle();
+    await h.menu('Settings');
+    expect(inSheet('Set by the app'), findsOneWidget);
+    expect(inSheet('UI, Clipboard'), findsOneWidget);
+    expect(inSheet('x-secret'), findsOneWidget);
+    expect(find.bySemanticsLabel('Redaction mode'), findsNothing);
+    expect(keyField('x-secret'), findsNothing, reason: 'no editable field');
+  });
 }

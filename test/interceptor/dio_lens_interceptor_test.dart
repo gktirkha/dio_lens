@@ -33,8 +33,8 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: storage,
-      uiMode: DioLensMode.hide,
-      consoleMode: DioLensMode.hide,
+      uiMode: DioLensMode.none,
+      consoleMode: DioLensMode.none,
       settings: _quiet,
     );
     await dioWith(FakeAdapter()).get<dynamic>('/v1/a');
@@ -48,8 +48,8 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: storage,
-      uiMode: DioLensMode.show,
-      consoleMode: DioLensMode.hide,
+      uiMode: DioLensMode.all,
+      consoleMode: DioLensMode.none,
       settings: _quiet,
     );
     final dio = dioWith(
@@ -100,8 +100,8 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: MemoryStorage(),
-      uiMode: DioLensMode.show,
-      consoleMode: DioLensMode.hide,
+      uiMode: DioLensMode.all,
+      consoleMode: DioLensMode.none,
       settings: _quiet,
     );
     final response = await dioWith(FakeAdapter()).get<dynamic>('/v1/a');
@@ -111,7 +111,7 @@ void main() {
   group('console', () {
     Future<List<String>> logsFor({
       required DioLensMode consoleMode,
-      DioLensMode uiMode = DioLensMode.hide,
+      DioLensMode uiMode = DioLensMode.none,
     }) async {
       DioLens.init(
         navigatorKey: GlobalKey(),
@@ -141,14 +141,14 @@ void main() {
     }
 
     test('prints nothing when the console mode is off', () async {
-      expect(await logsFor(consoleMode: DioLensMode.hide), isEmpty);
+      expect(await logsFor(consoleMode: DioLensMode.none), isEmpty);
       expect(DioLens.isConsoleEnabled, isFalse);
     });
 
     test(
       'prints requests, responses and errors when on, even with the UI off',
       () async {
-        final logs = (await logsFor(consoleMode: DioLensMode.show)).join('\n');
+        final logs = (await logsFor(consoleMode: DioLensMode.all)).join('\n');
         expect(DioLens.isConsoleEnabled, isTrue);
         expect(DioLens.isUiEnabled, isFalse);
         expect(logs, contains('[REQUEST]'));

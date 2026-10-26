@@ -36,8 +36,8 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: MemoryStorage(),
-      uiMode: DioLensMode.show,
-      consoleMode: DioLensMode.hide,
+      uiMode: DioLensMode.all,
+      consoleMode: DioLensMode.none,
       settings: const DioLensSettings(
         maxBodyBytes: 100,
         showBubble: false,

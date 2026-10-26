@@ -86,7 +86,6 @@ void main() {
     const console = DioLensRedactionTarget.console;
     final expected = {
       DioLensRedactionMode.redact: {ui, curl, console},
-      DioLensRedactionMode.uiClipboardConsole: {ui, curl, console},
       DioLensRedactionMode.ui: {ui},
       DioLensRedactionMode.clipboard: {curl},
       DioLensRedactionMode.console: {console},
@@ -109,5 +108,12 @@ void main() {
       }
       expect(s.isHeaderRedacted('Authorization'), targets.contains(ui));
     }
+  });
+
+  test('the redaction lock is code only and never stored', () {
+    const s = DioLensSettings(lockRedaction: DioLensMode.all);
+    expect(s.toJson().keys.any((k) => k.contains('lock')), isFalse);
+    expect(DioLensSettings.fromJson(s.toJson()).lockRedaction, DioLensMode.none);
+    expect(const DioLensSettings().isRedactionLocked, isFalse);
   });
 }

@@ -184,6 +184,44 @@ class _SettingsBody extends StatelessWidget {
   onChanged;
   final ValueChanged<DioLensExportFormat>? onExport;
 
+  /// Read-only redaction rows, when the app locks redaction in code.
+  static List<Widget> _lockedRedaction(
+    BuildContext context,
+    DioLensSettings s,
+  ) {
+    final theme = DioLensTheme.of(context);
+    String keys(List<String> list) => list.isEmpty ? 'None' : list.join(', ');
+    return [
+      SettingsRow(
+        title: 'Redact sensitive values',
+        description: 'Set by the app',
+        control: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.lock_outline_rounded, size: 14, color: theme.textFaint),
+            const SizedBox(width: 6),
+            Text(
+              _redactionLabels[s.redactionMode]!,
+              style: TextStyle(fontSize: 12.5, color: theme.textMuted),
+            ),
+          ],
+        ),
+      ),
+      if (s.redactionMode != DioLensRedactionMode.off) ...[
+        SettingsRow(
+          title: 'Header keys to redact',
+          description: keys(s.redactedHeaders),
+          control: const SizedBox.shrink(),
+        ),
+        SettingsRow(
+          title: 'Query keys to redact',
+          description: keys(s.redactedQueryParams),
+          control: const SizedBox.shrink(),
+        ),
+      ],
+    ];
+  }
+
   static const Map<DioLensRedactionMode, String> _redactionLabels = {
     DioLensRedactionMode.redact: 'Everywhere',
     DioLensRedactionMode.ui: 'UI',
@@ -192,7 +230,6 @@ class _SettingsBody extends StatelessWidget {
     DioLensRedactionMode.uiClipboard: 'UI, Clipboard',
     DioLensRedactionMode.uiConsole: 'UI, Console',
     DioLensRedactionMode.clipboardConsole: 'Clipboard, Console',
-    DioLensRedactionMode.uiClipboardConsole: 'Everywhere',
     DioLensRedactionMode.off: 'Off',
   };
 
@@ -403,37 +440,37 @@ class _SettingsBody extends StatelessWidget {
         SettingsSection(
           title: 'Privacy',
           children: [
-            SettingsRow(
-              title: 'Redact sensitive values',
-              description: 'Where listed headers and query params are masked',
-              control: SettingsSelect<DioLensRedactionMode>(
-                value: s.redactionMode,
-                // uiClipboardConsole is the same as redact, so it is not offered.
-                options: [
-                  for (final mode in DioLensRedactionMode.values)
-                    if (mode != DioLensRedactionMode.uiClipboardConsole) mode,
-                ],
-                labelOf: (mode) => _redactionLabels[mode]!,
-                onChanged: (mode) =>
-                    onChanged((s) => s.copyWith(redactionMode: mode)),
-                semanticLabel: 'Redaction mode',
+            if (s.isRedactionLocked)
+              ..._lockedRedaction(context, s)
+            else ...[
+              SettingsRow(
+                title: 'Redact sensitive values',
+                description: 'Where listed headers and query params are masked',
+                control: SettingsSelect<DioLensRedactionMode>(
+                  value: s.redactionMode,
+                  options: DioLensRedactionMode.values,
+                  labelOf: (mode) => _redactionLabels[mode]!,
+                  onChanged: (mode) =>
+                      onChanged((s) => s.copyWith(redactionMode: mode)),
+                  semanticLabel: 'Redaction mode',
+                ),
               ),
-            ),
-            if (s.redactionMode != DioLensRedactionMode.off) ...[
-              SettingsKeyListField(
-                label: 'Header keys to redact',
-                keys: s.redactedHeaders,
-                hint: 'authorization, cookie, x-api-key',
-                onChanged: (keys) =>
-                    onChanged((s) => s.copyWith(redactedHeaders: keys)),
-              ),
-              SettingsKeyListField(
-                label: 'Query keys to redact',
-                keys: s.redactedQueryParams,
-                hint: 'token, apikey, password',
-                onChanged: (keys) =>
-                    onChanged((s) => s.copyWith(redactedQueryParams: keys)),
-              ),
+              if (s.redactionMode != DioLensRedactionMode.off) ...[
+                SettingsKeyListField(
+                  label: 'Header keys to redact',
+                  keys: s.redactedHeaders,
+                  hint: 'authorization, cookie, x-api-key',
+                  onChanged: (keys) =>
+                      onChanged((s) => s.copyWith(redactedHeaders: keys)),
+                ),
+                SettingsKeyListField(
+                  label: 'Query keys to redact',
+                  keys: s.redactedQueryParams,
+                  hint: 'token, apikey, password',
+                  onChanged: (keys) =>
+                      onChanged((s) => s.copyWith(redactedQueryParams: keys)),
+                ),
+              ],
             ],
           ],
         ),

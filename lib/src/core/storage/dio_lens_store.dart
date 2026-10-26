@@ -197,6 +197,7 @@ class DioLensStore {
   /// the requests that no longer fit.
   Future<void> updateSettings(DioLensSettings settings) async {
     await ready;
+    settings = _enforce(settings);
     if (settings == _settings.value) return;
     _settings.value = settings;
     _enqueue((s) => s.writeSettings(settings.toJson()));
@@ -212,10 +213,25 @@ class DioLensStore {
     if (_trim()) _emit();
   }
 
+  /// [settings] with the redaction fields from the initial settings when
+  /// those lock redaction in this build.
+  DioLensSettings _enforce(DioLensSettings settings) {
+    final initial = _initialSettings;
+    if (!initial.isRedactionLocked) return settings;
+    return settings.copyWith(
+      lockRedaction: initial.lockRedaction,
+      redactionMode: initial.redactionMode,
+      redactedHeaders: initial.redactedHeaders,
+      redactedQueryParams: initial.redactedQueryParams,
+    );
+  }
+
   Future<void> _load() async {
     try {
       final json = await _storage.readSettings();
-      if (json != null) _settings.value = DioLensSettings.fromJson(json);
+      if (json != null) {
+        _settings.value = _enforce(DioLensSettings.fromJson(json));
+      }
     } catch (error, stack) {
       _log('could not read settings', error, stack);
     }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' show ThemeMode;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../core/enums/dio_lens_mode.dart';
 import '../enums/dio_lens_bubble_position.dart';
 import '../enums/dio_lens_notification_position.dart';
 import '../enums/dio_lens_redaction_mode.dart';
@@ -76,6 +77,14 @@ abstract class DioLensSettings with _$DioLensSettings {
     @Default(DioLensBubblePosition.bottomEnd)
     DioLensBubblePosition bubblePosition,
 
+    /// Code only: the build modes in which [redactionMode], [redactedHeaders]
+    /// and [redactedQueryParams] stay as given to `DioLens.init`; stored
+    /// settings, the settings sheet and `DioLens.updateSettings` can't change
+    /// them there. Never locked by default. Never stored.
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(DioLensMode.none)
+    DioLensMode lockRedaction,
+
     /// Where the values of [redactedHeaders] and [redactedQueryParams] are
     /// masked: any combination of the UI, cURL commands and console logs.
     @JsonKey(name: 'redaction_mode')
@@ -130,6 +139,10 @@ abstract class DioLensSettings with _$DioLensSettings {
     String name, {
     DioLensRedactionTarget target = DioLensRedactionTarget.ui,
   }) => redactionMode.masks(target) && _matches(redactedQueryParams, name);
+
+  /// Whether redaction is locked by code in this build (see
+  /// [lockRedaction]).
+  bool get isRedactionLocked => lockRedaction.isEnabled;
 
   static bool _matches(List<String> keys, String name) {
     final lower = name.toLowerCase();

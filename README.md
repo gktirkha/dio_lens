@@ -142,16 +142,16 @@ DioLens.init(
 );
 ```
 
-| Mode                          | Debug | Profile | Release |
-| ----------------------------- | :---: | :-----: | :-----: |
-| `hide`                        |       |         |         |
-| `debug` (default)             |   ✓   |         |         |
-| `profile`                     |       |    ✓    |         |
-| `release`                     |       |         |    ✓    |
-| `debugProfile`                |   ✓   |    ✓    |         |
-| `debugRelease`                |   ✓   |         |    ✓    |
-| `profileRelease`              |       |    ✓    |    ✓    |
-| `debugProfileRelease`, `show` |   ✓   |    ✓    |    ✓    |
+| Mode              | Debug | Profile | Release |
+| ----------------- | :---: | :-----: | :-----: |
+| `none`            |       |         |         |
+| `debug` (default) |   ✓   |         |         |
+| `profile`         |       |    ✓    |         |
+| `release`         |       |         |    ✓    |
+| `debugProfile`    |   ✓   |    ✓    |         |
+| `debugRelease`    |   ✓   |         |    ✓    |
+| `profileRelease`  |       |    ✓    |    ✓    |
+| `all`             |   ✓   |    ✓    |    ✓    |
 
 Outside both modes the interceptor does nothing.
 
@@ -207,16 +207,16 @@ Values of the headers and query parameters in `redactedHeaders` and
   the cURL section of shared reports).
 - **Console**: console logs.
 
-| `redactionMode`                          | UI  | Clipboard | Console |
-| ---------------------------------------- | :-: | :-------: | :-----: |
-| `redact` (default), `uiClipboardConsole` |  ✓  |     ✓     |    ✓    |
-| `ui`                                     |  ✓  |           |         |
-| `clipboard`                              |     |     ✓     |         |
-| `console`                                |     |           |    ✓    |
-| `uiClipboard`                            |  ✓  |     ✓     |         |
-| `uiConsole`                              |  ✓  |           |    ✓    |
-| `clipboardConsole`                       |     |     ✓     |    ✓    |
-| `off`                                    |     |           |         |
+| `redactionMode`    | UI  | Clipboard | Console |
+| ------------------ | :-: | :-------: | :-----: |
+| `redact` (default) |  ✓  |     ✓     |    ✓    |
+| `ui`               |  ✓  |           |         |
+| `clipboard`        |     |     ✓     |         |
+| `console`          |     |           |    ✓    |
+| `uiClipboard`      |  ✓  |     ✓     |         |
+| `uiConsole`        |  ✓  |           |    ✓    |
+| `clipboardConsole` |     |     ✓     |    ✓    |
+| `off`              |     |           |         |
 
 Testers can change it in the settings sheet's Privacy section.
 
