@@ -1,17 +1,17 @@
 import 'dart:convert';
-import 'dart:isolate';
 
 import 'package:dio/dio.dart';
 
 import '../core/enums/request_state.dart';
 import '../core/utils/format_utils.dart';
 import '../features/request_detail/domain/entities/request_detail_entity.dart';
+import '../core/utils/background/run_in_background.dart';
 
 /// A body made storable: JSON-encodable body and full size in bytes.
 typedef CapturedBody = ({Object? body, int? size});
 
 /// Turns Dio's request, response and error objects into storable requests. Body
-/// work runs in a background isolate.
+/// work runs in the background (see [runInBackground]).
 abstract final class RequestCapture {
   /// The request part of a capture, still pending.
   static Future<RequestDetailEntity> pending({
@@ -112,17 +112,17 @@ abstract final class RequestCapture {
         );
     }
     try {
-      return await _processInIsolate(data, contentType, maxBytes);
+      return await _processInBackground(data, contentType, maxBytes);
     } catch (_) {
       return _process(data, contentType, maxBytes);
     }
   }
 
-  static Future<CapturedBody> _processInIsolate(
+  static Future<CapturedBody> _processInBackground(
     Object data,
     String? contentType,
     int? maxBytes,
-  ) => Isolate.run(() => _process(data, contentType, maxBytes));
+  ) => runInBackground(() => _process(data, contentType, maxBytes));
 
   static CapturedBody _process(Object data, String? contentType, int? max) {
     final type = (contentType ?? '').toLowerCase();

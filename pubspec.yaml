@@ -12,6 +12,14 @@ topics:
   - inspector
   - debugging
 
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
 screenshots:
   - description: Request list with status and method filters.
     path: screenshots/requests.png

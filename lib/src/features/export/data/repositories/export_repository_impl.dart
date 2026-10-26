@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import '../../../../core/enums/export_format.dart';
@@ -8,8 +7,9 @@ import '../../domain/entities/dio_lens_export_file.dart';
 import '../../domain/repositories/export_repository.dart';
 import '../data_sources/export_data_source.dart';
 import '../utils/export_builder.dart';
+import '../../../../core/utils/background/run_in_background.dart';
 
-/// Builds exports in a background isolate.
+/// Builds exports in the background (see [runInBackground]).
 class ExportRepositoryImpl implements ExportRepository {
   /// Creates the repository over [ExportDataSource].
   const ExportRepositoryImpl(this._dataSource);
@@ -20,7 +20,7 @@ class ExportRepositoryImpl implements ExportRepository {
   Future<DioLensExportFile> exportRequests(DioLensExportFormat format) async {
     final requests = await _dataSource.getRequests();
     final createdAt = DateTime.now();
-    final bytes = await _buildInIsolate(
+    final bytes = await _buildInBackground(
       format,
       requests,
       _dataSource.settings,
@@ -35,12 +35,12 @@ class ExportRepositoryImpl implements ExportRepository {
     );
   }
 
-  static Future<Uint8List> _buildInIsolate(
+  static Future<Uint8List> _buildInBackground(
     DioLensExportFormat format,
     List<RequestDetailEntity> requests,
     DioLensSettings settings,
     DateTime createdAt,
-  ) => Isolate.run(
+  ) => runInBackground(
     () => ExportBuilder.build(format, requests, settings, createdAt),
   );
 

@@ -2,14 +2,12 @@
 // https://httpbingo.org, which echoes back whatever it receives and accepts
 // any HTTP method. The demo requests and screen are in lib/src/.
 
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:dio/io.dart';
 import 'package:dio_lens/dio_lens.dart';
 import 'package:flutter/material.dart';
 
 import 'src/demo_page.dart';
+import 'src/platform/platform.dart';
 
 /// The key given to [MaterialApp]; Dio Lens shows its pages through it.
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -24,19 +22,14 @@ final dio = Dio(
   ),
 );
 
-/// A second Dio that pins a certificate no server has, so every TLS handshake
-/// is rejected.
-final pinnedDio = Dio(BaseOptions(baseUrl: 'https://httpbingo.org'))
-  ..httpClientAdapter = IOHttpClientAdapter(
-    validateCertificate: (_, _, _) => false,
-  );
+/// A second Dio whose requests fail the certificate check.
+final pinnedDio = createPinnedDio('https://httpbingo.org');
 
-/// Dio Lens only hands the file over; this app chooses to save it in the
-/// temp folder and say where.
+/// Dio Lens only hands the file over; this app chooses to save it (in the
+/// temp folder, or as a browser download on the web) and say where.
 Future<void> saveExport(DioLensExportFile export) async {
-  final file = File('${Directory.systemTemp.path}/${export.fileName}');
-  await file.writeAsBytes(export.bytes);
-  debugPrint('Dio Lens export saved: ${file.path}');
+  final savedTo = await saveExportFile(export);
+  debugPrint('Dio Lens export saved: $savedTo');
   final context = navigatorKey.currentContext;
   if (context == null || !context.mounted) return;
   ScaffoldMessenger.maybeOf(context)?.showSnackBar(

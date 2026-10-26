@@ -43,8 +43,8 @@ sensitive values masked.
 - **Light, dark and system themes**, applied to Dio Lens only, never to your
   app. Right-to-left layouts supported.
 - **Lightweight**: capture never blocks requests, body processing and JSON
-  work run in background isolates, and only request summaries are kept in
-  memory.
+  work run in background isolates (on the web, which has no isolates, later in
+  the event loop), and only request summaries are kept in memory.
 
 ## Getting started
 
@@ -435,8 +435,8 @@ Future<void> main() async {
 
 ## Platform support
 
-Android, iOS, macOS, Windows and Linux. Web isn't supported, because Dio Lens
-processes request bodies in background isolates.
+Android, iOS, macOS, Windows, Linux and web. On the web, which has no
+isolates, body processing and JSON work run on the main thread instead.
 
 ## License
 

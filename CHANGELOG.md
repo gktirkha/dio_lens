@@ -8,7 +8,8 @@ Initial release.
 - Captures never change or delay requests, and capture failures never reach
   the app.
 - Body processing (JSON, text, form data, images) runs in background
-  isolates.
+  isolates; on the web, which has no isolates, on the main thread.
+- Supports Android, iOS, macOS, Windows, Linux and web.
 - `uiMode` and `consoleMode` pick the build modes for recording and the UI,
   and for console logs (both debug only by default).
 
