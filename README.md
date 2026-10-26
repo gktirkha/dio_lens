@@ -55,7 +55,7 @@ flutter pub add dio_lens
 ```
 
 Set it up before `runApp`, give the same navigator key to your
-`MaterialApp`, and add the interceptor to your Dio:
+`MaterialApp` or `CupertinoApp`, and add the interceptor to your Dio:
 
 ```dart
 import 'package:dio/dio.dart';
@@ -83,7 +83,11 @@ code:
 DioLens.open();
 ```
 
-See the [example](example/lib/main.dart) for a complete app.
+In a `CupertinoApp`, Dio Lens brings the Material localizations and snackbar
+messenger its pages need, so nothing else is required.
+
+See the [example](example/lib/main.dart) for a complete app; set
+`useCupertino` there to run it as a `CupertinoApp`.
 
 ## Console logging
 

@@ -42,7 +42,10 @@ class DemoPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      _MaterialHost(child: Builder(builder: _buildPage));
+
+  Widget _buildPage(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dio Lens Example'),
@@ -111,6 +114,35 @@ class DemoPage extends StatelessWidget {
             _RequestTile(request: r, onTap: () => _run(context, r)),
         ],
       ),
+    );
+  }
+}
+
+/// Gives this Material page a [ScaffoldMessenger] and Material localizations
+/// when the app has none, as in a `CupertinoApp`. Dio Lens pages fill these in
+/// themselves.
+class _MaterialHost extends StatelessWidget {
+  const _MaterialHost({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    var page = child;
+    if (ScaffoldMessenger.maybeOf(context) == null) {
+      page = ScaffoldMessenger(child: page);
+    }
+    final hasLocalizations =
+        Localizations.of<MaterialLocalizations>(
+          context,
+          MaterialLocalizations,
+        ) !=
+        null;
+    if (hasLocalizations) return page;
+    return Localizations.override(
+      context: context,
+      delegates: const [DefaultMaterialLocalizations.delegate],
+      child: page,
     );
   }
 }

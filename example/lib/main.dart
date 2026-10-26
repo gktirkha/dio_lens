@@ -4,6 +4,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:dio_lens/dio_lens.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'src/demo_page.dart';
@@ -70,13 +71,19 @@ void main() {
     DioLensInterceptor(dio: pinnedDio, name: 'pinned'),
   );
 
-  runApp(const ExampleApp());
+  runApp(
+    useCupertino ? const ExampleCupertinoApp() : const ExampleMaterialApp(),
+  );
 }
 
-/// The example app.
-class ExampleApp extends StatelessWidget {
+/// Whether the example runs as a [CupertinoApp] instead of a [MaterialApp];
+/// Dio Lens works in both.
+const bool useCupertino = true;
+
+/// The example as a [MaterialApp].
+class ExampleMaterialApp extends StatelessWidget {
   /// Creates the app.
-  const ExampleApp({super.key});
+  const ExampleMaterialApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +95,25 @@ class ExampleApp extends StatelessWidget {
       darkTheme: ThemeData(
         colorSchemeSeed: Colors.indigo,
         brightness: Brightness.dark,
+      ),
+      home: DemoPage(dio: dio, pinnedDio: pinnedDio),
+    );
+  }
+}
+
+/// The example as a [CupertinoApp].
+class ExampleCupertinoApp extends StatelessWidget {
+  /// Creates the app.
+  const ExampleCupertinoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      navigatorKey: navigatorKey,
+      title: 'Dio Lens Example',
+      debugShowCheckedModeBanner: false,
+      theme: const CupertinoThemeData(
+        primaryColor: CupertinoColors.systemIndigo,
       ),
       home: DemoPage(dio: dio, pinnedDio: pinnedDio),
     );

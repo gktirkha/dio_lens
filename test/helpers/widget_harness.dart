@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:dio_lens/dio_lens.dart';
 import 'package:dio_lens/src/core/runtime/dio_lens_runtime.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -17,7 +18,8 @@ class Harness {
     this.adapter,
   );
 
-  /// Pumps a host app and calls `DioLens.init`.
+  /// Pumps a host app, a `CupertinoApp` when [cupertino], and calls
+  /// `DioLens.init`.
   static Future<Harness> start(
     WidgetTester tester, {
     DioLensSettings settings = const DioLensSettings(showBubble: false),
@@ -25,6 +27,7 @@ class Harness {
     DioLensShareCallback? onShare,
     FakeAdapter? adapter,
     Size size = const Size(420, 900),
+    bool cupertino = false,
   }) async {
     tester.view
       ..physicalSize = size
@@ -47,10 +50,15 @@ class Harness {
       ..httpClientAdapter = fake;
     dio.interceptors.add(DioLensInterceptor(dio: dio));
     await tester.pumpWidget(
-      MaterialApp(
-        navigatorKey: key,
-        home: const Scaffold(body: Text('host')),
-      ),
+      cupertino
+          ? CupertinoApp(
+              navigatorKey: key,
+              home: const CupertinoPageScaffold(child: Text('host')),
+            )
+          : MaterialApp(
+              navigatorKey: key,
+              home: const Scaffold(body: Text('host')),
+            ),
     );
     final harness = Harness._(tester, key, storage, dio, fake);
     await harness.settle();

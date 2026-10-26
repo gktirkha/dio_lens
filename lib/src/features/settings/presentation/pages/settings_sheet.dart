@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/enums/export_format.dart';
+import '../../../../core/utils/host_app.dart';
 import '../../../../core/widgets/dio_lens_icon_button.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../../theme/dio_lens_theme_scope.dart';
@@ -22,21 +23,42 @@ Future<void> showDioLensSettings(
 }) {
   final themeController = DioLensThemeScope.controllerOf(context);
   final mode = DioLensThemeScope.modeOf(context);
-  return showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    showDragHandle: false,
-    backgroundColor: Colors.transparent,
-    barrierColor: const Color(0x8C05060A),
-    builder: (_) => DioLensThemeScope(
-      controller: themeController,
-      mode: mode,
-      child: SettingsSheet(
-        createController: createController,
-        onExport: onExport,
+  return Navigator.of(context).push(
+    _SettingsSheetRoute(
+      barrierLabel: MaterialLocalizations.of(context).scrimLabel,
+      builder: (_) => DioLensThemeScope(
+        controller: themeController,
+        mode: mode,
+        child: SettingsSheet(
+          createController: createController,
+          onExport: onExport,
+        ),
       ),
     ),
+  );
+}
+
+/// The settings bottom sheet's route. Its whole page gets Material
+/// localizations, so the sheet also works in apps that are not a
+/// `MaterialApp`.
+class _SettingsSheetRoute extends ModalBottomSheetRoute<void> {
+  _SettingsSheetRoute({required super.builder, required super.barrierLabel})
+    : super(
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: false,
+        backgroundColor: Colors.transparent,
+        modalBarrierColor: const Color(0x8C05060A),
+      );
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) => withMaterialLocalizations(
+    context,
+    super.buildPage(context, animation, secondaryAnimation),
   );
 }
 

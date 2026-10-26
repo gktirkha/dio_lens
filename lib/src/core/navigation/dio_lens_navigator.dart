@@ -15,6 +15,7 @@ Future<T?> pushDioLensPage<T>(
       builder: (context) => DioLensThemeScope(
         controller: controller,
         mode: mode,
+        page: true,
         child: Builder(builder: builder),
       ),
     ),

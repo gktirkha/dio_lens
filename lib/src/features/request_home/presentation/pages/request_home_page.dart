@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../../theme/dio_lens_theme_scope.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import '../../../../core/enums/export_format.dart';
 import '../../../../core/widgets/dio_lens_refresh_indicator.dart';
@@ -86,29 +87,35 @@ class _RequestHomePageState extends State<RequestHomePage> {
 
   Future<void> _confirmClearAll() async {
     final theme = DioLensTheme.of(context);
+    final themeController = DioLensThemeScope.controllerOf(context);
+    final mode = DioLensThemeScope.modeOf(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear all requests?'),
-        content: Text(
-          'Clear all captured requests? This cannot be undone.',
-          style: TextStyle(color: theme.textMuted, fontSize: 13.5),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            style: TextButton.styleFrom(foregroundColor: theme.textMuted),
-            child: const Text('Cancel'),
+      builder: (context) => DioLensThemeScope(
+        controller: themeController,
+        mode: mode,
+        child: AlertDialog(
+          title: const Text('Clear all requests?'),
+          content: Text(
+            'Clear all captured requests? This cannot be undone.',
+            style: TextStyle(color: theme.textMuted, fontSize: 13.5),
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: theme.danger,
-              foregroundColor: Colors.white,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(foregroundColor: theme.textMuted),
+              child: const Text('Cancel'),
             ),
-            child: const Text('Clear all'),
-          ),
-        ],
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.danger,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Clear all'),
+            ),
+          ],
+        ),
       ),
     );
     if (confirmed ?? false) await _controller.clearAll();

@@ -1,3 +1,7 @@
+## 0.0.4
+
+- Works in a `CupertinoApp` as well as a `MaterialApp`.
+
 ## 0.0.3
 
 - Removed the License section from the README; the license is shown on

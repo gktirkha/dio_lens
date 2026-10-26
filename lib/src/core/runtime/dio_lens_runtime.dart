@@ -178,6 +178,7 @@ class DioLensRuntime {
     final route = MaterialPageRoute<void>(
       builder: (_) => DioLensThemeScope(
         controller: themeController,
+        page: true,
         child: Builder(builder: builder),
       ),
     );
