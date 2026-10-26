@@ -1204,8 +1204,9 @@
       return String(req.status);
     }
     function matchesFilters(r) {
+      /* Errors: no status code (failed without a response); 5xx has its own chip */
       if (state.filter === 'errors') {
-        if (!(r.statusClass === '5xx' || r.statusClass === 'error')) return false;
+        if (r.statusClass !== 'error') return false;
       } else if (state.filter !== 'all' && r.statusClass !== state.filter) {
         return false;
       }

@@ -32,6 +32,7 @@ abstract final class RequestStatsCalculator {
     final failuresByPath = <String, int>{};
     final callsByHost = <String, int>{};
     var finished = 0;
+    var successes = 0;
     var failures = 0;
     var totalBytes = 0;
 
@@ -44,6 +45,7 @@ abstract final class RequestStatsCalculator {
         if (size > (largestByPath[r.path] ?? -1)) largestByPath[r.path] = size;
       }
       callsByPath[r.path] = (callsByPath[r.path] ?? 0) + 1;
+      if (r.isSuccess) successes++;
       if (r.isFailure) {
         failures++;
         failuresByPath[r.path] = (failuresByPath[r.path] ?? 0) + 1;
@@ -63,7 +65,7 @@ abstract final class RequestStatsCalculator {
     return RequestStatsEntity(
       totalRequests: requests.length,
       finishedRequests: finished,
-      successCount: count(RequestStatusClass.success),
+      successCount: successes,
       errorCount: failures,
       totalBytes: totalBytes,
       averageLatency: latencies.isEmpty

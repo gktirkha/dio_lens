@@ -1,9 +1,11 @@
 ## 1.0.2
 
-- Failures in Stats (Error count and Top failing endpoints) follow the
-  Dio's `validateStatus`, the app's own or Dio's default, instead of the
-  status code alone. Requests captured before this update still count 4xx
-  and 5xx as failures.
+- Success and failure in Stats (Success rate, Error count and Top failing
+  endpoints) follow the Dio's `validateStatus`, the app's own or Dio's
+  default, before falling back to the status code. Requests captured before
+  this update still count 2xx as success and 4xx and 5xx as failures.
+- The request list's Errors filter shows only requests with no status code
+  (no response); 5xx responses are under the 5xx filter alone.
 
 ## 1.0.1
 

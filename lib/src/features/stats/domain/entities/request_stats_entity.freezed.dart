@@ -18,7 +18,8 @@ mixin _$RequestStatsEntity {
 
 /// Every captured request.
 @JsonKey(name: 'total_requests') int get totalRequests;/// Completed or failed requests, i.e. not pending.
-@JsonKey(name: 'finished_requests') int get finishedRequests;/// 2xx responses.
+@JsonKey(name: 'finished_requests') int get finishedRequests;/// Successful requests: a status the Dio's `validateStatus` accepted (2xx
+/// when that is unknown). See `RequestListItemEntity.isSuccess`.
 @JsonKey(name: 'success_count') int get successCount;/// Failed requests: no response, or a status the Dio's `validateStatus`
 /// rejected (4xx or 5xx when that is unknown). See
 /// `RequestListItemEntity.isFailure`.
@@ -250,7 +251,8 @@ class _RequestStatsEntity extends RequestStatsEntity {
 @override@JsonKey(name: 'total_requests') final  int totalRequests;
 /// Completed or failed requests, i.e. not pending.
 @override@JsonKey(name: 'finished_requests') final  int finishedRequests;
-/// 2xx responses.
+/// Successful requests: a status the Dio's `validateStatus` accepted (2xx
+/// when that is unknown). See `RequestListItemEntity.isSuccess`.
 @override@JsonKey(name: 'success_count') final  int successCount;
 /// Failed requests: no response, or a status the Dio's `validateStatus`
 /// rejected (4xx or 5xx when that is unknown). See

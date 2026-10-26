@@ -17,7 +17,8 @@ enum RequestStatusFilter {
   /// 5xx responses.
   serverError('5xx'),
 
-  /// 5xx responses and requests that failed without a response.
+  /// Requests with no status code: failed without a response, or completed
+  /// without one.
   errors('Errors');
 
   const RequestStatusFilter(this.label);
@@ -39,8 +40,7 @@ enum RequestStatusFilter {
       case RequestStatusFilter.serverError:
         return statusClass == RequestStatusClass.serverError;
       case RequestStatusFilter.errors:
-        return statusClass == RequestStatusClass.serverError ||
-            statusClass == RequestStatusClass.error;
+        return statusClass == RequestStatusClass.error;
     }
   }
 }

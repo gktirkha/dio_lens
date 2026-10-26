@@ -34,6 +34,18 @@ void main() {
       const errors = RequestFilterParams(status: RequestStatusFilter.errors);
       expect(errors.matches(failed), isTrue);
       expect(errors.matches(get200), isFalse);
+      // 5xx has its own chip; Errors is only for requests with no status.
+      const server = RequestFilterParams(
+        status: RequestStatusFilter.serverError,
+      );
+      final get500 = request('9', statusCode: 500).toListItem();
+      expect(errors.matches(get500), isFalse);
+      expect(server.matches(get500), isTrue);
+      expect(
+        errors.matches(request('10', statusCode: null).toListItem()),
+        isTrue,
+        reason: 'completed without a status code',
+      );
       const posts = RequestFilterParams(methods: {'POST'});
       expect(posts.matches(post404), isTrue);
       expect(posts.matches(get200), isFalse);
@@ -115,7 +127,7 @@ void main() {
     ]);
   });
 
-  test("failures follow the Dio's validateStatus verdict when recorded", () {
+  test("success and failure follow the Dio's validateStatus verdict", () {
     final stats = RequestStatsCalculator.calculate(
       [
         // Accepted by validateStatus, so not failures despite 4xx/5xx.
@@ -136,6 +148,9 @@ void main() {
     );
 
     expect(stats.errorCount, 3);
+    // Accepted 404 and 503, plus the 200 with no verdict.
+    expect(stats.successCount, 3);
+    expect(stats.successRate, 0.5);
     expect(stats.topFailingEndpoints.map((e) => (e.name, e.count)), [
       ('/v1/a', 2),
       ('/v1/b', 1),

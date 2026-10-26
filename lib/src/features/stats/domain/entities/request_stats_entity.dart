@@ -21,7 +21,8 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     /// Completed or failed requests, i.e. not pending.
     @JsonKey(name: 'finished_requests') required int finishedRequests,
 
-    /// 2xx responses.
+    /// Successful requests: a status the Dio's `validateStatus` accepted (2xx
+    /// when that is unknown). See `RequestListItemEntity.isSuccess`.
     @JsonKey(name: 'success_count') required int successCount,
 
     /// Failed requests: no response, or a status the Dio's `validateStatus`

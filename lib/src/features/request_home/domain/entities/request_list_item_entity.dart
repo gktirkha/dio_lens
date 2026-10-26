@@ -90,6 +90,17 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
     },
   };
 
+  /// Whether the request succeeded: a response arrived and the Dio's
+  /// `validateStatus` accepted its status code. When that verdict is unknown
+  /// ([validStatus] is null), a 2xx status counts as a success.
+  bool get isSuccess => switch (state) {
+    RequestState.pending || RequestState.failed => false,
+    RequestState.completed => switch (validStatus) {
+      final valid? => valid,
+      null => statusClass == RequestStatusClass.success,
+    },
+  };
+
   static const Set<RequestStatusClass> _failingClasses = {
     RequestStatusClass.clientError,
     RequestStatusClass.serverError,
