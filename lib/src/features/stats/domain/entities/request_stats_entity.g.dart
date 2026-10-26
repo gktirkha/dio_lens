@@ -32,6 +32,11 @@ _RequestStatsEntity _$RequestStatsEntityFromJson(
           )
           .toList() ??
       const <EndpointLatencyEntity>[],
+  topFailingEndpoints:
+      (json['top_failing_endpoints'] as List<dynamic>?)
+          ?.map((e) => NamedCountEntity.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <NamedCountEntity>[],
   largestResponses:
       (json['largest_responses'] as List<dynamic>?)
           ?.map((e) => EndpointSizeEntity.fromJson(e as Map<String, dynamic>))
@@ -62,6 +67,9 @@ Map<String, dynamic> _$RequestStatsEntityToJson(_RequestStatsEntity instance) =>
           .map((e) => e.toJson())
           .toList(),
       'slowest_endpoints': instance.slowestEndpoints
+          .map((e) => e.toJson())
+          .toList(),
+      'top_failing_endpoints': instance.topFailingEndpoints
           .map((e) => e.toJson())
           .toList(),
       'largest_responses': instance.largestResponses

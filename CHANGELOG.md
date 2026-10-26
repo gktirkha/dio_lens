@@ -1,3 +1,8 @@
+## 1.0.1
+
+- Stats show the top failing endpoints: failed calls (4xx, 5xx, or no
+  response) per endpoint, most first.
+
 ## 1.0.0
 
 - First stable release.

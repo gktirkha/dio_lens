@@ -4,6 +4,7 @@ import 'package:dio_lens/src/features/request_home/data/mappers/request_list_ite
 import 'package:dio_lens/src/features/request_home/domain/entities/request_filter_params.dart';
 import 'package:dio_lens/src/features/request_home/domain/entities/request_status_filter.dart';
 import 'package:dio_lens/src/features/stats/data/utils/request_stats_calculator.dart';
+import 'package:dio_lens/src/features/stats/presentation/models/stats_ranking.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/entities.dart';
@@ -89,6 +90,28 @@ void main() {
       RequestStatusClass.serverError,
       RequestStatusClass.error,
       RequestStatusClass.pending,
+    ]);
+  });
+
+  test('top failing endpoints count 4xx, 5xx and no response', () {
+    final stats = RequestStatsCalculator.calculate(
+      [
+        request('1', statusCode: 404),
+        request('2', state: RequestState.failed),
+        request('3', url: 'https://api.example.com/v1/big', statusCode: 500),
+        request('4', url: 'https://api.example.com/v1/ok'),
+        request('5', url: 'https://api.example.com/v1/ok', statusCode: 302),
+        request('6', state: RequestState.pending),
+      ].map((r) => r.toListItem()).toList(),
+    );
+
+    expect(stats.topFailingEndpoints.map((e) => (e.name, e.count)), [
+      ('/v1/orders', 2),
+      ('/v1/big', 1),
+    ], reason: 'success, redirect and pending are not failures');
+    expect(StatsRanking.topFailingEndpoints.items(stats).map((i) => i.value), [
+      '2×',
+      '1×',
     ]);
   });
 

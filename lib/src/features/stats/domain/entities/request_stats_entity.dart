@@ -46,6 +46,12 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     @Default(<EndpointLatencyEntity>[])
     List<EndpointLatencyEntity> slowestEndpoints,
 
+    /// Endpoints by number of failed calls (4xx, 5xx, or no response), most
+    /// failures first; only endpoints that failed at least once.
+    @JsonKey(name: 'top_failing_endpoints')
+    @Default(<NamedCountEntity>[])
+    List<NamedCountEntity> topFailingEndpoints,
+
     /// Endpoints by largest response, largest first.
     @JsonKey(name: 'largest_responses')
     @Default(<EndpointSizeEntity>[])

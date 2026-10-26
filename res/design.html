@@ -1106,6 +1106,16 @@
         { path:'/v1/notifications', avg:158 }, { path:'/v1/cart', avg:142 }, { path:'/v1/profile', avg:129 },
         { path:'/auth/login', avg:118 }, { path:'/v1/settings', avg:94 }, { path:'/v1/cart/items', avg:81 }
       ],
+      /* Failed calls per endpoint: 4xx, 5xx and requests with no response */
+      failing: [
+        { path:'/v1/payments/intent', failures:21 }, { path:'/v1/sync', failures:14 }, { path:'/auth/login', failures:9 },
+        { path:'/v1/orders', failures:6 }, { path:'/v1/reports/export', failures:4 }
+      ],
+      failingAll: [
+        { path:'/v1/payments/intent', failures:21 }, { path:'/v1/sync', failures:14 }, { path:'/auth/login', failures:9 },
+        { path:'/v1/orders', failures:6 }, { path:'/v1/reports/export', failures:4 }, { path:'/v1/cart', failures:3 },
+        { path:'/v1/search', failures:2 }, { path:'/v1/profile', failures:1 }
+      ],
       mostCalled: [
         { path:'/v1/users', count:142 }, { path:'/v1/orders', count:97 }, { path:'/auth/login', count:54 },
         { path:'/v1/notifications', count:41 }, { path:'/v1/cart', count:22 }
@@ -1884,7 +1894,7 @@
       return '<div class="dl-rank-list">' + items.map(function (it) {
         var v = it[valueKey];
         var pct = Math.round(v / maxVal * 100);
-        var warn = valueKey === 'avg' && v > 400;
+        var warn = (valueKey === 'avg' && v > 400) || valueKey === 'failures';
         return '<div class="dl-rank-row">' +
           '<div class="dl-rank-top"><span class="path">' + esc(it.path || it.host) + '</span><span class="val">' + v + suffix + '</span></div>' +
           '<div class="dl-rank-track"><div class="dl-rank-fill' + (warn ? ' warn' : '') + '" style="width:' + pct + '%"></div></div>' +
@@ -1894,6 +1904,7 @@
 
     function renderStats() {
       var maxSlow = Math.max.apply(null, STATS.slowest.map(function (i) { return i.avg; }));
+      var maxFailing = Math.max.apply(null, STATS.failing.map(function (i) { return i.failures; }));
       var maxCalled = Math.max.apply(null, STATS.mostCalled.map(function (i) { return i.count; }));
       var maxHost = Math.max.apply(null, STATS.topHosts.map(function (i) { return i.count; }));
       return '<div class="dl-screen od-screen">' +
@@ -1919,6 +1930,11 @@
             '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="slowest"><h2>Slowest endpoints</h2>' + icon('chevronRight', 'chev') + '</button>' +
             rankList(STATS.slowest, 'avg', ' ms', maxSlow) +
           '</div>' +
+          /* Shown only when something failed */
+          (STATS.failing.length ? '<div class="dl-panel">' +
+            '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="failing"><h2>Top failing endpoints</h2>' + icon('chevronRight', 'chev') + '</button>' +
+            rankList(STATS.failing, 'failures', '×', maxFailing) +
+          '</div>' : '') +
           '<div class="dl-panel">' +
             '<button type="button" class="dl-panel-head" data-action="open-rank-detail" data-kind="largest"><h2>Largest responses</h2>' + icon('chevronRight', 'chev') + '</button>' +
             (function(){ var arr = computeLargest(); var maxv = arr[0]?arr[0].bytes:1; if(arr.length===0)return '<p style="color:var(--dl-text-faint);font-size:12px;">No response size data</p>'; return '<div class="dl-rank-list">' + arr.slice(0,3).map(function (it){ var pct=Math.round(it.bytes/maxv*100); return '<div class="dl-rank-row"><div class="dl-rank-top"><span class="path">'+esc(it.path)+'</span><span class="val">'+fmtBytes(it.bytes)+'</span></div><div class="dl-rank-track"><div class="dl-rank-fill" style="width:'+pct+'%"></div></div></div>'; }).join('') + '</div>'; })() +
@@ -1950,6 +1966,7 @@
     }
     var RANK_META = {
       slowest: { title: 'Slowest endpoints', items: 'slowestAll', valueKey: 'avg', suffix: ' ms', format: 'ms' },
+      failing: { title: 'Top failing endpoints', items: 'failingAll', valueKey: 'failures', suffix: '×', format: 'count', warn: true },
       mostCalled: { title: 'Most-called endpoints', items: 'mostCalledAll', valueKey: 'count', suffix: '×', format: 'count' },
       largest: { title: 'Largest responses', items: 'largestAll', valueKey: 'bytes', suffix: '', format: 'bytes' },
       topHosts: { title: 'Top hosts', items: 'topHostsAll', valueKey: 'count', suffix: '×', format: 'count' }
@@ -1965,7 +1982,7 @@
         var display = meta.format === 'bytes' ? fmtBytes(v) : v + meta.suffix;
         return '<div class="dl-rank-row">' +
           '<div class="dl-rank-top"><span class="path">' + esc(it.path || it.host) + '</span><span class="val">' + display + '</span></div>' +
-          '<div class="dl-rank-track"><div class="dl-rank-fill" style="width:' + pct + '%"></div></div>' +
+          '<div class="dl-rank-track"><div class="dl-rank-fill' + (meta.warn ? ' warn' : '') + '" style="width:' + pct + '%"></div></div>' +
         '</div>';
       }).join('') + '</div>';
       return '<div class="dl-screen od-screen">' +

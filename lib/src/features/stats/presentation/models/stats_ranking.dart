@@ -7,6 +7,9 @@ enum StatsRanking {
   /// Endpoints by average latency.
   slowestEndpoints('Slowest endpoints'),
 
+  /// Endpoints by number of failed calls.
+  topFailingEndpoints('Top failing endpoints'),
+
   /// Endpoints by largest response.
   largestResponses('Largest responses'),
 
@@ -38,6 +41,16 @@ enum StatsRanking {
               value: FormatUtils.duration(e.averageLatency),
               score: e.averageLatency.inMilliseconds.toDouble(),
               warn: e.averageLatency > slowThreshold,
+            ),
+        ];
+      case StatsRanking.topFailingEndpoints:
+        return [
+          for (final e in stats.topFailingEndpoints)
+            (
+              label: e.name,
+              value: '${e.count}×',
+              score: e.count.toDouble(),
+              warn: true,
             ),
         ];
       case StatsRanking.largestResponses:

@@ -26,8 +26,8 @@ sensitive values masked.
   JSON tree, raw view, form and text bodies, image previews, error details
   with stack trace, copyable fields and a cURL command.
 - **Stats**: totals, success rate, average and p95 latency, status
-  distribution, and the slowest, largest and most-called endpoints and top
-  hosts.
+  distribution, and the slowest, most-failing, largest and most-called
+  endpoints and top hosts.
 - **Replay** a request through your own Dio, so your interceptors (auth,
   refresh) apply.
 - **Export** every request as HAR 1.2 or JSON, and **share** one as a

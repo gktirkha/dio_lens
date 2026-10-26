@@ -20,6 +20,13 @@ abstract final class RequestStatsCalculator {
     RequestStatusClass.informational,
   ];
 
+  /// Status classes that count as failures: 4xx, 5xx, and no response.
+  static const Set<RequestStatusClass> _failures = {
+    RequestStatusClass.clientError,
+    RequestStatusClass.serverError,
+    RequestStatusClass.error,
+  };
+
   /// The stats of [requests].
   static RequestStatsEntity calculate(List<RequestListItemEntity> requests) {
     if (requests.isEmpty) return RequestStatsEntity.empty;
@@ -29,6 +36,7 @@ abstract final class RequestStatsCalculator {
     final latencyByPath = <String, List<int>>{};
     final largestByPath = <String, int>{};
     final callsByPath = <String, int>{};
+    final failuresByPath = <String, int>{};
     final callsByHost = <String, int>{};
     var finished = 0;
     var totalBytes = 0;
@@ -42,6 +50,9 @@ abstract final class RequestStatsCalculator {
         if (size > (largestByPath[r.path] ?? -1)) largestByPath[r.path] = size;
       }
       callsByPath[r.path] = (callsByPath[r.path] ?? 0) + 1;
+      if (_failures.contains(statusClass)) {
+        failuresByPath[r.path] = (failuresByPath[r.path] ?? 0) + 1;
+      }
       callsByHost[r.host] = (callsByHost[r.host] ?? 0) + 1;
 
       final ms = r.duration?.inMilliseconds;
@@ -58,10 +69,7 @@ abstract final class RequestStatsCalculator {
       totalRequests: requests.length,
       finishedRequests: finished,
       successCount: count(RequestStatusClass.success),
-      errorCount:
-          count(RequestStatusClass.clientError) +
-          count(RequestStatusClass.serverError) +
-          count(RequestStatusClass.error),
+      errorCount: _failures.map(count).fold(0, (a, b) => a + b),
       totalBytes: totalBytes,
       averageLatency: latencies.isEmpty
           ? null
@@ -88,6 +96,12 @@ abstract final class RequestStatsCalculator {
           ),
         ),
         (e) => e.averageLatency.inMilliseconds,
+      ),
+      topFailingEndpoints: _top(
+        failuresByPath.entries.map(
+          (e) => NamedCountEntity(name: e.key, count: e.value),
+        ),
+        (e) => e.count,
       ),
       largestResponses: _top(
         largestByPath.entries.map(
