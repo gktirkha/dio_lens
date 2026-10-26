@@ -33,6 +33,10 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
     /// HTTP status code; null while pending or when no response arrived.
     @JsonKey(name: 'status_code') int? statusCode,
 
+    /// Whether the Dio's `validateStatus` accepted [statusCode]; null when
+    /// unknown.
+    @JsonKey(name: 'valid_status') bool? validStatus,
+
     /// Time from send to response or error; null while pending.
     @JsonKey(name: 'duration') Duration? duration,
 
@@ -73,4 +77,21 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
   /// Category used for badges, filters and stats.
   RequestStatusClass get statusClass =>
       RequestStatusClass.resolve(state, statusCode);
+
+  /// Whether the request failed: no response arrived, or the Dio's
+  /// `validateStatus` rejected the status code. When that verdict is unknown
+  /// ([validStatus] is null), a 4xx or 5xx status counts as a failure.
+  bool get isFailure => switch (state) {
+    RequestState.pending => false,
+    RequestState.failed => true,
+    RequestState.completed => switch (validStatus) {
+      final valid? => !valid,
+      null => _failingClasses.contains(statusClass),
+    },
+  };
+
+  static const Set<RequestStatusClass> _failingClasses = {
+    RequestStatusClass.clientError,
+    RequestStatusClass.serverError,
+  };
 }

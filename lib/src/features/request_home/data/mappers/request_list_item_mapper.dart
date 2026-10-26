@@ -11,6 +11,7 @@ extension RequestListItemMapper on RequestDetailEntity {
     startedAt: startedAt,
     state: state,
     statusCode: statusCode,
+    validStatus: validStatus,
     duration: duration,
     responseSize: responseSize,
     errorType: errorType,

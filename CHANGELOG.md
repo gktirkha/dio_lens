@@ -1,3 +1,10 @@
+## 1.0.2
+
+- Failures in Stats (Error count and Top failing endpoints) follow the
+  Dio's `validateStatus`, the app's own or Dio's default, instead of the
+  status code alone. Requests captured before this update still count 4xx
+  and 5xx as failures.
+
 ## 1.0.1
 
 - Stats show the top failing endpoints: failed calls (4xx, 5xx, or no

@@ -115,6 +115,33 @@ void main() {
     ]);
   });
 
+  test("failures follow the Dio's validateStatus verdict when recorded", () {
+    final stats = RequestStatsCalculator.calculate(
+      [
+        // Accepted by validateStatus, so not failures despite 4xx/5xx.
+        request('1', statusCode: 404, validStatus: true),
+        request('2', statusCode: 503, validStatus: true),
+        // Rejected by validateStatus, so failures despite 2xx/3xx.
+        request('3', url: 'https://api.example.com/v1/a', validStatus: false),
+        request(
+          '4',
+          url: 'https://api.example.com/v1/a',
+          statusCode: 304,
+          validStatus: false,
+        ),
+        // No verdict recorded: falls back to the status code.
+        request('5', url: 'https://api.example.com/v1/b', statusCode: 500),
+        request('6', url: 'https://api.example.com/v1/b'),
+      ].map((r) => r.toListItem()).toList(),
+    );
+
+    expect(stats.errorCount, 3);
+    expect(stats.topFailingEndpoints.map((e) => (e.name, e.count)), [
+      ('/v1/a', 2),
+      ('/v1/b', 1),
+    ]);
+  });
+
   test('empty stats', () {
     final stats = RequestStatsCalculator.calculate(const []);
     expect(stats.isEmpty, isTrue);

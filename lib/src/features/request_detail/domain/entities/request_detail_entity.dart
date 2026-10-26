@@ -34,6 +34,11 @@ abstract class RequestDetailEntity with _$RequestDetailEntity {
     /// HTTP status code; null while pending or when no response arrived.
     @JsonKey(name: 'status_code') int? statusCode,
 
+    /// Whether the Dio's `validateStatus` accepted [statusCode]; null while
+    /// pending, when no response arrived, or for requests captured before
+    /// this was recorded.
+    @JsonKey(name: 'valid_status') bool? validStatus,
+
     /// Time from send to response or error; null while pending.
     @JsonKey(name: 'duration') Duration? duration,
 

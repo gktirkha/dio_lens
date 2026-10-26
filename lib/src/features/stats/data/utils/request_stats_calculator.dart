@@ -20,13 +20,6 @@ abstract final class RequestStatsCalculator {
     RequestStatusClass.informational,
   ];
 
-  /// Status classes that count as failures: 4xx, 5xx, and no response.
-  static const Set<RequestStatusClass> _failures = {
-    RequestStatusClass.clientError,
-    RequestStatusClass.serverError,
-    RequestStatusClass.error,
-  };
-
   /// The stats of [requests].
   static RequestStatsEntity calculate(List<RequestListItemEntity> requests) {
     if (requests.isEmpty) return RequestStatsEntity.empty;
@@ -39,6 +32,7 @@ abstract final class RequestStatsCalculator {
     final failuresByPath = <String, int>{};
     final callsByHost = <String, int>{};
     var finished = 0;
+    var failures = 0;
     var totalBytes = 0;
 
     for (final r in requests) {
@@ -50,7 +44,8 @@ abstract final class RequestStatsCalculator {
         if (size > (largestByPath[r.path] ?? -1)) largestByPath[r.path] = size;
       }
       callsByPath[r.path] = (callsByPath[r.path] ?? 0) + 1;
-      if (_failures.contains(statusClass)) {
+      if (r.isFailure) {
+        failures++;
         failuresByPath[r.path] = (failuresByPath[r.path] ?? 0) + 1;
       }
       callsByHost[r.host] = (callsByHost[r.host] ?? 0) + 1;
@@ -69,7 +64,7 @@ abstract final class RequestStatsCalculator {
       totalRequests: requests.length,
       finishedRequests: finished,
       successCount: count(RequestStatusClass.success),
-      errorCount: _failures.map(count).fold(0, (a, b) => a + b),
+      errorCount: failures,
       totalBytes: totalBytes,
       averageLatency: latencies.isEmpty
           ? null

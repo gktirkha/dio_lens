@@ -96,6 +96,45 @@ void main() {
     expect(storage.requests, hasLength(3));
   });
 
+  test("records the Dio's validateStatus verdict", () async {
+    DioLens.init(
+      navigatorKey: GlobalKey(),
+      storage: MemoryStorage(),
+      uiMode: DioLensMode.all,
+      consoleMode: DioLensMode.none,
+      settings: _quiet,
+    );
+    final dio = dioWith(
+      FakeAdapter((o) async {
+        if (o.path.startsWith('/v1/missing')) {
+          return FakeAdapter.json({'e': 1}, 404);
+        }
+        return FakeAdapter.json({'ok': true});
+      }),
+    );
+
+    await dio.get<dynamic>('/v1/ok');
+    // Dio's default validateStatus rejects 404.
+    await dio
+        .get<dynamic>('/v1/missing/default')
+        .catchError((_) => Response<dynamic>(requestOptions: RequestOptions()));
+    // The app's own validateStatus accepts it.
+    await dio.get<dynamic>(
+      '/v1/missing/allowed',
+      options: Options(validateStatus: (s) => s != null && s < 500),
+    );
+    await drain();
+
+    final byPath = {
+      for (final r in DioLensRuntime.current!.store.requests) r.path: r,
+    };
+    expect(byPath['/v1/ok']!.validStatus, isTrue);
+    expect(byPath['/v1/missing/default']!.validStatus, isFalse);
+    expect(byPath['/v1/missing/default']!.isFailure, isTrue);
+    expect(byPath['/v1/missing/allowed']!.validStatus, isTrue);
+    expect(byPath['/v1/missing/allowed']!.isFailure, isFalse);
+  });
+
   test('never changes the response the app receives', () async {
     DioLens.init(
       navigatorKey: GlobalKey(),

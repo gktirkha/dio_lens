@@ -66,6 +66,7 @@ abstract final class RequestCapture {
     return request.copyWith(
       state: RequestState.completed,
       statusCode: response.statusCode,
+      validStatus: _validStatus(response),
       duration: finishedAt.difference(request.startedAt),
       responseHeaders: headers,
       responseContentType: contentType,
@@ -88,6 +89,16 @@ abstract final class RequestCapture {
     errorMessage: error.message ?? error.error?.toString(),
     stackTrace: error.stackTrace.toString(),
   );
+
+  /// What the Dio's `validateStatus` (the app's own, or Dio's default of 2xx)
+  /// says of the response's status; null when it throws.
+  static bool? _validStatus(Response<dynamic> response) {
+    try {
+      return response.requestOptions.validateStatus(response.statusCode);
+    } on Object {
+      return null;
+    }
+  }
 
   static String? _requestContentType(RequestOptions options) =>
       options.contentType ??

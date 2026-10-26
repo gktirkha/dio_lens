@@ -15,6 +15,7 @@ _RequestListItemEntity _$RequestListItemEntityFromJson(
   startedAt: DateTime.parse(json['started_at'] as String),
   state: $enumDecode(_$RequestStateEnumMap, json['state']),
   statusCode: (json['status_code'] as num?)?.toInt(),
+  validStatus: json['valid_status'] as bool?,
   duration: json['duration'] == null
       ? null
       : Duration(microseconds: (json['duration'] as num).toInt()),
@@ -35,6 +36,7 @@ Map<String, dynamic> _$RequestListItemEntityToJson(
   'started_at': instance.startedAt.toIso8601String(),
   'state': _$RequestStateEnumMap[instance.state]!,
   'status_code': instance.statusCode,
+  'valid_status': instance.validStatus,
   'duration': instance.duration?.inMicroseconds,
   'response_size': instance.responseSize,
   'error_type': _$DioExceptionTypeEnumMap[instance.errorType],

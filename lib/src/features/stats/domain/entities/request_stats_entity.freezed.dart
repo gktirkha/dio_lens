@@ -19,13 +19,15 @@ mixin _$RequestStatsEntity {
 /// Every captured request.
 @JsonKey(name: 'total_requests') int get totalRequests;/// Completed or failed requests, i.e. not pending.
 @JsonKey(name: 'finished_requests') int get finishedRequests;/// 2xx responses.
-@JsonKey(name: 'success_count') int get successCount;/// 4xx and 5xx responses, and requests that failed without a response.
+@JsonKey(name: 'success_count') int get successCount;/// Failed requests: no response, or a status the Dio's `validateStatus`
+/// rejected (4xx or 5xx when that is unknown). See
+/// `RequestListItemEntity.isFailure`.
 @JsonKey(name: 'error_count') int get errorCount;/// Sum of response body sizes, in bytes.
 @JsonKey(name: 'total_bytes') int get totalBytes;/// Average time to a response; null when none completed.
 @JsonKey(name: 'average_latency') Duration? get averageLatency;/// 95th percentile time to a response; null when none completed.
 @JsonKey(name: 'p95_latency') Duration? get p95Latency;/// Requests per status class, only classes that occur, in display order.
 @JsonKey(name: 'status_distribution') List<StatusShareEntity> get statusDistribution;/// Endpoints by average latency, slowest first.
-@JsonKey(name: 'slowest_endpoints') List<EndpointLatencyEntity> get slowestEndpoints;/// Endpoints by number of failed calls (4xx, 5xx, or no response), most
+@JsonKey(name: 'slowest_endpoints') List<EndpointLatencyEntity> get slowestEndpoints;/// Endpoints by number of failed calls (as counted by [errorCount]), most
 /// failures first; only endpoints that failed at least once.
 @JsonKey(name: 'top_failing_endpoints') List<NamedCountEntity> get topFailingEndpoints;/// Endpoints by largest response, largest first.
 @JsonKey(name: 'largest_responses') List<EndpointSizeEntity> get largestResponses;/// Endpoints by number of calls, most called first.
@@ -250,7 +252,9 @@ class _RequestStatsEntity extends RequestStatsEntity {
 @override@JsonKey(name: 'finished_requests') final  int finishedRequests;
 /// 2xx responses.
 @override@JsonKey(name: 'success_count') final  int successCount;
-/// 4xx and 5xx responses, and requests that failed without a response.
+/// Failed requests: no response, or a status the Dio's `validateStatus`
+/// rejected (4xx or 5xx when that is unknown). See
+/// `RequestListItemEntity.isFailure`.
 @override@JsonKey(name: 'error_count') final  int errorCount;
 /// Sum of response body sizes, in bytes.
 @override@JsonKey(name: 'total_bytes') final  int totalBytes;
@@ -276,10 +280,10 @@ class _RequestStatsEntity extends RequestStatsEntity {
   return EqualUnmodifiableListView(_slowestEndpoints);
 }
 
-/// Endpoints by number of failed calls (4xx, 5xx, or no response), most
+/// Endpoints by number of failed calls (as counted by [errorCount]), most
 /// failures first; only endpoints that failed at least once.
  final  List<NamedCountEntity> _topFailingEndpoints;
-/// Endpoints by number of failed calls (4xx, 5xx, or no response), most
+/// Endpoints by number of failed calls (as counted by [errorCount]), most
 /// failures first; only endpoints that failed at least once.
 @override@JsonKey(name: 'top_failing_endpoints') List<NamedCountEntity> get topFailingEndpoints {
   if (_topFailingEndpoints is EqualUnmodifiableListView) return _topFailingEndpoints;

@@ -24,7 +24,9 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     /// 2xx responses.
     @JsonKey(name: 'success_count') required int successCount,
 
-    /// 4xx and 5xx responses, and requests that failed without a response.
+    /// Failed requests: no response, or a status the Dio's `validateStatus`
+    /// rejected (4xx or 5xx when that is unknown). See
+    /// `RequestListItemEntity.isFailure`.
     @JsonKey(name: 'error_count') required int errorCount,
 
     /// Sum of response body sizes, in bytes.
@@ -46,7 +48,7 @@ abstract class RequestStatsEntity with _$RequestStatsEntity {
     @Default(<EndpointLatencyEntity>[])
     List<EndpointLatencyEntity> slowestEndpoints,
 
-    /// Endpoints by number of failed calls (4xx, 5xx, or no response), most
+    /// Endpoints by number of failed calls (as counted by [errorCount]), most
     /// failures first; only endpoints that failed at least once.
     @JsonKey(name: 'top_failing_endpoints')
     @Default(<NamedCountEntity>[])
