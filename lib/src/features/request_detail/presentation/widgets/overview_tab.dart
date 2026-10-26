@@ -11,7 +11,8 @@ import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
 /// Overview tab: URL parts, status, timing, sizes, query params and the cURL
-/// command. Values are masked for the cURL & Overview redaction target.
+/// command. Values are shown masked for the UI redaction target and copied
+/// masked for the clipboard target.
 class OverviewTab extends StatelessWidget {
   /// Creates the tab.
   const OverviewTab({
@@ -37,7 +38,8 @@ class OverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
-    final masked = RequestRedactor.redact(
+    final shown = RequestRedactor.redact(request, settings);
+    final copied = RequestRedactor.redact(
       request,
       settings,
       target: DioLensRedactionTarget.clipboard,
@@ -59,7 +61,11 @@ class OverviewTab extends StatelessWidget {
     };
 
     final fields = <Widget>[
-      OverviewField(label: 'Full URL', value: _readable(masked.uri)),
+      OverviewField(
+        label: 'Full URL',
+        value: _readable(shown.uri),
+        copyValue: _readable(copied.uri),
+      ),
       OverviewField(label: 'Host', value: request.host),
       OverviewField(label: 'Path', value: request.path),
       if (params.isNotEmpty)
@@ -75,7 +81,8 @@ class OverviewTab extends StatelessWidget {
                   KeyValueEntry(
                     p.key,
                     p.value,
-                    redacted: settings.isQueryParamRedacted(
+                    redacted: settings.isQueryParamRedacted(p.key),
+                    copyRedacted: settings.isQueryParamRedacted(
                       p.key,
                       target: DioLensRedactionTarget.clipboard,
                     ),
@@ -111,7 +118,7 @@ class OverviewTab extends StatelessWidget {
       ),
       OverviewField(label: 'Request type', value: request.requestContentType),
       OverviewField(label: 'Response type', value: request.responseContentType),
-      CurlSection(command: masked.curl),
+      CurlSection(command: shown.curl, copyCommand: copied.curl),
     ];
 
     return ListView.separated(

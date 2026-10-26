@@ -33,6 +33,7 @@ class OverviewField extends StatelessWidget {
     required this.label,
     required this.value,
     this.copyable = true,
+    this.copyValue,
     this.valueColor,
   });
 
@@ -44,6 +45,9 @@ class OverviewField extends StatelessWidget {
 
   /// Whether tapping copies the value.
   final bool copyable;
+
+  /// What tapping copies, when it differs from [value].
+  final String? copyValue;
 
   /// Optional color of the value.
   final Color? valueColor;
@@ -101,7 +105,8 @@ class OverviewField extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: canCopy
               ? InkWell(
-                  onTap: () => copyToClipboard(context, text, label: label),
+                  onTap: () =>
+                      copyToClipboard(context, copyValue ?? text, label: label),
                   child: box,
                 )
               : box,
@@ -114,10 +119,13 @@ class OverviewField extends StatelessWidget {
 /// The cURL command with a copy button.
 class CurlSection extends StatelessWidget {
   /// Creates the section.
-  const CurlSection({super.key, required this.command});
+  const CurlSection({super.key, required this.command, this.copyCommand});
 
-  /// The cURL command.
+  /// The cURL command shown.
   final String command;
+
+  /// What "Copy cURL" copies, when it differs from [command].
+  final String? copyCommand;
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +169,8 @@ class CurlSection extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
-            onPressed: () => copyToClipboard(context, command, label: 'cURL'),
+            onPressed: () =>
+                copyToClipboard(context, copyCommand ?? command, label: 'cURL'),
             icon: const Icon(Icons.content_copy_rounded, size: 14),
             label: const Text('Copy cURL'),
             style: OutlinedButton.styleFrom(

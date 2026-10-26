@@ -57,7 +57,7 @@ void main() {
     test('leaves everything when redaction is off', () {
       final r = RequestRedactor.redact(
         post,
-        settings.copyWith(redactionMode: DioLensRedactionMode.off),
+        settings.copyWith(redactionMode: DioLensRedactionMode.none),
       );
       expect(r, post);
     });
@@ -164,25 +164,34 @@ void main() {
     });
   });
 
-  test('the shared cURL follows the cURL target, the report the UI', () {
-    String curlOf(DioLensRedactionMode mode) {
-      final text = ShareContentBuilder.build(
-        post,
-        DioLensSettings(redactionMode: mode),
-      ).text;
-      return text.substring(text.indexOf('curl -X'));
-    }
+  test('the report is masked for the target it goes to', () {
+    String reportFor(
+      DioLensRedactionMode mode, {
+      DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+    }) => ShareContentBuilder.build(
+      post,
+      DioLensSettings(redactionMode: mode),
+      target: target,
+    ).text;
 
-    expect(curlOf(DioLensRedactionMode.clipboard), contains('[REDACTED]'));
+    // Handed to the app: the UI target, cURL included.
+    final shared = reportFor(DioLensRedactionMode.clipboard);
+    expect(shared, contains('Authorization: Bearer secret'));
     expect(
-      curlOf(DioLensRedactionMode.clipboard),
+      shared.substring(shared.indexOf('curl -X')),
+      contains('Bearer secret'),
+    );
+    expect(
+      reportFor(DioLensRedactionMode.ui),
       isNot(contains('Bearer secret')),
     );
-    expect(curlOf(DioLensRedactionMode.ui), contains('Bearer secret'));
-    final uiReport = ShareContentBuilder.build(
-      post,
-      const DioLensSettings(redactionMode: DioLensRedactionMode.ui),
-    ).text;
-    expect(uiReport, contains('Authorization: [REDACTED]'));
+
+    // Copied: the clipboard target.
+    final copied = reportFor(
+      DioLensRedactionMode.clipboard,
+      target: DioLensRedactionTarget.clipboard,
+    );
+    expect(copied, contains('Authorization: [REDACTED]'));
+    expect(copied, isNot(contains('Bearer secret')));
   });
 }

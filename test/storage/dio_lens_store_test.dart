@@ -220,7 +220,7 @@ void main() {
   test('locked redaction stays as given in code', () async {
     final storage = MemoryStorage()
       ..settings = const DioLensSettings(
-        redactionMode: DioLensRedactionMode.off,
+        redactionMode: DioLensRedactionMode.none,
         redactedHeaders: [],
         maxRequests: 50,
       ).toJson();
@@ -240,7 +240,7 @@ void main() {
     expect(s.isRedactionLocked, isTrue);
 
     await store.updateSettings(
-      s.copyWith(redactionMode: DioLensRedactionMode.off, maxRequests: 20),
+      s.copyWith(redactionMode: DioLensRedactionMode.none, maxRequests: 20),
     );
     s = store.settings.value;
     expect(s.redactionMode, DioLensRedactionMode.uiConsole);
@@ -248,15 +248,12 @@ void main() {
   });
 
   test('redaction is not locked outside the chosen build modes', () async {
-    final store = storeOver(
-      MemoryStorage(),
-      settings: const DioLensSettings(),
-    );
+    final store = storeOver(MemoryStorage(), settings: const DioLensSettings());
     await store.ready;
     await store.updateSettings(
-      store.settings.value.copyWith(redactionMode: DioLensRedactionMode.off),
+      store.settings.value.copyWith(redactionMode: DioLensRedactionMode.none),
     );
-    expect(store.settings.value.redactionMode, DioLensRedactionMode.off);
+    expect(store.settings.value.redactionMode, DioLensRedactionMode.none);
     expect(store.settings.value.isRedactionLocked, isFalse);
   });
 }

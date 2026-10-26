@@ -201,10 +201,10 @@ Values of the headers and query parameters in `redactedHeaders` and
 `redactedQueryParams` are masked in three places, chosen with
 `redactionMode`:
 
-- **UI**: the request list, the Request and Response tabs, the header of the
-  detail page, exports and shared reports.
-- **Clipboard**: the Overview tab and every cURL command (the cURL buttons and
-  the cURL section of shared reports).
+- **UI**: everything shown on screen (the request list and every detail tab),
+  exports, and reports handed to `onShare`.
+- **Clipboard**: everything copied: fields, "Copy all", cURL commands, and
+  reports copied when there is no `onShare`.
 - **Console**: console logs.
 
 | `redactionMode`    | UI  | Clipboard | Console |

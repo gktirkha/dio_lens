@@ -99,12 +99,17 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
     final request = await _load(item);
     if (request == null || !mounted) return;
     final settings = await widget.dependencies.watchSettingsUseCase(unit).first;
+    final onShare = widget.onShare;
+    // Without onShare the report goes to the clipboard.
     final content = await widget.dependencies.buildShareContentUseCase((
       request: request,
       settings: settings,
+      target: onShare == null
+          ? DioLensRedactionTarget.clipboard
+          : DioLensRedactionTarget.ui,
     ));
     if (!mounted) return;
-    if (widget.onShare case final onShare?) {
+    if (onShare != null) {
       await onShare(content);
     } else {
       await copyToClipboard(context, content.text, label: 'Request');

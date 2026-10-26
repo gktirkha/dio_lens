@@ -4,6 +4,7 @@ import 'package:dio_lens/src/features/request_detail/presentation/pages/request_
 import 'package:dio_lens/src/features/request_detail/presentation/widgets/key_value_box.dart';
 import 'package:dio_lens/src/features/settings/presentation/pages/settings_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers/entities.dart';
@@ -163,7 +164,7 @@ void main() {
     expect(h.adapter.requests, isEmpty);
   });
 
-  testWidgets('Overview and cURL follow the cURL target', (tester) async {
+  testWidgets('clipboard mode masks only what is copied', (tester) async {
     final h = await Harness.start(
       tester,
       size: const Size(420, 2600),
@@ -179,28 +180,49 @@ void main() {
         options: Options(headers: {'Authorization': 'Bearer secret'}),
       ),
     );
+    final copied = <String>[];
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          copied.add((call.arguments as Map)['text'] as String);
+        }
+        return null;
+      },
+    );
     DioLens.openRequest(h.runtime.store.requests.single.id);
     await h.settle();
 
+    // Shown unmasked.
+    const url = 'https://api.example.com/v1/a?token=abc';
+    expect(find.text(url), findsOneWidget);
     expect(
-      find.text('https://api.example.com/v1/a?token=[REDACTED]'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('Bearer secret'), findsNothing);
-    expect(
-      find.textContaining("-H 'Authorization: [REDACTED]'"),
+      find.textContaining("-H 'Authorization: Bearer secret'"),
       findsOneWidget,
     );
 
+    // Copied masked.
+    await tester.tap(find.text(url));
+    await h.settle();
+    expect(copied.last, 'https://api.example.com/v1/a?token=[REDACTED]');
+    await tester.tap(find.text('Copy cURL').last);
+    await h.settle();
+    expect(copied.last, contains("-H 'Authorization: [REDACTED]'"));
+    expect(copied.last, isNot(contains('Bearer secret')));
+
     await tester.tap(find.text('Request'));
     await h.settle();
-    final masked = {
+    final entries = {
       for (final box in tester.widgetList<KeyValueBox>(
         find.byType(KeyValueBox),
       ))
-        for (final e in box.entries) e.key: e.redacted,
+        for (final e in box.entries) e.key: e,
     };
-    expect(masked['Authorization'], isFalse, reason: 'UI is not masked');
+    expect(entries['Authorization']!.displayValue, 'Bearer secret');
+    expect(entries['Authorization']!.copyValue, KeyValueEntry.mask);
+    await tester.tap(find.text('Bearer secret'));
+    await h.settle();
+    expect(copied.last, KeyValueEntry.mask);
   });
 
   testWidgets('list rows follow the UI target live', (tester) async {
@@ -221,7 +243,7 @@ void main() {
     await tester.runAsync(
       () => DioLens.updateSettings(
         DioLens.settings.value.copyWith(
-          redactionMode: DioLensRedactionMode.off,
+          redactionMode: DioLensRedactionMode.none,
         ),
       ),
     );

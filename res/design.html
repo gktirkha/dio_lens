@@ -615,7 +615,6 @@
     .dl-ov-kv:hover { background: color-mix(in srgb, var(--dl-surface-3) 60%, transparent); }
     .dl-ov-kv-key { font-size:11px; text-transform:uppercase; letter-spacing:.12em; color: var(--dl-text-faint); }
     .dl-ov-kv-val { font:12.5px/1.6 var(--dl-font-mono); color: var(--dl-text); word-break:break-all; text-align:left; }
-    .dl-ov-kv-val.redacted { letter-spacing:2px; }
     .dl-tabstack { display:flex; flex-direction:column; gap:14px; }
     .dl-body-wrap { display:flex; flex-direction:column; gap:10px; }
     .dl-curl-section { display:flex; flex-direction:column; gap:10px; margin-top:4px; padding:12px; border-radius:12px; border:1px solid var(--dl-border); background: color-mix(in srgb, var(--dl-surface-2) 50%, transparent); }
@@ -1340,11 +1339,12 @@
         return isRedactedKey(state.settings.redactQueryList, decodeURIComponent(key)) ? key + '=[REDACTED]' : p;
       }).join('&');
     }
-    function buildCurl(r) {
-      var q = maskQuery(r.query, 'clipboard');
+    function buildCurl(r, target) {
+      target = target || 'clipboard';
+      var q = maskQuery(r.query, target);
       var parts = ['curl -X ' + r.method, "'https://" + r.host + r.path + (q ? '?' + q : '') + "'"];
       Object.keys(r.reqHeaders || {}).forEach(function (k) {
-        var v = redactsIn('clipboard') && isRedactedKey(state.settings.redactHeadersList, k) ? '[REDACTED]' : r.reqHeaders[k];
+        var v = redactsIn(target) && isRedactedKey(state.settings.redactHeadersList, k) ? '[REDACTED]' : r.reqHeaders[k];
         parts.push("-H '" + k + ': ' + v + "'");
       });
       if (r.reqBody) {
@@ -1628,17 +1628,19 @@
       if (!obj || !Object.keys(obj).length) return '<p style="color:var(--dl-text-faint);font-size:12.5px;">None</p>';
       redactList = redactList || (isQuery ? (state.settings.redactQueryList || []) : (state.settings.redactHeadersList || []));
       var keys = Object.keys(obj);
+      /* Shown masked for the UI target, copied masked for the clipboard target */
+      function masked(k, target) { return redactsIn(target) && redactList.indexOf(k.toLowerCase()) !== -1; }
       var allText = keys.map(function (k) {
-        var redact = redactsIn('ui') && redactList.indexOf(k.toLowerCase()) !== -1;
-        return k + ': ' + (redact ? '••••••• (redacted)' : obj[k]);
+        return k + ': ' + (masked(k, 'clipboard') ? '[REDACTED]' : obj[k]);
       }).join('\n');
       return '<div class="dl-ov-box">' +
         '<div class="dl-ov-box-header"><span>' + esc(title || 'Headers') + '</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allText) + '" data-label="' + esc(title || 'Headers') + ' copied">' + icon('copy') + ' Copy all</button></div>' +
         '<div class="dl-ov-kv-list">' +
           keys.map(function (k) {
-            var redact = redactsIn('ui') && redactList.indexOf(k.toLowerCase()) !== -1;
-            var val = redact ? '••••••• (redacted)' : String(obj[k]);
-            return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(val) + '" data-label="' + esc(k) + ' copied">' +
+            var redact = masked(k, 'ui');
+            var val = redact ? '[REDACTED]' : String(obj[k]);
+            var copy = masked(k, 'clipboard') ? '[REDACTED]' : String(obj[k]);
+            return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(copy) + '" data-label="' + esc(k) + ' copied">' +
               '<span class="dl-ov-kv-key">' + esc(k) + '</span>' +
               '<span class="dl-ov-kv-val' + (redact ? ' redacted' : '') + '">' + esc(val) + '</span>' +
             '</button>';
@@ -1700,22 +1702,24 @@
       '<div class="dl-json-raw">' + esc(text) + '</div>';
     }
 
-    function copyableField(label, value) {
+    function copyableField(label, value, copyValue) {
       if (value == null || value === '') value = '—';
       var str = String(value);
+      var copy = copyValue == null ? str : String(copyValue);
       return '<div class="dl-ov-item">' +
         '<div class="dl-ov-label">' + esc(label) + '</div>' +
-        '<button type="button" class="dl-ov-value" data-action="copy-text" data-copy="' + encodeURIComponent(str) + '" data-label="' + esc(label) + ' copied">' +
+        '<button type="button" class="dl-ov-value" data-action="copy-text" data-copy="' + encodeURIComponent(copy) + '" data-label="' + esc(label) + ' copied">' +
           '<span class="dl-ov-val-text">' + esc(str) + '</span>' +
           '<span class="dl-ov-copy">' + icon('copy') + '</span>' +
         '</button>' +
       '</div>';
     }
-    function copyableKvField(label, key, value) {
+    function copyableKvField(label, key, value, copyValue) {
       if (value == null || value === '') value = '—';
       var str = String(value);
+      var copy = copyValue == null ? str : String(copyValue);
       var copyKey = key == null ? label : key;
-      return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(str) + '" data-label="' + esc(copyKey) + ' copied">' +
+      return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(copy) + '" data-label="' + esc(copyKey) + ' copied">' +
         '<span class="dl-ov-kv-key">' + esc(key == null ? label : key) + '</span>' +
         '<span class="dl-ov-kv-val">' + esc(str) + '</span>' +
       '</button>';
@@ -1725,9 +1729,16 @@
         req.statusClass === '4xx' ? 'status-warn' :
         (req.statusClass === '5xx' || req.statusClass === 'error') ? 'status-bad' : '';
       var statusText = statusLabel(req) + (req.statusClass==='error' ? ' · ' + req.error.type : '');
-      var curlCmd = buildCurl(req);
-      var ovQuery = maskQuery(req.query, 'clipboard');
-      var fullUrl = 'https://' + req.host + req.path + (ovQuery ? '?' + ovQuery : '');
+      /* Shown masked for the UI target, copied masked for the clipboard target */
+      var curlShown = buildCurl(req, 'ui');
+      var curlCmd = buildCurl(req, 'clipboard');
+      function urlFor(target) {
+        var q = maskQuery(req.query, target);
+        return 'https://' + req.host + req.path + (q ? '?' + q : '');
+      }
+      function queryValue(k, target) {
+        return redactsIn(target) && isRedactedKey(state.settings.redactQueryList, k) ? '[REDACTED]' : qobj[k];
+      }
       var qobj = req.reqQuery || {};
       var qkeys = Object.keys(qobj);
       if (qkeys.length === 0 && req.query) {
@@ -1740,15 +1751,15 @@
           qkeys = Object.keys(qobj);
         } catch (e) {}
       }
-      var allQuery = qkeys.map(function (k) { return k + '=' + qobj[k]; }).join('&') || req.query || '';
+      var allQuery = qkeys.map(function (k) { return k + '=' + queryValue(k, 'clipboard'); }).join('&') || maskQuery(req.query, 'clipboard') || '';
       var qpHtml = qkeys.length
         ? '<div class="dl-ov-box">' +
             '<div class="dl-ov-box-header"><span>Query</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allQuery) + '" data-label="Query params copied">' + icon('copy') + ' Copy all</button></div>' +
-            '<div class="dl-ov-kv-list">' + qkeys.map(function (k) { return copyableKvField('Query', k, redactsIn('clipboard') && isRedactedKey(state.settings.redactQueryList, k) ? '[REDACTED]' : qobj[k]); }).join('') + '</div>' +
+            '<div class="dl-ov-kv-list">' + qkeys.map(function (k) { return copyableKvField('Query', k, queryValue(k, 'ui'), queryValue(k, 'clipboard')); }).join('') + '</div>' +
           '</div>'
-        : (req.query ? copyableField('Query params', req.query) : '');
+        : (req.query ? copyableField('Query params', maskQuery(req.query, 'ui'), maskQuery(req.query, 'clipboard')) : '');
       return '<div class="dl-overview">' +
-        copyableField('Full URL', fullUrl) +
+        copyableField('Full URL', urlFor('ui'), urlFor('clipboard')) +
         copyableField('Host', req.host) +
         copyableField('Path', req.path) +
         (qpHtml ? '<div class="dl-ov-item"><div class="dl-ov-label">Query params</div>' + qpHtml + '</div>' : '') +
@@ -1766,7 +1777,7 @@
         copyableField('Response type', req.resContentType || '—') +
         '<div class="dl-curl-section">' +
           '<div class="dl-curl-header"><span>cURL</span></div>' +
-          '<pre class="dl-curl-pre"><code>' + esc(curlCmd) + '</code></pre>' +
+          '<pre class="dl-curl-pre"><code>' + esc(curlShown) + '</code></pre>' +
           '<button type="button" class="dl-curl-copy" data-action="copy-text" data-copy="' + encodeURIComponent(curlCmd) + '" data-label="cURL copied">' + icon('copy') + ' Copy cURL</button>' +
         '</div>' +
       '</div>';

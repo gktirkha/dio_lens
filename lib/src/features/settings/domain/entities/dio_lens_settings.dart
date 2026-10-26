@@ -88,7 +88,7 @@ abstract class DioLensSettings with _$DioLensSettings {
     /// Where the values of [redactedHeaders] and [redactedQueryParams] are
     /// masked: any combination of the UI, cURL commands and console logs.
     @JsonKey(name: 'redaction_mode')
-    @Default(DioLensRedactionMode.redact)
+    @Default(DioLensRedactionMode.all)
     DioLensRedactionMode redactionMode,
 
     /// Header names masked as [redactionMode] says, in requests and

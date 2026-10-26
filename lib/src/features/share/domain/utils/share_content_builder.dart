@@ -10,12 +10,14 @@ import '../entities/dio_lens_share_content.dart';
 
 /// Builds the shared report of one request. Pure, so it can run in an isolate.
 abstract final class ShareContentBuilder {
-  /// The report of the request, masked as the settings say.
+  /// The report of the request, masked as the settings say for [target]: the
+  /// UI when handed to the app, the clipboard when copied.
   static DioLensShareContent build(
     RequestDetailEntity request,
-    DioLensSettings settings,
-  ) {
-    final r = RequestRedactor.redact(request, settings);
+    DioLensSettings settings, {
+    DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+  }) {
+    final r = RequestRedactor.redact(request, settings, target: target);
     final status = switch (r.state) {
       RequestState.pending => 'Pending',
       RequestState.failed => 'Failed (${r.errorType?.name ?? 'unknown'})',
@@ -61,13 +63,7 @@ abstract final class ShareContentBuilder {
     }
 
     _section(out, 'cURL');
-    out.writeln(
-      RequestRedactor.redact(
-        request,
-        settings,
-        target: DioLensRedactionTarget.clipboard,
-      ).curl,
-    );
+    out.writeln(r.curl);
 
     return DioLensShareContent(
       subject: '${r.method} ${r.path} · $status',

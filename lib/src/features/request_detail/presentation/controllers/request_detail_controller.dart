@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/domain/unit.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
 import '../../../settings/domain/use_cases/watch_settings_use_case.dart';
 import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../../share/domain/use_cases/build_share_content_use_case.dart';
@@ -61,8 +62,14 @@ class RequestDetailController extends ChangeNotifier {
   }
 
   /// [request] as a shareable report, masked as the settings say.
-  Future<DioLensShareContent> shareContent(RequestDetailEntity request) =>
-      _buildShareContent((request: request, settings: _settings));
+  Future<DioLensShareContent> shareContent(
+    RequestDetailEntity request, {
+    required DioLensRedactionTarget target,
+  }) => _buildShareContent((
+    request: request,
+    settings: _settings,
+    target: target,
+  ));
 
   @override
   void dispose() {

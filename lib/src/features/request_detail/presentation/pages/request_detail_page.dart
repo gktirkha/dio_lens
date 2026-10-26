@@ -57,9 +57,16 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
   }
 
   Future<void> _share(RequestDetailEntity request) async {
-    final content = await _controller.shareContent(request);
+    final onShare = widget.onShare;
+    // Without onShare the report goes to the clipboard.
+    final content = await _controller.shareContent(
+      request,
+      target: onShare == null
+          ? DioLensRedactionTarget.clipboard
+          : DioLensRedactionTarget.ui,
+    );
     if (!mounted) return;
-    if (widget.onShare case final onShare?) {
+    if (onShare != null) {
       await onShare(content);
     } else {
       await copyToClipboard(context, content.text, label: 'Request');

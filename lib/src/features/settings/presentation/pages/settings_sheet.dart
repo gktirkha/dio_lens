@@ -207,7 +207,7 @@ class _SettingsBody extends StatelessWidget {
           ],
         ),
       ),
-      if (s.redactionMode != DioLensRedactionMode.off) ...[
+      if (s.redactionMode != DioLensRedactionMode.none) ...[
         SettingsRow(
           title: 'Header keys to redact',
           description: keys(s.redactedHeaders),
@@ -223,14 +223,14 @@ class _SettingsBody extends StatelessWidget {
   }
 
   static const Map<DioLensRedactionMode, String> _redactionLabels = {
-    DioLensRedactionMode.redact: 'Everywhere',
+    DioLensRedactionMode.all: 'Everywhere',
     DioLensRedactionMode.ui: 'UI',
     DioLensRedactionMode.clipboard: 'Clipboard',
     DioLensRedactionMode.console: 'Console',
     DioLensRedactionMode.uiClipboard: 'UI, Clipboard',
     DioLensRedactionMode.uiConsole: 'UI, Console',
     DioLensRedactionMode.clipboardConsole: 'Clipboard, Console',
-    DioLensRedactionMode.off: 'Off',
+    DioLensRedactionMode.none: 'Off',
   };
 
   static const Map<DioLensRetention, String> _retentionLabels = {
@@ -455,7 +455,7 @@ class _SettingsBody extends StatelessWidget {
                   semanticLabel: 'Redaction mode',
                 ),
               ),
-              if (s.redactionMode != DioLensRedactionMode.off) ...[
+              if (s.redactionMode != DioLensRedactionMode.none) ...[
                 SettingsKeyListField(
                   label: 'Header keys to redact',
                   keys: s.redactedHeaders,

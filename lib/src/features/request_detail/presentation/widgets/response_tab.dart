@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/enums/request_state.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'error_card.dart';
@@ -66,6 +67,10 @@ class ResponseTab extends StatelessWidget {
                 e.key,
                 e.value,
                 redacted: settings.isHeaderRedacted(e.key),
+                copyRedacted: settings.isHeaderRedacted(
+                  e.key,
+                  target: DioLensRedactionTarget.clipboard,
+                ),
               ),
           ],
         ),

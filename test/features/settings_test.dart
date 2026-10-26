@@ -15,7 +15,7 @@ void main() {
     expect(s.notificationDuration, const Duration(seconds: 4));
     expect(s.showBubble, isTrue);
     expect(s.bubblePosition, DioLensBubblePosition.bottomEnd);
-    expect(s.redactionMode, DioLensRedactionMode.redact);
+    expect(s.redactionMode, DioLensRedactionMode.all);
     expect(s.themeMode, ThemeMode.dark);
   });
 
@@ -58,13 +58,13 @@ void main() {
     expect(s.isQueryParamRedacted('APIKEY'), isTrue);
     expect(
       s
-          .copyWith(redactionMode: DioLensRedactionMode.off)
+          .copyWith(redactionMode: DioLensRedactionMode.none)
           .isHeaderRedacted('x-api-key'),
       isFalse,
     );
     expect(
       s
-          .copyWith(redactionMode: DioLensRedactionMode.off)
+          .copyWith(redactionMode: DioLensRedactionMode.none)
           .isQueryParamRedacted('apikey'),
       isFalse,
     );
@@ -85,14 +85,14 @@ void main() {
     const curl = DioLensRedactionTarget.clipboard;
     const console = DioLensRedactionTarget.console;
     final expected = {
-      DioLensRedactionMode.redact: {ui, curl, console},
+      DioLensRedactionMode.all: {ui, curl, console},
       DioLensRedactionMode.ui: {ui},
       DioLensRedactionMode.clipboard: {curl},
       DioLensRedactionMode.console: {console},
       DioLensRedactionMode.uiClipboard: {ui, curl},
       DioLensRedactionMode.uiConsole: {ui, console},
       DioLensRedactionMode.clipboardConsole: {curl, console},
-      DioLensRedactionMode.off: <DioLensRedactionTarget>{},
+      DioLensRedactionMode.none: <DioLensRedactionTarget>{},
     };
     expect(expected.keys, containsAll(DioLensRedactionMode.values));
     for (final MapEntry(key: mode, value: targets) in expected.entries) {
@@ -113,7 +113,10 @@ void main() {
   test('the redaction lock is code only and never stored', () {
     const s = DioLensSettings(lockRedaction: DioLensMode.all);
     expect(s.toJson().keys.any((k) => k.contains('lock')), isFalse);
-    expect(DioLensSettings.fromJson(s.toJson()).lockRedaction, DioLensMode.none);
+    expect(
+      DioLensSettings.fromJson(s.toJson()).lockRedaction,
+      DioLensMode.none,
+    );
     expect(const DioLensSettings().isRedactionLocked, isFalse);
   });
 }

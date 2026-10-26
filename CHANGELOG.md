@@ -48,8 +48,8 @@ Initial release.
   reset.
 - Settings persist; values passed to `DioLens.init` are the starting point.
 - Sensitive headers and query parameters are masked as the redaction mode
-  says: any combination of the UI, the clipboard (the Overview tab and cURL
-  commands), and console logs.
+  says: any combination of the UI (what is shown), the clipboard (what is
+  copied) and console logs.
 
 ### Storage
 - Requests and settings persist with `shared_preferences` by default, or

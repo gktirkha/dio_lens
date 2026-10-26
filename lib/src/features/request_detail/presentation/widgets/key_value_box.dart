@@ -5,12 +5,19 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../core/utils/ltr_content.dart';
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../settings/domain/utils/request_redactor.dart';
 import 'overview_widgets.dart';
 
 /// One row of a [KeyValueBox].
 class KeyValueEntry {
-  /// Creates a row, optionally [redacted].
-  const KeyValueEntry(this.key, this.value, {this.redacted = false});
+  /// Creates a row, optionally [redacted] on screen and [copyRedacted] when
+  /// copied; [copyRedacted] defaults to [redacted].
+  const KeyValueEntry(
+    this.key,
+    this.value, {
+    this.redacted = false,
+    bool? copyRedacted,
+  }) : copyRedacted = copyRedacted ?? redacted;
 
   /// The row's key, e.g. a header name.
   final String key;
@@ -18,14 +25,20 @@ class KeyValueEntry {
   /// The row's value.
   final String value;
 
-  /// Whether the value is hidden behind [mask].
+  /// Whether the value is shown as [mask].
   final bool redacted;
 
-  /// Shown instead of redacted values.
-  static const String mask = '••••••• (redacted)';
+  /// Whether the value is copied as [mask].
+  final bool copyRedacted;
 
-  /// What is shown and copied for this row.
+  /// Shown and copied instead of redacted values.
+  static const String mask = RequestRedactor.mask;
+
+  /// What is shown for this row.
   String get displayValue => redacted ? mask : value;
+
+  /// What is copied for this row.
+  String get copyValue => copyRedacted ? mask : value;
 }
 
 /// Bordered box of key/value rows with a title and "Copy all". Rows copy their
@@ -54,9 +67,9 @@ class KeyValueBox extends StatelessWidget {
     for (final e in entries) {
       final existing = map[e.key];
       map[e.key] = switch (existing) {
-        null => e.displayValue,
-        final List<Object> values => [...values, e.displayValue],
-        _ => [existing, e.displayValue],
+        null => e.copyValue,
+        final List<Object> values => [...values, e.copyValue],
+        _ => [existing, e.copyValue],
       };
     }
     return const JsonEncoder.withIndent('  ').convert(map);
@@ -123,7 +136,8 @@ class _Row extends StatelessWidget {
     return Material(
       type: MaterialType.transparency,
       child: InkWell(
-        onTap: () => copyToClipboard(context, value, label: entry.key),
+        onTap: () =>
+            copyToClipboard(context, entry.copyValue, label: entry.key),
         child: Container(
           padding: const EdgeInsetsDirectional.fromSTEB(12, 10, 12, 10),
           decoration: BoxDecoration(
@@ -152,7 +166,6 @@ class _Row extends StatelessWidget {
                 style: theme.monoTextStyle.copyWith(
                   fontSize: 12.5,
                   height: 1.6,
-                  letterSpacing: entry.redacted ? 2 : null,
                   color: entry.redacted ? theme.textFaint : theme.text,
                 ),
               ),

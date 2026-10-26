@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'key_value_box.dart';
@@ -36,6 +37,10 @@ class RequestTab extends StatelessWidget {
                 e.key,
                 e.value,
                 redacted: settings.isHeaderRedacted(e.key),
+                copyRedacted: settings.isHeaderRedacted(
+                  e.key,
+                  target: DioLensRedactionTarget.clipboard,
+                ),
               ),
           ],
         ),
@@ -48,6 +53,10 @@ class RequestTab extends StatelessWidget {
                 p.key,
                 p.value,
                 redacted: settings.isQueryParamRedacted(p.key),
+                copyRedacted: settings.isQueryParamRedacted(
+                  p.key,
+                  target: DioLensRedactionTarget.clipboard,
+                ),
               ),
           ],
         ),

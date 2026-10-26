@@ -39,7 +39,7 @@ _DioLensSettings _$DioLensSettingsFromJson(Map<String, dynamic> json) =>
             _$DioLensRedactionModeEnumMap,
             json['redaction_mode'],
           ) ??
-          DioLensRedactionMode.redact,
+          DioLensRedactionMode.all,
       redactedHeaders:
           (json['redacted_headers'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -95,14 +95,14 @@ const _$DioLensBubblePositionEnumMap = {
 };
 
 const _$DioLensRedactionModeEnumMap = {
-  DioLensRedactionMode.redact: 'redact',
+  DioLensRedactionMode.all: 'all',
   DioLensRedactionMode.ui: 'ui',
   DioLensRedactionMode.clipboard: 'clipboard',
   DioLensRedactionMode.console: 'console',
   DioLensRedactionMode.uiClipboard: 'ui_clipboard',
   DioLensRedactionMode.uiConsole: 'ui_console',
   DioLensRedactionMode.clipboardConsole: 'clipboard_console',
-  DioLensRedactionMode.off: 'off',
+  DioLensRedactionMode.none: 'none',
 };
 
 const _$ThemeModeEnumMap = {

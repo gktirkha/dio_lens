@@ -19,7 +19,7 @@ enum DioLensRedactionTarget {
 @JsonEnum(fieldRename: FieldRename.snake)
 enum DioLensRedactionMode {
   /// Masked everywhere: the UI, the clipboard and console logs.
-  redact(inUi: true, inClipboard: true, inConsole: true),
+  all(inUi: true, inClipboard: true, inConsole: true),
 
   /// Masked in the UI only.
   ui(inUi: true, inClipboard: false, inConsole: false),
@@ -39,9 +39,8 @@ enum DioLensRedactionMode {
   /// Masked on the clipboard and in console logs.
   clipboardConsole(inUi: false, inClipboard: true, inConsole: true),
 
-
   /// Never masked.
-  off(inUi: false, inClipboard: false, inConsole: false);
+  none(inUi: false, inClipboard: false, inConsole: false);
 
   const DioLensRedactionMode({
     required this.inUi,
