@@ -1,7 +1,7 @@
 name: dio_lens
 description: >-
   In-app network inspector for Dio: browse captured requests, stats and details, replay requests, export HAR or JSON, and redact sensitive data.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/gktirkha/dio_lens
 repository: https://github.com/gktirkha/dio_lens
 issue_tracker: https://github.com/gktirkha/dio_lens/issues

@@ -6,16 +6,16 @@ and stats. Replay requests, export them as HAR or JSON, and share them, with
 sensitive values masked.
 
 <p align="center">
-  <img src="screenshots/demo.gif" width="300" alt="Dragging the Dio Lens bubble, making a request, and opening it from the request-finished banner">
+  <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/demo.gif" width="300" alt="Dragging the Dio Lens bubble, making a request, and opening it from the request-finished banner">
 </p>
 
 ## Screenshots
 
 |                               Requests                                |                                                        Request detail                                                         |                                            Stats                                             |
 | :-------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
-|  <img src="screenshots/requests.png" width="240" alt="Request list">  | <img src="screenshots/detail_request.png" width="240" alt="Request tab with a redacted Authorization header and a JSON body"> |                  <img src="screenshots/stats.png" width="240" alt="Stats">                   |
+|  <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests.png" width="240" alt="Request list">  | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/detail_request.png" width="240" alt="Request tab with a redacted Authorization header and a JSON body"> |                  <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/stats.png" width="240" alt="Stats">                   |
 |                             **Settings**                              |                                                  **Request-finished banner**                                                  |                                       **Light theme**                                        |
-| <img src="screenshots/settings.png" width="240" alt="Settings sheet"> |                         <img src="screenshots/banner.png" width="240" alt="Banner over the host app">                         | <img src="screenshots/requests_light.png" width="240" alt="Request list in the light theme"> |
+| <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/settings.png" width="240" alt="Settings sheet"> |                         <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/banner.png" width="240" alt="Banner over the host app">                         | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests_light.png" width="240" alt="Request list in the light theme"> |
 
 ## Features
 

@@ -1,3 +1,7 @@
+## 0.0.2
+
+- README images now load on pub.dev.
+
 ## 0.0.1
 
 Initial release.
