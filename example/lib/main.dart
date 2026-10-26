@@ -1,11 +1,20 @@
+// How an app integrates Dio Lens. Every button makes a real request to
+// https://httpbingo.org, which echoes back whatever it receives and accepts
+// any HTTP method. The demo requests and screen are in lib/src/.
+
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:dio_lens/dio_lens.dart';
 import 'package:flutter/material.dart';
+
+import 'src/demo_page.dart';
 
 /// The key given to [MaterialApp]; Dio Lens shows its pages through it.
 final navigatorKey = GlobalKey<NavigatorState>();
 
-/// The app's own Dio, used by every request below.
+/// The app's own Dio.
 final dio = Dio(
   BaseOptions(
     baseUrl: 'https://httpbingo.org',
@@ -15,35 +24,58 @@ final dio = Dio(
   ),
 );
 
+/// A second Dio that pins a certificate no server has, so every TLS handshake
+/// is rejected.
+final pinnedDio = Dio(BaseOptions(baseUrl: 'https://httpbingo.org'))
+  ..httpClientAdapter = IOHttpClientAdapter(
+    validateCertificate: (_, _, _) => false,
+  );
+
+/// Dio Lens only hands the file over; this app chooses to save it in the
+/// temp folder and say where.
+Future<void> saveExport(DioLensExportFile export) async {
+  final file = File('${Directory.systemTemp.path}/${export.fileName}');
+  await file.writeAsBytes(export.bytes);
+  debugPrint('Dio Lens export saved: ${file.path}');
+  final context = navigatorKey.currentContext;
+  if (context == null || !context.mounted) return;
+  ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+    SnackBar(
+      content: Text('Saved ${export.fileName} (${export.bytes.length} bytes)'),
+    ),
+  );
+}
+
 void main() {
   DioLens.init(
     navigatorKey: navigatorKey,
-    // Recording and the UI in debug and profile builds (for testers);
-    // console logs in debug builds only. Never release builds.
-    uiMode: DioLensMode.debugProfile,
-    consoleMode: DioLensMode.debug,
-    // Starting values; the user can change them in the settings sheet.
+    // Starting values; testers can change them in the settings sheet.
     settings: const DioLensSettings(
-      maxRequests: 200,
-      retention: DioLensRetention.sevenDays,
+      retention: .sevenDays,
+      maxBodyBytes: 10240,
+      themeMode: .system,
+      redactionMode: .all,
+      // In debug builds redaction is fixed to the values above.
+      lockRedaction: .debug,
     ),
-    // Dio Lens builds the file; the app decides what to do with it.
-    onExport: (file) {
-      final context = navigatorKey.currentContext;
-      if (context == null) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${file.fileName}: ${file.requestCount} requests, '
-            '${file.bytes.length} bytes',
-          ),
-        ),
-      );
-    },
+    // Recording, the UI and console logs in debug and profile builds (for
+    // testers). Never release builds.
+    uiMode: .none,
+    consoleMode: .all,
+    onExport: saveExport,
   );
 
   // Add Dio Lens last, and pass the Dio so Replay can re-send through it.
-  dio.interceptors.add(DioLensInterceptor(dio: dio));
+  dio.interceptors.add(
+    DioLensInterceptor(
+      dio: dio,
+      consoleSettings: const DioLensConsoleSettings(maxWidth: 110),
+    ),
+  );
+  // The name tells Dios with the same base URL apart.
+  pinnedDio.interceptors.add(
+    DioLensInterceptor(dio: pinnedDio, name: 'pinned'),
+  );
 
   runApp(const ExampleApp());
 }
@@ -58,108 +90,13 @@ class ExampleApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'Dio Lens Example',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      home: const RequestsPage(),
-    );
-  }
-}
-
-/// A request the example can make.
-typedef _Demo = ({String label, Future<Response<dynamic>> Function() send});
-
-final List<_Demo> _demos = [
-  (
-    label: 'GET with query',
-    send: () => dio.get('/get', queryParameters: {'page': 2}),
-  ),
-  (
-    label: 'POST JSON',
-    send: () => dio.post('/post', data: {'item': 301, 'quantity': 1}),
-  ),
-  (label: 'PUT JSON', send: () => dio.put('/put', data: {'name': 'Ava'})),
-  (
-    label: 'PATCH JSON',
-    send: () => dio.patch('/patch', data: {'theme': 'dark'}),
-  ),
-  (label: 'DELETE', send: () => dio.delete('/delete')),
-  (
-    label: 'Upload a file',
-    send: () => dio.post(
-      '/post',
-      data: FormData.fromMap({
-        'file': MultipartFile.fromString('hello', filename: 'hello.txt'),
-      }),
-    ),
-  ),
-  (
-    label: 'Image response',
-    send: () => dio.get(
-      '/image/png',
-      options: Options(responseType: ResponseType.bytes),
-    ),
-  ),
-  (label: '404 Not found', send: () => dio.get('/status/404')),
-  (label: '500 Server error', send: () => dio.get('/status/500')),
-  (
-    label: 'Receive timeout',
-    send: () => dio.get(
-      '/delay/5',
-      options: Options(receiveTimeout: const Duration(seconds: 1)),
-    ),
-  ),
-];
-
-/// Buttons that make requests, and a way to open Dio Lens.
-class RequestsPage extends StatelessWidget {
-  /// Creates the page.
-  const RequestsPage({super.key});
-
-  Future<void> _run(BuildContext context, _Demo demo) async {
-    final messenger = ScaffoldMessenger.of(context);
-    String result;
-    try {
-      final response = await demo.send();
-      result = '${demo.label}: ${response.statusCode}';
-    } on DioException catch (error) {
-      result =
-          '${demo.label}: ${error.response?.statusCode ?? error.type.name}';
-    }
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(result)));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dio Lens Example'),
-        actions: [
-          IconButton(
-            tooltip: 'Open Dio Lens',
-            onPressed: DioLens.open,
-            icon: const Icon(Icons.travel_explore_rounded),
-          ),
-        ],
+      darkTheme: ThemeData(
+        colorSchemeSeed: Colors.indigo,
+        brightness: Brightness.dark,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const Text(
-            'Make a request, then tap the floating bubble (or the search '
-            'icon) to inspect it.',
-          ),
-          const SizedBox(height: 12),
-          for (final demo in _demos)
-            Card(
-              child: ListTile(
-                title: Text(demo.label),
-                trailing: const Icon(Icons.send_rounded),
-                onTap: () => _run(context, demo),
-              ),
-            ),
-        ],
-      ),
+      home: DemoPage(dio: dio, pinnedDio: pinnedDio),
     );
   }
 }

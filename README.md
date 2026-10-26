@@ -182,7 +182,7 @@ DioLens.init(
 | `notificationDuration` | 4 s                                                  | How long the banner stays (2 to 15 seconds).                                          |
 | `showBubble`           | `true`                                               | Show the floating bubble.                                                             |
 | `bubblePosition`       | `bottomEnd`                                          | Corner the bubble starts in; follows the reading direction.                           |
-| `redactionMode`        | `redact`                                             | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
+| `redactionMode`        | `all`                                                | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
 | `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
 | `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
 | `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
@@ -209,14 +209,14 @@ Values of the headers and query parameters in `redactedHeaders` and
 
 | `redactionMode`    | UI  | Clipboard | Console |
 | ------------------ | :-: | :-------: | :-----: |
-| `redact` (default) |  ✓  |     ✓     |    ✓    |
+| `all` (default)    |  ✓  |     ✓     |    ✓    |
 | `ui`               |  ✓  |           |         |
 | `clipboard`        |     |     ✓     |         |
 | `console`          |     |           |    ✓    |
 | `uiClipboard`      |  ✓  |     ✓     |         |
 | `uiConsole`        |  ✓  |           |    ✓    |
 | `clipboardConsole` |     |     ✓     |    ✓    |
-| `off`              |     |           |         |
+| `none`             |     |           |         |
 
 Testers can change it in the settings sheet's Privacy section.
 

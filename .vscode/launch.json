@@ -2,19 +2,27 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Playground",
+      "name": "Example",
       "type": "dart",
       "request": "launch",
-      "cwd": "playground",
+      "cwd": "example",
       "program": "lib/main.dart"
     },
     {
-      "name": "Playground (profile)",
+      "name": "Example (profile)",
       "type": "dart",
       "request": "launch",
-      "cwd": "playground",
+      "cwd": "example",
       "program": "lib/main.dart",
       "flutterMode": "profile"
+    },
+    {
+      "name": "Example (release)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "example",
+      "program": "lib/main.dart",
+      "flutterMode": "release"
     }
   ]
 }
