@@ -169,9 +169,7 @@ class DioLensConsoleLogger {
 
     if (_settings.responseBody) {
       logPrint('╔ ${_withState('RESPONSE', 'Body')}');
-      logPrint('║');
-      _printResponse(response, dioSettings);
-      logPrint('║');
+      _printPaddedResponse(response, dioSettings);
       _printLine('╚');
     }
   }
@@ -226,9 +224,7 @@ class DioLensConsoleLogger {
       );
       if (err.response?.data != null && _settings.responseBody) {
         logPrint('╔ ${_withState('ERROR', 'Body')}');
-        logPrint('║');
-        _printResponse(err.response!, dioSettings);
-        logPrint('║');
+        _printPaddedResponse(err.response!, dioSettings);
         _printLine('╚');
       }
     }
@@ -325,6 +321,24 @@ class DioLensConsoleLogger {
     logPrint('╔╣ $header');
     logPrint('║  $text');
     _printLine('╚');
+  }
+
+  /// Whether [data] has nothing to print: null, blank text, or an empty map,
+  /// list or byte array.
+  static bool _isEmptyBody(Object? data) => switch (data) {
+    null => true,
+    final String text => text.trim().isEmpty,
+    final Map map => map.isEmpty,
+    final List list => list.isEmpty,
+    _ => false,
+  };
+
+  /// The body between blank `║` lines; a single one when the body is empty.
+  void _printPaddedResponse(Response response, DioLensSettings settings) {
+    logPrint('║');
+    if (_isEmptyBody(response.data)) return;
+    _printResponse(response, settings);
+    logPrint('║');
   }
 
   void _printResponse(Response response, DioLensSettings settings) {

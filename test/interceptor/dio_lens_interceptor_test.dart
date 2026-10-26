@@ -157,5 +157,27 @@ void main() {
         expect(logs, contains('https://api.example.com/v1/missing'));
       },
     );
+
+    test('prints a single padding line for an empty body', () async {
+      DioLens.init(
+        navigatorKey: GlobalKey(),
+        storage: MemoryStorage(),
+        consoleMode: DioLensMode.all,
+        settings: _quiet,
+      );
+      final lines = <String>[];
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'))
+        ..httpClientAdapter = FakeAdapter(
+          (_) async => ResponseBody.fromString('', 204),
+        );
+      dio.interceptors.add(
+        DioLensInterceptor(dio: dio, logPrint: (line) => lines.add('$line')),
+      );
+      await dio.get<dynamic>('/v1/empty');
+
+      final body = lines.indexWhere((l) => l.contains('[RESPONSE] ║ Body'));
+      expect(lines[body + 1], '║');
+      expect(lines[body + 2], startsWith('╚'));
+    });
   });
 }
