@@ -5,11 +5,13 @@ import 'package:dio_lens/src/features/home/presentation/pages/dio_lens_home_page
 import 'package:dio_lens/src/features/notification/presentation/widgets/request_finished_banner.dart';
 import 'package:dio_lens/src/features/request_detail/presentation/pages/request_detail_page.dart';
 import 'package:dio_lens/src/features/request_detail/presentation/widgets/json_tree_view.dart';
+import 'package:dio_lens/src/features/request_home/presentation/widgets/request_list_tile.dart';
 import 'package:dio_lens/src/features/stats/presentation/pages/stats_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../helpers/entities.dart';
 import '../helpers/fake_adapter.dart';
 import '../helpers/widget_harness.dart';
 
@@ -180,5 +182,72 @@ void main() {
       matching: find.byType(MenuItemButton),
     );
     expect(tester.widget<MenuItemButton>(item).onPressed, isNull);
+  });
+
+  testWidgets('rows share and replay; Replay hidden when it cannot replay', (
+    tester,
+  ) async {
+    final shared = <DioLensShareContent>[];
+    final h = await Harness.start(
+      tester,
+      settings: const DioLensSettings(
+        showBubble: false,
+        showNotification: false,
+      ),
+      onShare: shared.add,
+    );
+    await h.send((dio) => dio.get('/v1/orders'));
+    await tester.runAsync(
+      () => h.runtime.store.add(
+        request(
+          'old',
+          method: 'POST',
+          url: 'https://api.example.com/v1/upload',
+        ).copyWith(hasFileUpload: true),
+      ),
+    );
+    DioLens.open();
+    await h.settle();
+
+    Finder row(String path) => find.ancestor(
+      of: find.textContaining(path, findRichText: true),
+      matching: find.byType(RequestListTile),
+    );
+
+    Finder action(String path, String tooltip) =>
+        find.descendant(of: row(path), matching: find.byTooltip(tooltip));
+
+    await tester.tap(action('/v1/orders', 'Share request'));
+    await h.settle();
+    expect(shared.single.subject, 'GET /v1/orders · 200');
+
+    String? clipboard;
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      SystemChannels.platform,
+      (call) async {
+        if (call.method == 'Clipboard.setData') {
+          clipboard = (call.arguments as Map)['text'] as String;
+        }
+        return null;
+      },
+    );
+    await tester.tap(action('/v1/orders', 'Copy cURL'));
+    await h.settle();
+    expect(
+      clipboard,
+      startsWith("curl -X GET 'https://api.example.com/v1/orders'"),
+    );
+    expect(find.text('cURL copied'), findsOneWidget);
+
+    await tester.tap(action('/v1/orders', 'Replay request'));
+    await h.settle();
+    expect(find.text('Request replayed'), findsOneWidget);
+    expect(
+      h.adapter.requests.where((o) => o.path == '/v1/orders'),
+      hasLength(2),
+    );
+
+    expect(action('/v1/upload', 'Share request'), findsOneWidget);
+    expect(action('/v1/upload', 'Replay request'), findsNothing);
   });
 }

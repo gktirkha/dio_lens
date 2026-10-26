@@ -21,7 +21,8 @@ Initial release.
 
 ### Inspector
 - Request list with search, method and status filters, grouping by time,
-  swipe to delete and pull to refresh.
+  Share, cURL and Replay
+  buttons on each row, swipe to delete and pull to refresh.
 - Stats: totals, success rate, average and p95 latency, status distribution,
   and slowest, largest, most-called endpoints and top hosts.
 - Request detail with Overview, Request and Response tabs: JSON tree,
@@ -47,7 +48,8 @@ Initial release.
   reset.
 - Settings persist; values passed to `DioLens.init` are the starting point.
 - Sensitive headers and query parameters are masked as the redaction mode
-  says: everywhere, in console logs only, in the UI only, or nowhere.
+  says: any combination of the UI, the clipboard (the Overview tab and cURL
+  commands), and console logs.
 
 ### Storage
 - Requests and settings persist with `shared_preferences` by default, or

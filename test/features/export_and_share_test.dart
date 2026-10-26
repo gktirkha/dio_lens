@@ -163,4 +163,26 @@ void main() {
       );
     });
   });
+
+  test('the shared cURL follows the cURL target, the report the UI', () {
+    String curlOf(DioLensRedactionMode mode) {
+      final text = ShareContentBuilder.build(
+        post,
+        DioLensSettings(redactionMode: mode),
+      ).text;
+      return text.substring(text.indexOf('curl -X'));
+    }
+
+    expect(curlOf(DioLensRedactionMode.clipboard), contains('[REDACTED]'));
+    expect(
+      curlOf(DioLensRedactionMode.clipboard),
+      isNot(contains('Bearer secret')),
+    );
+    expect(curlOf(DioLensRedactionMode.ui), contains('Bearer secret'));
+    final uiReport = ShareContentBuilder.build(
+      post,
+      const DioLensSettings(redactionMode: DioLensRedactionMode.ui),
+    ).text;
+    expect(uiReport, contains('Authorization: [REDACTED]'));
+  });
 }

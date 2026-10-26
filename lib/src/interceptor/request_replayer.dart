@@ -50,10 +50,23 @@ class RequestReplayer {
   }
 
   /// Why the request can't be replayed faithfully, or null when it can.
-  String? unavailableReason(RequestDetailEntity request) {
-    if (_originals.containsKey(request.id)) return null;
-    if (request.hasFileUpload) return "the file upload wasn't captured";
-    if (request.requestBodyIncomplete) {
+  String? unavailableReason(RequestDetailEntity request) =>
+      unavailableReasonFor(
+        request.id,
+        hasFileUpload: request.hasFileUpload,
+        requestBodyIncomplete: request.requestBodyIncomplete,
+      );
+
+  /// Why the request [id] can't be replayed faithfully, from its capture
+  /// flags; null when it can. Works from a list row, without the full request.
+  String? unavailableReasonFor(
+    String id, {
+    required bool hasFileUpload,
+    required bool requestBodyIncomplete,
+  }) {
+    if (_originals.containsKey(id)) return null;
+    if (hasFileUpload) return "the file upload wasn't captured";
+    if (requestBodyIncomplete) {
       return "the request body wasn't fully captured";
     }
     return null;

@@ -186,8 +186,13 @@ class _SettingsBody extends StatelessWidget {
 
   static const Map<DioLensRedactionMode, String> _redactionLabels = {
     DioLensRedactionMode.redact: 'Everywhere',
-    DioLensRedactionMode.console: 'Console only',
-    DioLensRedactionMode.ui: 'UI only',
+    DioLensRedactionMode.ui: 'UI',
+    DioLensRedactionMode.clipboard: 'Clipboard',
+    DioLensRedactionMode.console: 'Console',
+    DioLensRedactionMode.uiClipboard: 'UI, Clipboard',
+    DioLensRedactionMode.uiConsole: 'UI, Console',
+    DioLensRedactionMode.clipboardConsole: 'Clipboard, Console',
+    DioLensRedactionMode.uiClipboardConsole: 'Everywhere',
     DioLensRedactionMode.off: 'Off',
   };
 
@@ -403,7 +408,11 @@ class _SettingsBody extends StatelessWidget {
               description: 'Where listed headers and query params are masked',
               control: SettingsSelect<DioLensRedactionMode>(
                 value: s.redactionMode,
-                options: DioLensRedactionMode.values,
+                // uiClipboardConsole is the same as redact, so it is not offered.
+                options: [
+                  for (final mode in DioLensRedactionMode.values)
+                    if (mode != DioLensRedactionMode.uiClipboardConsole) mode,
+                ],
                 labelOf: (mode) => _redactionLabels[mode]!,
                 onChanged: (mode) =>
                     onChanged((s) => s.copyWith(redactionMode: mode)),

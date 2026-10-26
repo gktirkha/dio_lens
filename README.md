@@ -20,7 +20,8 @@ sensitive values masked.
 ## Features
 
 - **Request list** with search, method and status filters, grouping by time,
-  swipe to delete and pull to refresh.
+  Share, cURL and Replay
+  buttons on each row, swipe to delete and pull to refresh.
 - **Request detail** with Overview, Request and Response tabs: collapsible
   JSON tree, raw view, form and text bodies, image previews, error details
   with stack trace, copyable fields and a cURL command.
@@ -181,7 +182,7 @@ DioLens.init(
 | `notificationDuration` | 4 s                                                  | How long the banner stays (2 to 15 seconds).                                          |
 | `showBubble`           | `true`                                               | Show the floating bubble.                                                             |
 | `bubblePosition`       | `bottomEnd`                                          | Corner the bubble starts in; follows the reading direction.                           |
-| `redactionMode`        | `redact`                                             | Where to mask: `redact` (everywhere), `console` (console logs only), `ui` (UI, exports and shares only) or `off`. |
+| `redactionMode`        | `redact`                                             | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
 | `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
 | `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
 | `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
@@ -193,6 +194,31 @@ final current = DioLens.settings.value;
 await DioLens.updateSettings(current.copyWith(showBubble: false));
 await DioLens.resetSettings(); // Back to the values passed to init.
 ```
+
+## Redaction
+
+Values of the headers and query parameters in `redactedHeaders` and
+`redactedQueryParams` are masked in three places, chosen with
+`redactionMode`:
+
+- **UI**: the request list, the Request and Response tabs, the header of the
+  detail page, exports and shared reports.
+- **Clipboard**: the Overview tab and every cURL command (the cURL buttons and
+  the cURL section of shared reports).
+- **Console**: console logs.
+
+| `redactionMode`                          | UI  | Clipboard | Console |
+| ---------------------------------------- | :-: | :-------: | :-----: |
+| `redact` (default), `uiClipboardConsole` |  ✓  |     ✓     |    ✓    |
+| `ui`                                     |  ✓  |           |         |
+| `clipboard`                              |     |     ✓     |         |
+| `console`                                |     |           |    ✓    |
+| `uiClipboard`                            |  ✓  |     ✓     |         |
+| `uiConsole`                              |  ✓  |           |    ✓    |
+| `clipboardConsole`                       |     |     ✓     |    ✓    |
+| `off`                                    |     |           |         |
+
+Testers can change it in the settings sheet's Privacy section.
 
 ## Export and share
 

@@ -22,6 +22,8 @@ _RequestListItemEntity _$RequestListItemEntityFromJson(
   errorType: $enumDecodeNullable(_$DioExceptionTypeEnumMap, json['error_type']),
   requestContentType: json['request_content_type'] as String?,
   responseContentType: json['response_content_type'] as String?,
+  hasFileUpload: json['has_file_upload'] as bool? ?? false,
+  requestBodyIncomplete: json['request_body_incomplete'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$RequestListItemEntityToJson(
@@ -38,6 +40,8 @@ Map<String, dynamic> _$RequestListItemEntityToJson(
   'error_type': _$DioExceptionTypeEnumMap[instance.errorType],
   'request_content_type': instance.requestContentType,
   'response_content_type': instance.responseContentType,
+  'has_file_upload': instance.hasFileUpload,
+  'request_body_incomplete': instance.requestBodyIncomplete,
 };
 
 const _$RequestStateEnumMap = {

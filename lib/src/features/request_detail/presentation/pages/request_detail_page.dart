@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/utils/request_redactor.dart';
 import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import '../controllers/request_detail_controller.dart';
@@ -143,9 +145,17 @@ class _DetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 RequestDetailHeader(
-                  request: request,
-                  onCopyCurl: () =>
-                      copyToClipboard(context, request.curl, label: 'cURL'),
+                  // Query values in the header masked like the other tabs.
+                  request: RequestRedactor.redact(request, settings),
+                  onCopyCurl: () => copyToClipboard(
+                    context,
+                    RequestRedactor.redact(
+                      request,
+                      settings,
+                      target: DioLensRedactionTarget.clipboard,
+                    ).curl,
+                    label: 'cURL',
+                  ),
                   onShare: onShare == null ? null : () => onShare(request),
                   onReplay: onReplay == null ? null : () => onReplay(request),
                   onOpenHome: onOpenHome,

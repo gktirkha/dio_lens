@@ -6,24 +6,43 @@ import '../../../../core/utils/ltr_content.dart';
 import '../../../../core/widgets/method_chip.dart';
 import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
+import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/utils/request_redactor.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 
-/// One row of the request list: method, status, path, host and timing. Swipe to
+/// One row of the request list: method, status, path, host and timing, with
+/// Share, cURL and Replay buttons (hidden without a callback). Swipe to
 /// delete.
 class RequestListTile extends StatelessWidget {
   /// Creates the row.
   const RequestListTile({
     super.key,
     required this.item,
+    this.settings = const DioLensSettings(),
     this.onTap,
+    this.onShare,
+    this.onCopyCurl,
+    this.onReplay,
     this.onDelete,
   });
 
   /// The request shown.
   final RequestListItemEntity item;
 
+  /// Decides which query values are masked (the UI redaction target).
+  final DioLensSettings settings;
+
   /// Opens the request's detail page.
   final VoidCallback? onTap;
+
+  /// Shares the request; null hides Share.
+  final VoidCallback? onShare;
+
+  /// Copies the request's cURL command; null hides the cURL button.
+  final VoidCallback? onCopyCurl;
+
+  /// Re-sends the request; null hides Replay (e.g. when it can't be replayed).
+  final VoidCallback? onReplay;
 
   /// Deletes the request; null disables swipe to delete.
   final VoidCallback? onDelete;
@@ -32,7 +51,7 @@ class RequestListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
     final mono = theme.monoTextStyle;
-    final query = item.query;
+    final query = _maskedQuery(item.query, settings);
     final ltrAlign = LtrContent.align(context);
 
     final content = Material(
@@ -97,7 +116,33 @@ class RequestListTile extends StatelessWidget {
                 style: mono.copyWith(fontSize: 12, color: theme.textMuted),
               ),
               const SizedBox(height: 6),
-              _Meta(item: item),
+              Row(
+                children: [
+                  Expanded(child: _Meta(item: item)),
+                  if (onShare case final onShare?)
+                    _RowAction(
+                      icon: Icons.ios_share_rounded,
+                      tooltip: 'Share request',
+                      onTap: onShare,
+                    ),
+                  if (onCopyCurl case final onCopyCurl?) ...[
+                    const SizedBox(width: 6),
+                    _RowAction(
+                      icon: Icons.content_copy_rounded,
+                      tooltip: 'Copy cURL',
+                      onTap: onCopyCurl,
+                    ),
+                  ],
+                  if (onReplay case final onReplay?) ...[
+                    const SizedBox(width: 6),
+                    _RowAction(
+                      icon: Icons.replay_rounded,
+                      tooltip: 'Replay request',
+                      onTap: onReplay,
+                    ),
+                  ],
+                ],
+              ),
             ],
           ),
         ),
@@ -131,6 +176,42 @@ class RequestListTile extends StatelessWidget {
         ),
       ),
       child: content,
+    );
+  }
+}
+
+/// Small bordered icon button at the end of a row's bottom line.
+class _RowAction extends StatelessWidget {
+  const _RowAction({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = DioLensTheme.of(context);
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: theme.surface2,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: theme.border),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox.square(
+            dimension: 30,
+            child: Icon(icon, size: 15, color: theme.textMuted),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -184,4 +265,25 @@ class _Meta extends StatelessWidget {
       textAlign: LtrContent.align(context),
     );
   }
+}
+
+/// [query] with the values of redacted parameters shown as `[REDACTED]`.
+String? _maskedQuery(String? query, DioLensSettings settings) {
+  if (query == null) return null;
+  return query
+      .split('&')
+      .map((pair) {
+        final i = pair.indexOf('=');
+        final rawKey = i < 0 ? pair : pair.substring(0, i);
+        String key;
+        try {
+          key = Uri.decodeQueryComponent(rawKey);
+        } on FormatException {
+          key = rawKey;
+        }
+        return settings.isQueryParamRedacted(key)
+            ? '$rawKey=${RequestRedactor.mask}'
+            : pair;
+      })
+      .join('&');
 }

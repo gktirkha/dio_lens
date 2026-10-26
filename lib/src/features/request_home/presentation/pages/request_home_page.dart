@@ -19,6 +19,10 @@ class RequestHomePage extends StatefulWidget {
     super.key,
     required this.controller,
     this.onRequestTap,
+    this.onRequestShare,
+    this.onRequestCopyCurl,
+    this.onRequestReplay,
+    this.canReplay,
     this.onOpenSettings,
     this.onExport,
     this.onMinimize,
@@ -29,6 +33,18 @@ class RequestHomePage extends StatefulWidget {
 
   /// Opens a request's detail page.
   final ValueChanged<RequestListItemEntity>? onRequestTap;
+
+  /// Shares a request from its row; null hides Share.
+  final ValueChanged<RequestListItemEntity>? onRequestShare;
+
+  /// Copies a request's cURL command from its row; null hides the button.
+  final ValueChanged<RequestListItemEntity>? onRequestCopyCurl;
+
+  /// Re-sends a request from its row; null hides Replay.
+  final ValueChanged<RequestListItemEntity>? onRequestReplay;
+
+  /// Whether a row's request can be replayed; Replay is hidden otherwise.
+  final bool Function(RequestListItemEntity item)? canReplay;
 
   /// Opens the settings sheet.
   final VoidCallback? onOpenSettings;
@@ -196,9 +212,21 @@ class _RequestHomePageState extends State<RequestHomePage> {
             return RequestListTile(
               key: ValueKey(item.id),
               item: item,
+              settings: _controller.settings,
               onTap: widget.onRequestTap == null
                   ? null
                   : () => widget.onRequestTap!(item),
+              onShare: widget.onRequestShare == null
+                  ? null
+                  : () => widget.onRequestShare!(item),
+              onCopyCurl: widget.onRequestCopyCurl == null
+                  ? null
+                  : () => widget.onRequestCopyCurl!(item),
+              onReplay:
+                  widget.onRequestReplay == null ||
+                      !(widget.canReplay?.call(item) ?? true)
+                  ? null
+                  : () => widget.onRequestReplay!(item),
               onDelete: () => _controller.deleteRequest(item.id),
             );
           },

@@ -142,6 +142,13 @@ class DioLensRuntime {
     dependencies: dependencies,
     onReplay: replayer.replay,
     replayUnavailableReason: replayer.unavailableReason,
+    canReplayItem: (item) =>
+        replayer.unavailableReasonFor(
+          item.id,
+          hasFileUpload: item.hasFileUpload,
+          requestBodyIncomplete: item.requestBodyIncomplete,
+        ) ==
+        null,
     onExport: onExport == null ? null : exportToApp,
     onShare: onShare,
   );

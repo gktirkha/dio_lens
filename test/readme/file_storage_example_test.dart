@@ -21,7 +21,8 @@ void main() {
     await store.add(request('b'));
     await store.updateSettings(settings.copyWith(maxRequests: 100));
     await store.delete('b');
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    // A read runs after every queued write, so the files are complete.
+    await store.getAllRequests();
 
     final fresh = DioLensStore(
       storage: () => FileDioLensStorage(dir),
@@ -35,7 +36,7 @@ void main() {
 
     await fresh.clear();
     await fresh.resetSettings();
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await fresh.getAllRequests();
     expect(await FileDioLensStorage(dir).readSummaries(), isEmpty);
     expect(await FileDioLensStorage(dir).readSettings(), isNull);
   });

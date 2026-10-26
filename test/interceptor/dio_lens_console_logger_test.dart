@@ -82,12 +82,8 @@ void main() {
   });
 
   test('masks secrets as the redaction mode says', () {
-    for (final (mode, masked) in [
-      (DioLensRedactionMode.redact, true),
-      (DioLensRedactionMode.console, true),
-      (DioLensRedactionMode.ui, false),
-      (DioLensRedactionMode.off, false),
-    ]) {
+    for (final mode in DioLensRedactionMode.values) {
+      final masked = mode.inConsole;
       final logs = capture(
         showState: true,
         settings: DioLensSettings(redactionMode: mode),

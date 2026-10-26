@@ -28,7 +28,7 @@ mixin _$DioLensSettings {
 @JsonKey(name: 'notification_duration') Duration get notificationDuration;/// Show the floating bubble that opens Dio Lens.
 @JsonKey(name: 'show_bubble') bool get showBubble;/// Corner where the floating bubble starts.
 @JsonKey(name: 'bubble_position') DioLensBubblePosition get bubblePosition;/// Where the values of [redactedHeaders] and [redactedQueryParams] are
-/// masked: everywhere, console logs only, the UI only, or nowhere.
+/// masked: any combination of the UI, cURL commands and console logs.
 @JsonKey(name: 'redaction_mode') DioLensRedactionMode get redactionMode;/// Header names masked as [redactionMode] says, in requests and
 /// responses; matched case-insensitively.
 @JsonKey(name: 'redacted_headers') List<String> get redactedHeaders;/// Query parameter names masked as [redactionMode] says; matched
@@ -267,7 +267,7 @@ class _DioLensSettings extends DioLensSettings {
 /// Corner where the floating bubble starts.
 @override@JsonKey(name: 'bubble_position') final  DioLensBubblePosition bubblePosition;
 /// Where the values of [redactedHeaders] and [redactedQueryParams] are
-/// masked: everywhere, console logs only, the UI only, or nowhere.
+/// masked: any combination of the UI, cURL commands and console logs.
 @override@JsonKey(name: 'redaction_mode') final  DioLensRedactionMode redactionMode;
 /// Header names masked as [redactionMode] says, in requests and
 /// responses; matched case-insensitively.

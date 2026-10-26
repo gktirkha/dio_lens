@@ -77,7 +77,7 @@ abstract class DioLensSettings with _$DioLensSettings {
     DioLensBubblePosition bubblePosition,
 
     /// Where the values of [redactedHeaders] and [redactedQueryParams] are
-    /// masked: everywhere, console logs only, the UI only, or nowhere.
+    /// masked: any combination of the UI, cURL commands and console logs.
     @JsonKey(name: 'redaction_mode')
     @Default(DioLensRedactionMode.redact)
     DioLensRedactionMode redactionMode,
@@ -117,19 +117,19 @@ abstract class DioLensSettings with _$DioLensSettings {
     'password',
   ];
 
-  /// Whether the header [name] is masked: in console logs when [console] is
-  /// true, otherwise in the UI, exports and shares. Case-insensitive.
-  bool isHeaderRedacted(String name, {bool console = false}) =>
-      _masks(console: console) && _matches(redactedHeaders, name);
-
-  /// Whether the query parameter [name] is masked: in console logs when
-  /// [console] is true, otherwise in the UI, exports and shares.
+  /// Whether the header [name] is masked for [target] (the UI by default).
   /// Case-insensitive.
-  bool isQueryParamRedacted(String name, {bool console = false}) =>
-      _masks(console: console) && _matches(redactedQueryParams, name);
+  bool isHeaderRedacted(
+    String name, {
+    DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+  }) => redactionMode.masks(target) && _matches(redactedHeaders, name);
 
-  bool _masks({required bool console}) =>
-      console ? redactionMode.inConsole : redactionMode.inUi;
+  /// Whether the query parameter [name] is masked for [target] (the UI by
+  /// default). Case-insensitive.
+  bool isQueryParamRedacted(
+    String name, {
+    DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+  }) => redactionMode.masks(target) && _matches(redactedQueryParams, name);
 
   static bool _matches(List<String> keys, String name) {
     final lower = name.toLowerCase();

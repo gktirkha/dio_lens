@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../../../../core/domain/unit.dart';
 import '../../../../core/utils/debouncer.dart';
+import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/use_cases/watch_settings_use_case.dart';
 import '../../domain/entities/request_filter_params.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import '../../domain/entities/request_status_filter.dart';
@@ -21,12 +23,21 @@ class RequestHomeController extends ChangeNotifier {
     required this._deleteRequest,
     required this._clearAllRequests,
     required this._removeExpiredRequests,
+    required this._watchSettings,
   });
 
   final WatchRequestsUseCase _watchRequests;
   final DeleteRequestUseCase _deleteRequest;
   final ClearAllRequestsUseCase _clearAllRequests;
   final RemoveExpiredRequestsUseCase _removeExpiredRequests;
+  final WatchSettingsUseCase _watchSettings;
+
+  StreamSubscription<DioLensSettings>? _settingsSubscription;
+
+  DioLensSettings _settings = const DioLensSettings();
+
+  /// Current settings; they decide which query values rows mask.
+  DioLensSettings get settings => _settings;
 
   /// Delay after the last keystroke before search re-filters the list.
   static const Duration searchDebounce = Duration(milliseconds: 250);
@@ -58,6 +69,11 @@ class RequestHomeController extends ChangeNotifier {
       _started = true;
       _removeExpiredRequests(unit);
       _subscribe();
+      _settingsSubscription = _watchSettings(unit).listen((settings) {
+        if (settings == _settings) return;
+        _settings = settings;
+        notifyListeners();
+      });
     }
   }
 
@@ -135,6 +151,7 @@ class RequestHomeController extends ChangeNotifier {
 
   @override
   void dispose() {
+    _settingsSubscription?.cancel();
     _searchDebouncer.dispose();
     _subscription?.cancel();
     super.dispose();

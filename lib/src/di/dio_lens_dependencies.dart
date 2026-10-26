@@ -90,6 +90,7 @@ class DioLensDependencies {
     deleteRequest: deleteRequestUseCase,
     clearAllRequests: clearAllRequestsUseCase,
     removeExpiredRequests: removeExpiredRequestsUseCase,
+    watchSettings: watchSettingsUseCase,
   );
 
   /// Captured requests that stats are computed from.

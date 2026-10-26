@@ -503,6 +503,14 @@
       background: var(--dl-danger); color:#fff; border:none; font-size:11px; font-weight:700; cursor:pointer;
     }
     .dl-row-delete .dl-icon { --od-icon-size:18px; }
+    /* Share, cURL and Replay buttons at the end of a row's bottom line; Replay is left out when the request can't be replayed */
+    .dl-row-quick { margin-left:auto; display:flex; gap:6px; flex:none; }
+    .dl-row-qbtn {
+      width:30px; height:30px; border-radius:8px; border:1px solid var(--dl-border); background: var(--dl-surface-2);
+      color: var(--dl-text-muted); display:grid; place-items:center; cursor:pointer; padding:0;
+    }
+    .dl-row-qbtn:hover { background: var(--dl-surface-3); color: var(--dl-text); }
+    .dl-row-qbtn .dl-icon { --od-icon-size:15px; }
     .dl-row-content {
       position:relative; width:100%; display:block; text-align:left; border:none; background: var(--dl-bg); color: var(--dl-text);
       padding: 12px 16px; cursor:pointer; touch-action: pan-y; will-change: transform;
@@ -1036,7 +1044,7 @@
           stack:'DioException [connectionTimeout]: The request connection took longer than 0:00:10.000000\n    at DioMixin._dispatchRequest (package:dio/src/dio_mixin.dart:432)\n    at DioMixin.fetch (package:dio/src/dio_mixin.dart:386)\n    at DioMixin.get (package:dio/src/dio_mixin.dart:118)\n    at SyncRepository.pull (package:app/data/sync_repository.dart:47)\n    at SyncService._run (package:app/services/sync_service.dart:63)\n    <asynchronous suspension>' },
         timing:{ dns:5, connect:20, tls:0, send:0, wait:9975, receive:0 } },
 
-      { id:'r8', method:'PUT', host:'api.example.com', path:'/v1/profile', query:null, status:200, statusClass:'2xx',
+      { id:'r8', noReplay:true, method:'PUT', host:'api.example.com', path:'/v1/profile', query:null, status:200, statusClass:'2xx',
         duration:155, reqSize:58, resSize:140, group:'earlier', timeLabel:'42 min ago', protocol:'HTTP/2', startTime:'13:50:33.112',
         reqContentType:'application/json', resContentType:'application/json',
         reqHeaders:{ 'Content-Type':'application/json', 'Authorization':'Bearer eyJhbGciOiJIUzI1NiJ9.REDACTED.sig' },
@@ -1321,9 +1329,24 @@
         } catch (e) { done(false); }
       }
     }
+    /* Redaction: where listed headers and query params are masked (any combination of ui, clipboard and console) */
+    var REDACTION_TARGETS = { redact:['ui','clipboard','console'], ui:['ui'], clipboard:['clipboard'], console:['console'], uiClipboard:['ui','clipboard'], uiConsole:['ui','console'], clipboardConsole:['clipboard','console'], off:[] };
+    function redactsIn(target) { return (REDACTION_TARGETS[state.settings.redactionMode] || []).indexOf(target) !== -1; }
+    function isRedactedKey(list, k) { return (list || []).indexOf(String(k).toLowerCase()) !== -1; }
+    function maskQuery(q, target) {
+      if (!q || !redactsIn(target)) return q;
+      return q.split('&').map(function (p) {
+        var key = p.split('=')[0];
+        return isRedactedKey(state.settings.redactQueryList, decodeURIComponent(key)) ? key + '=[REDACTED]' : p;
+      }).join('&');
+    }
     function buildCurl(r) {
-      var parts = ['curl -X ' + r.method, "'https://" + r.host + r.path + (r.query ? '?' + r.query : '') + "'"];
-      Object.keys(r.reqHeaders || {}).forEach(function (k) { parts.push("-H '" + k + ': ' + r.reqHeaders[k] + "'"); });
+      var q = maskQuery(r.query, 'clipboard');
+      var parts = ['curl -X ' + r.method, "'https://" + r.host + r.path + (q ? '?' + q : '') + "'"];
+      Object.keys(r.reqHeaders || {}).forEach(function (k) {
+        var v = redactsIn('clipboard') && isRedactedKey(state.settings.redactHeadersList, k) ? '[REDACTED]' : r.reqHeaders[k];
+        parts.push("-H '" + k + ': ' + v + "'");
+      });
       if (r.reqBody) {
         var isForm = /x-www-form-urlencoded/i.test(r.reqContentType || '') && typeof r.reqBody === 'object';
         var body = isForm
@@ -1535,16 +1558,22 @@
       return '' +
         '<div class="dl-row-swipe" style="animation-delay:' + Math.min(idx * 35, 280) + 'ms">' +
           '<button type="button" class="dl-row-delete" data-action="delete-row" data-id="' + r.id + '" aria-label="Delete request ' + esc(r.path) + '">' + icon('trash') + '<span>Delete</span></button>' +
-          '<button type="button" class="dl-row-content dl-enter" ' + triggerAttrs + '>' +
+          '<div class="dl-row-content dl-enter" role="button" tabindex="0" ' + triggerAttrs + '>' +
             '<div class="dl-row-top">' +
               '<span class="dl-chip ' + r.method + '">' + r.method + '</span>' +
               right +
               '<span class="dl-row-time">' + esc(r.timeLabel) + '</span>' +
             '</div>' +
-            '<div class="dl-row-path">' + esc(r.path) + (r.query ? '<span style="color:var(--dl-text-faint)">?' + esc(r.query) + '</span>' : '') + '</div>' +
+            '<div class="dl-row-path">' + esc(r.path) + (r.query ? '<span style="color:var(--dl-text-faint)">?' + esc(maskQuery(r.query, 'ui')) + '</span>' : '') + '</div>' +
             '<div class="dl-row-host">' + esc(r.host) + '</div>' +
-            '<div class="dl-row-meta">' + metaBits.join('<span aria-hidden="true">·</span>') + '</div>' +
-          '</button>' +
+            '<div class="dl-row-meta">' + metaBits.join('<span aria-hidden="true">·</span>') +
+              '<span class="dl-row-quick">' +
+                '<button type="button" class="dl-row-qbtn" data-action="row-share" data-id="' + r.id + '" aria-label="Share request ' + esc(r.path) + '" title="Share request">' + icon('share') + '</button>' +
+                '<button type="button" class="dl-row-qbtn" data-action="row-curl" data-id="' + r.id + '" aria-label="Copy cURL of ' + esc(r.path) + '" title="Copy cURL">' + icon('copy') + '</button>' +
+                (r.noReplay ? '' : '<button type="button" class="dl-row-qbtn" data-action="row-replay" data-id="' + r.id + '" aria-label="Replay request ' + esc(r.path) + '" title="Replay request">' + icon('replay') + '</button>') +
+              '</span>' +
+            '</div>' +
+          '</div>' +
         '</div>';
     }
 
@@ -1600,14 +1629,14 @@
       redactList = redactList || (isQuery ? (state.settings.redactQueryList || []) : (state.settings.redactHeadersList || []));
       var keys = Object.keys(obj);
       var allText = keys.map(function (k) {
-        var redact = (state.settings.redactionMode === 'redact' || state.settings.redactionMode === 'ui') && redactList.indexOf(k.toLowerCase()) !== -1;
+        var redact = redactsIn('ui') && redactList.indexOf(k.toLowerCase()) !== -1;
         return k + ': ' + (redact ? '••••••• (redacted)' : obj[k]);
       }).join('\n');
       return '<div class="dl-ov-box">' +
         '<div class="dl-ov-box-header"><span>' + esc(title || 'Headers') + '</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allText) + '" data-label="' + esc(title || 'Headers') + ' copied">' + icon('copy') + ' Copy all</button></div>' +
         '<div class="dl-ov-kv-list">' +
           keys.map(function (k) {
-            var redact = (state.settings.redactionMode === 'redact' || state.settings.redactionMode === 'ui') && redactList.indexOf(k.toLowerCase()) !== -1;
+            var redact = redactsIn('ui') && redactList.indexOf(k.toLowerCase()) !== -1;
             var val = redact ? '••••••• (redacted)' : String(obj[k]);
             return '<button type="button" class="dl-ov-kv" data-action="copy-text" data-copy="' + encodeURIComponent(val) + '" data-label="' + esc(k) + ' copied">' +
               '<span class="dl-ov-kv-key">' + esc(k) + '</span>' +
@@ -1697,7 +1726,8 @@
         (req.statusClass === '5xx' || req.statusClass === 'error') ? 'status-bad' : '';
       var statusText = statusLabel(req) + (req.statusClass==='error' ? ' · ' + req.error.type : '');
       var curlCmd = buildCurl(req);
-      var fullUrl = 'https://' + req.host + req.path + (req.query ? '?' + req.query : '');
+      var ovQuery = maskQuery(req.query, 'clipboard');
+      var fullUrl = 'https://' + req.host + req.path + (ovQuery ? '?' + ovQuery : '');
       var qobj = req.reqQuery || {};
       var qkeys = Object.keys(qobj);
       if (qkeys.length === 0 && req.query) {
@@ -1714,7 +1744,7 @@
       var qpHtml = qkeys.length
         ? '<div class="dl-ov-box">' +
             '<div class="dl-ov-box-header"><span>Query</span><button type="button" class="dl-ov-box-copy" data-action="copy-text" data-copy="' + encodeURIComponent(allQuery) + '" data-label="Query params copied">' + icon('copy') + ' Copy all</button></div>' +
-            '<div class="dl-ov-kv-list">' + qkeys.map(function (k) { return copyableKvField('Query', k, qobj[k]); }).join('') + '</div>' +
+            '<div class="dl-ov-kv-list">' + qkeys.map(function (k) { return copyableKvField('Query', k, redactsIn('clipboard') && isRedactedKey(state.settings.redactQueryList, k) ? '[REDACTED]' : qobj[k]); }).join('') + '</div>' +
           '</div>'
         : (req.query ? copyableField('Query params', req.query) : '');
       return '<div class="dl-overview">' +
@@ -2006,7 +2036,7 @@
         '<div class="dl-set-section"><h3>Privacy</h3>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive values</div><div class="set-desc">Where listed headers and query params are masked</div></div>' +
             '<select class="dl-select" data-action="set-redaction-mode" aria-label="Redaction mode">' +
-              [['redact','Everywhere'],['console','Console only'],['ui','UI only'],['off','Off']].map(function(v){ return '<option value="'+v[0]+'"'+(s.redactionMode===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
+              [['redact','Everywhere'],['ui','UI'],['clipboard','Clipboard'],['console','Console'],['uiClipboard','UI, Clipboard'],['uiConsole','UI, Console'],['clipboardConsole','Clipboard, Console'],['off','Off']].map(function(v){ return '<option value="'+v[0]+'"'+(s.redactionMode===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
             '</select></div>' +
           (s.redactionMode !== 'off' ? '<div class="dl-set-field"><div class="dl-set-field-label">Header keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="headers" value="' + esc((s.redactHeadersList||[]).join(', ')) + '" placeholder="authorization, cookie, x-api-key"></div>' +
             '<div class="dl-set-field"><div class="dl-set-field-label">Query keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="query" value="' + esc((s.redactQueryList||[]).join(', ')) + '" placeholder="token, apikey, password"></div>' : '') +
@@ -2074,11 +2104,12 @@
       });
     }
     function onSwipeStart(e) {
+      if (e.target.closest('.dl-row-qbtn')) return;
       var wrap = e.currentTarget.closest('.dl-row-swipe');
       Array.prototype.forEach.call(app.querySelectorAll('.dl-row-content'), function (el) {
         if (el !== e.currentTarget) el.style.transform = '';
       });
-      swipeState = { el: e.currentTarget, wrap: wrap, startX: e.clientX, dx: 0, moved: false };
+      swipeState = { el: e.currentTarget, wrap: wrap, startX: e.clientX, dx: 0, moved: false, max: 84 };
       e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId);
       e.currentTarget.addEventListener('pointermove', onSwipeMove);
       e.currentTarget.addEventListener('pointerup', onSwipeEnd);
@@ -2088,20 +2119,20 @@
       if (!swipeState || swipeState.el !== e.currentTarget) return;
       var dx = e.clientX - swipeState.startX;
       if (Math.abs(dx) > 4) swipeState.moved = true;
-      dx = Math.max(-84, Math.min(0, dx));
+      dx = Math.max(-swipeState.max, Math.min(0, dx));
       swipeState.dx = dx;
       swipeState.el.style.transition = 'none';
       swipeState.el.style.transform = 'translateX(' + dx + 'px)';
     }
     function onSwipeEnd(e) {
       if (!swipeState || swipeState.el !== e.currentTarget) return;
-      var el = swipeState.el, dx = swipeState.dx, moved = swipeState.moved;
+      var el = swipeState.el, dx = swipeState.dx, moved = swipeState.moved, max = swipeState.max;
       el.style.transition = 'transform .18s ease';
-      el.style.transform = 'translateX(' + (dx < -40 ? -84 : 0) + 'px)';
+      el.style.transform = 'translateX(' + (dx < -max / 2 ? -max : 0) + 'px)';
       el.removeEventListener('pointermove', onSwipeMove);
       el.removeEventListener('pointerup', onSwipeEnd);
       el.removeEventListener('pointercancel', onSwipeEnd);
-      if (moved) { el.dataset.swiped = (dx < -40) ? '1' : '0'; }
+      if (moved) { el.dataset.swiped = (dx < -max / 2) ? '1' : '0'; }
       swipeState = null;
       if (moved) e.preventDefault();
     }
@@ -2255,6 +2286,10 @@
           break;
         case 'replay':
           toast('Request replayed'); break;
+        case 'row-share':
+        case 'row-curl':
+        case 'row-replay':
+          toast({ 'row-share': 'Request copied', 'row-curl': 'cURL copied', 'row-replay': 'Request replayed' }[btn.dataset.action]); break;
         case 'share':
           toast('Share sheet opened'); break;
         case 'open-settings-from-menu':

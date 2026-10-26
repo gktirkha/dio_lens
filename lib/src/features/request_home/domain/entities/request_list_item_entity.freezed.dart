@@ -27,7 +27,9 @@ mixin _$RequestListItemEntity {
 @JsonKey(name: 'response_size') int? get responseSize;/// Why the request failed without a response; null otherwise.
 @JsonKey(name: 'error_type') DioExceptionType? get errorType;/// MIME type of the request body; null when there is none.
 @JsonKey(name: 'request_content_type') String? get requestContentType;/// MIME type of the response body; null when there is none.
-@JsonKey(name: 'response_content_type') String? get responseContentType;
+@JsonKey(name: 'response_content_type') String? get responseContentType;/// Whether the request uploaded files, whose contents are not captured.
+@JsonKey(name: 'has_file_upload') bool get hasFileUpload;/// Whether the captured request body differs from what was sent.
+@JsonKey(name: 'request_body_incomplete') bool get requestBodyIncomplete;
 /// Create a copy of RequestListItemEntity
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -41,20 +43,20 @@ $RequestListItemEntityCopyWith<RequestListItemEntity> get copyWith => _$RequestL
 @override
 bool operator ==(Object other) {
   final _this = this as RequestListItemEntity;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RequestListItemEntity&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.method, _this.method) || other.method == _this.method)&&(identical(other.uri, _this.uri) || other.uri == _this.uri)&&(identical(other.startedAt, _this.startedAt) || other.startedAt == _this.startedAt)&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.statusCode, _this.statusCode) || other.statusCode == _this.statusCode)&&(identical(other.duration, _this.duration) || other.duration == _this.duration)&&(identical(other.responseSize, _this.responseSize) || other.responseSize == _this.responseSize)&&(identical(other.errorType, _this.errorType) || other.errorType == _this.errorType)&&(identical(other.requestContentType, _this.requestContentType) || other.requestContentType == _this.requestContentType)&&(identical(other.responseContentType, _this.responseContentType) || other.responseContentType == _this.responseContentType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RequestListItemEntity&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.method, _this.method) || other.method == _this.method)&&(identical(other.uri, _this.uri) || other.uri == _this.uri)&&(identical(other.startedAt, _this.startedAt) || other.startedAt == _this.startedAt)&&(identical(other.state, _this.state) || other.state == _this.state)&&(identical(other.statusCode, _this.statusCode) || other.statusCode == _this.statusCode)&&(identical(other.duration, _this.duration) || other.duration == _this.duration)&&(identical(other.responseSize, _this.responseSize) || other.responseSize == _this.responseSize)&&(identical(other.errorType, _this.errorType) || other.errorType == _this.errorType)&&(identical(other.requestContentType, _this.requestContentType) || other.requestContentType == _this.requestContentType)&&(identical(other.responseContentType, _this.responseContentType) || other.responseContentType == _this.responseContentType)&&(identical(other.hasFileUpload, _this.hasFileUpload) || other.hasFileUpload == _this.hasFileUpload)&&(identical(other.requestBodyIncomplete, _this.requestBodyIncomplete) || other.requestBodyIncomplete == _this.requestBodyIncomplete));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as RequestListItemEntity;
-  return Object.hash(runtimeType,_this.id,_this.method,_this.uri,_this.startedAt,_this.state,_this.statusCode,_this.duration,_this.responseSize,_this.errorType,_this.requestContentType,_this.responseContentType);
+  return Object.hash(runtimeType,_this.id,_this.method,_this.uri,_this.startedAt,_this.state,_this.statusCode,_this.duration,_this.responseSize,_this.errorType,_this.requestContentType,_this.responseContentType,_this.hasFileUpload,_this.requestBodyIncomplete);
 }
 
 @override
 String toString() {
   final _this = this as RequestListItemEntity;
-  return 'RequestListItemEntity(id: ${_this.id}, method: ${_this.method}, uri: ${_this.uri}, startedAt: ${_this.startedAt}, state: ${_this.state}, statusCode: ${_this.statusCode}, duration: ${_this.duration}, responseSize: ${_this.responseSize}, errorType: ${_this.errorType}, requestContentType: ${_this.requestContentType}, responseContentType: ${_this.responseContentType})';
+  return 'RequestListItemEntity(id: ${_this.id}, method: ${_this.method}, uri: ${_this.uri}, startedAt: ${_this.startedAt}, state: ${_this.state}, statusCode: ${_this.statusCode}, duration: ${_this.duration}, responseSize: ${_this.responseSize}, errorType: ${_this.errorType}, requestContentType: ${_this.requestContentType}, responseContentType: ${_this.responseContentType}, hasFileUpload: ${_this.hasFileUpload}, requestBodyIncomplete: ${_this.requestBodyIncomplete})';
 }
 
 
@@ -65,7 +67,7 @@ abstract mixin class $RequestListItemEntityCopyWith<$Res>  {
   factory $RequestListItemEntityCopyWith(RequestListItemEntity value, $Res Function(RequestListItemEntity) _then) = _$RequestListItemEntityCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
+@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType,@JsonKey(name: 'has_file_upload') bool hasFileUpload,@JsonKey(name: 'request_body_incomplete') bool requestBodyIncomplete
 });
 
 
@@ -82,7 +84,7 @@ class _$RequestListItemEntityCopyWithImpl<$Res>
 
 /// Create a copy of RequestListItemEntity
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? uri = null,Object? startedAt = null,Object? state = null,Object? statusCode = freezed,Object? duration = freezed,Object? responseSize = freezed,Object? errorType = freezed,Object? requestContentType = freezed,Object? responseContentType = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? method = null,Object? uri = null,Object? startedAt = null,Object? state = null,Object? statusCode = freezed,Object? duration = freezed,Object? responseSize = freezed,Object? errorType = freezed,Object? requestContentType = freezed,Object? responseContentType = freezed,Object? hasFileUpload = null,Object? requestBodyIncomplete = null,}) {
   return _then(RequestListItemEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
@@ -95,7 +97,9 @@ as Duration?,responseSize: freezed == responseSize ? _self.responseSize : respon
 as int?,errorType: freezed == errorType ? _self.errorType : errorType // ignore: cast_nullable_to_non_nullable
 as DioExceptionType?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
 as String?,responseContentType: freezed == responseContentType ? _self.responseContentType : responseContentType // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,hasFileUpload: null == hasFileUpload ? _self.hasFileUpload : hasFileUpload // ignore: cast_nullable_to_non_nullable
+as bool,requestBodyIncomplete: null == requestBodyIncomplete ? _self.requestBodyIncomplete : requestBodyIncomplete // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -180,10 +184,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType, @JsonKey(name: 'has_file_upload')  bool hasFileUpload, @JsonKey(name: 'request_body_incomplete')  bool requestBodyIncomplete)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity() when $default != null:
-return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
+return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType,_that.hasFileUpload,_that.requestBodyIncomplete);case _:
   return orElse();
 
 }
@@ -201,10 +205,10 @@ return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType, @JsonKey(name: 'has_file_upload')  bool hasFileUpload, @JsonKey(name: 'request_body_incomplete')  bool requestBodyIncomplete)  $default,) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity():
-return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
+return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType,_that.hasFileUpload,_that.requestBodyIncomplete);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -221,10 +225,10 @@ return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_tha
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: 'id')  String id, @JsonKey(name: 'method')  String method, @JsonKey(name: 'uri')  Uri uri, @JsonKey(name: 'started_at')  DateTime startedAt, @JsonKey(name: 'state')  RequestState state, @JsonKey(name: 'status_code')  int? statusCode, @JsonKey(name: 'duration')  Duration? duration, @JsonKey(name: 'response_size')  int? responseSize, @JsonKey(name: 'error_type')  DioExceptionType? errorType, @JsonKey(name: 'request_content_type')  String? requestContentType, @JsonKey(name: 'response_content_type')  String? responseContentType, @JsonKey(name: 'has_file_upload')  bool hasFileUpload, @JsonKey(name: 'request_body_incomplete')  bool requestBodyIncomplete)?  $default,) {final _that = this;
 switch (_that) {
 case _RequestListItemEntity() when $default != null:
-return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType);case _:
+return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_that.statusCode,_that.duration,_that.responseSize,_that.errorType,_that.requestContentType,_that.responseContentType,_that.hasFileUpload,_that.requestBodyIncomplete);case _:
   return null;
 
 }
@@ -236,7 +240,7 @@ return $default(_that.id,_that.method,_that.uri,_that.startedAt,_that.state,_tha
 @JsonSerializable()
 
 class _RequestListItemEntity extends RequestListItemEntity {
-  const _RequestListItemEntity({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'method') required this.method, @JsonKey(name: 'uri') required this.uri, @JsonKey(name: 'started_at') required this.startedAt, @JsonKey(name: 'state') required this.state, @JsonKey(name: 'status_code') this.statusCode, @JsonKey(name: 'duration') this.duration, @JsonKey(name: 'response_size') this.responseSize, @JsonKey(name: 'error_type') this.errorType, @JsonKey(name: 'request_content_type') this.requestContentType, @JsonKey(name: 'response_content_type') this.responseContentType}): super._();
+  const _RequestListItemEntity({@JsonKey(name: 'id') required this.id, @JsonKey(name: 'method') required this.method, @JsonKey(name: 'uri') required this.uri, @JsonKey(name: 'started_at') required this.startedAt, @JsonKey(name: 'state') required this.state, @JsonKey(name: 'status_code') this.statusCode, @JsonKey(name: 'duration') this.duration, @JsonKey(name: 'response_size') this.responseSize, @JsonKey(name: 'error_type') this.errorType, @JsonKey(name: 'request_content_type') this.requestContentType, @JsonKey(name: 'response_content_type') this.responseContentType, @JsonKey(name: 'has_file_upload') this.hasFileUpload = false, @JsonKey(name: 'request_body_incomplete') this.requestBodyIncomplete = false}): super._();
   factory _RequestListItemEntity.fromJson(Map<String, dynamic> json) => _$RequestListItemEntityFromJson(json);
 
 /// Unique id of the capture.
@@ -261,6 +265,10 @@ class _RequestListItemEntity extends RequestListItemEntity {
 @override@JsonKey(name: 'request_content_type') final  String? requestContentType;
 /// MIME type of the response body; null when there is none.
 @override@JsonKey(name: 'response_content_type') final  String? responseContentType;
+/// Whether the request uploaded files, whose contents are not captured.
+@override@JsonKey(name: 'has_file_upload') final  bool hasFileUpload;
+/// Whether the captured request body differs from what was sent.
+@override@JsonKey(name: 'request_body_incomplete') final  bool requestBodyIncomplete;
 
 /// Create a copy of RequestListItemEntity
 /// with the given fields replaced by the non-null parameter values.
@@ -275,18 +283,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RequestListItemEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.uri, uri) || other.uri == uri)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.state, state) || other.state == state)&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.responseSize, responseSize) || other.responseSize == responseSize)&&(identical(other.errorType, errorType) || other.errorType == errorType)&&(identical(other.requestContentType, requestContentType) || other.requestContentType == requestContentType)&&(identical(other.responseContentType, responseContentType) || other.responseContentType == responseContentType));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _RequestListItemEntity&&(identical(other.id, id) || other.id == id)&&(identical(other.method, method) || other.method == method)&&(identical(other.uri, uri) || other.uri == uri)&&(identical(other.startedAt, startedAt) || other.startedAt == startedAt)&&(identical(other.state, state) || other.state == state)&&(identical(other.statusCode, statusCode) || other.statusCode == statusCode)&&(identical(other.duration, duration) || other.duration == duration)&&(identical(other.responseSize, responseSize) || other.responseSize == responseSize)&&(identical(other.errorType, errorType) || other.errorType == errorType)&&(identical(other.requestContentType, requestContentType) || other.requestContentType == requestContentType)&&(identical(other.responseContentType, responseContentType) || other.responseContentType == responseContentType)&&(identical(other.hasFileUpload, hasFileUpload) || other.hasFileUpload == hasFileUpload)&&(identical(other.requestBodyIncomplete, requestBodyIncomplete) || other.requestBodyIncomplete == requestBodyIncomplete));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,method,uri,startedAt,state,statusCode,duration,responseSize,errorType,requestContentType,responseContentType);
+    return Object.hash(runtimeType,id,method,uri,startedAt,state,statusCode,duration,responseSize,errorType,requestContentType,responseContentType,hasFileUpload,requestBodyIncomplete);
 }
 
 @override
 String toString() {
-    return 'RequestListItemEntity(id: $id, method: $method, uri: $uri, startedAt: $startedAt, state: $state, statusCode: $statusCode, duration: $duration, responseSize: $responseSize, errorType: $errorType, requestContentType: $requestContentType, responseContentType: $responseContentType)';
+    return 'RequestListItemEntity(id: $id, method: $method, uri: $uri, startedAt: $startedAt, state: $state, statusCode: $statusCode, duration: $duration, responseSize: $responseSize, errorType: $errorType, requestContentType: $requestContentType, responseContentType: $responseContentType, hasFileUpload: $hasFileUpload, requestBodyIncomplete: $requestBodyIncomplete)';
 }
 
 
@@ -297,7 +305,7 @@ abstract mixin class _$RequestListItemEntityCopyWith<$Res> implements $RequestLi
   factory _$RequestListItemEntityCopyWith(_RequestListItemEntity value, $Res Function(_RequestListItemEntity) _then) = __$RequestListItemEntityCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType
+@JsonKey(name: 'id') String id,@JsonKey(name: 'method') String method,@JsonKey(name: 'uri') Uri uri,@JsonKey(name: 'started_at') DateTime startedAt,@JsonKey(name: 'state') RequestState state,@JsonKey(name: 'status_code') int? statusCode,@JsonKey(name: 'duration') Duration? duration,@JsonKey(name: 'response_size') int? responseSize,@JsonKey(name: 'error_type') DioExceptionType? errorType,@JsonKey(name: 'request_content_type') String? requestContentType,@JsonKey(name: 'response_content_type') String? responseContentType,@JsonKey(name: 'has_file_upload') bool hasFileUpload,@JsonKey(name: 'request_body_incomplete') bool requestBodyIncomplete
 });
 
 
@@ -314,7 +322,7 @@ class __$RequestListItemEntityCopyWithImpl<$Res>
 
 /// Create a copy of RequestListItemEntity
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? uri = null,Object? startedAt = null,Object? state = null,Object? statusCode = freezed,Object? duration = freezed,Object? responseSize = freezed,Object? errorType = freezed,Object? requestContentType = freezed,Object? responseContentType = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? method = null,Object? uri = null,Object? startedAt = null,Object? state = null,Object? statusCode = freezed,Object? duration = freezed,Object? responseSize = freezed,Object? errorType = freezed,Object? requestContentType = freezed,Object? responseContentType = freezed,Object? hasFileUpload = null,Object? requestBodyIncomplete = null,}) {
   return _then(_RequestListItemEntity(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,method: null == method ? _self.method : method // ignore: cast_nullable_to_non_nullable
@@ -327,7 +335,9 @@ as Duration?,responseSize: freezed == responseSize ? _self.responseSize : respon
 as int?,errorType: freezed == errorType ? _self.errorType : errorType // ignore: cast_nullable_to_non_nullable
 as DioExceptionType?,requestContentType: freezed == requestContentType ? _self.requestContentType : requestContentType // ignore: cast_nullable_to_non_nullable
 as String?,responseContentType: freezed == responseContentType ? _self.responseContentType : responseContentType // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,hasFileUpload: null == hasFileUpload ? _self.hasFileUpload : hasFileUpload // ignore: cast_nullable_to_non_nullable
+as bool,requestBodyIncomplete: null == requestBodyIncomplete ? _self.requestBodyIncomplete : requestBodyIncomplete // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

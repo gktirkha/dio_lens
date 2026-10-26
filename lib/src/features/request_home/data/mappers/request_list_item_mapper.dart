@@ -16,5 +16,7 @@ extension RequestListItemMapper on RequestDetailEntity {
     errorType: errorType,
     requestContentType: requestContentType,
     responseContentType: responseContentType,
+    hasFileUpload: hasFileUpload,
+    requestBodyIncomplete: requestBodyIncomplete,
   );
 }

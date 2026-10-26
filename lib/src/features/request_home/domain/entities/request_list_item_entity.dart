@@ -47,6 +47,14 @@ abstract class RequestListItemEntity with _$RequestListItemEntity {
 
     /// MIME type of the response body; null when there is none.
     @JsonKey(name: 'response_content_type') String? responseContentType,
+
+    /// Whether the request uploaded files, whose contents are not captured.
+    @JsonKey(name: 'has_file_upload') @Default(false) bool hasFileUpload,
+
+    /// Whether the captured request body differs from what was sent.
+    @JsonKey(name: 'request_body_incomplete')
+    @Default(false)
+    bool requestBodyIncomplete,
   }) = _RequestListItemEntity;
 
   /// Reads a row stored by `toJson`.

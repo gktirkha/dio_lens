@@ -66,7 +66,7 @@ void main() {
     await h.settle();
     await tester.tap(inSheet('Everywhere'));
     await h.settle();
-    await tester.tap(find.text('UI only').last);
+    await tester.tap(find.text('UI').last);
     await h.settle();
     expect(s().redactionMode, DioLensRedactionMode.ui);
     expect(h.storage.settings!['redaction_mode'], 'ui');
@@ -161,5 +161,74 @@ void main() {
       findsOneWidget,
     );
     expect(h.adapter.requests, isEmpty);
+  });
+
+  testWidgets('Overview and cURL follow the cURL target', (tester) async {
+    final h = await Harness.start(
+      tester,
+      size: const Size(420, 2600),
+      settings: const DioLensSettings(
+        showBubble: false,
+        showNotification: false,
+        redactionMode: DioLensRedactionMode.clipboard,
+      ),
+    );
+    await h.send(
+      (dio) => dio.get(
+        '/v1/a?token=abc',
+        options: Options(headers: {'Authorization': 'Bearer secret'}),
+      ),
+    );
+    DioLens.openRequest(h.runtime.store.requests.single.id);
+    await h.settle();
+
+    expect(
+      find.text('https://api.example.com/v1/a?token=[REDACTED]'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Bearer secret'), findsNothing);
+    expect(
+      find.textContaining("-H 'Authorization: [REDACTED]'"),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.text('Request'));
+    await h.settle();
+    final masked = {
+      for (final box in tester.widgetList<KeyValueBox>(
+        find.byType(KeyValueBox),
+      ))
+        for (final e in box.entries) e.key: e.redacted,
+    };
+    expect(masked['Authorization'], isFalse, reason: 'UI is not masked');
+  });
+
+  testWidgets('list rows follow the UI target live', (tester) async {
+    final h = await Harness.start(
+      tester,
+      settings: const DioLensSettings(
+        showBubble: false,
+        showNotification: false,
+      ),
+    );
+    await h.send((dio) => dio.get('/v1/a?token=abc&page=2'));
+    DioLens.open();
+    await h.settle();
+    expect(
+      find.text('/v1/a?token=[REDACTED]&page=2', findRichText: true),
+      findsOneWidget,
+    );
+    await tester.runAsync(
+      () => DioLens.updateSettings(
+        DioLens.settings.value.copyWith(
+          redactionMode: DioLensRedactionMode.off,
+        ),
+      ),
+    );
+    await h.settle();
+    expect(
+      find.text('/v1/a?token=abc&page=2', findRichText: true),
+      findsOneWidget,
+    );
   });
 }

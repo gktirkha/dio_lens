@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../settings/domain/entities/dio_lens_settings.dart';
+import '../../settings/domain/enums/dio_lens_redaction_mode.dart';
 import '../../settings/domain/utils/request_redactor.dart';
 import '../domain/entities/dio_lens_console_settings.dart';
 
@@ -41,7 +42,11 @@ class DioLensConsoleLogger {
     if (_settings.requestHeader) {
       final queryParams = <String, dynamic>{};
       options.queryParameters.forEach((key, value) {
-        queryParams[key] = dioSettings.isQueryParamRedacted(key, console: true)
+        queryParams[key] =
+            dioSettings.isQueryParamRedacted(
+              key,
+              target: DioLensRedactionTarget.console,
+            )
             ? RequestRedactor.mask
             : value;
       });
@@ -55,7 +60,11 @@ class DioLensConsoleLogger {
       final reqHeaders = <String, dynamic>{};
       options.headers.forEach((key, value) {
         if (value == null) return;
-        reqHeaders[key] = dioSettings.isHeaderRedacted(key, console: true)
+        reqHeaders[key] =
+            dioSettings.isHeaderRedacted(
+              key,
+              target: DioLensRedactionTarget.console,
+            )
             ? RequestRedactor.mask
             : value;
       });
@@ -93,8 +102,14 @@ class DioLensConsoleLogger {
             data.fields.map(
               (e) => MapEntry(
                 e.key,
-                dioSettings.isHeaderRedacted(e.key, console: true) ||
-                        dioSettings.isQueryParamRedacted(e.key, console: true)
+                dioSettings.isHeaderRedacted(
+                          e.key,
+                          target: DioLensRedactionTarget.console,
+                        ) ||
+                        dioSettings.isQueryParamRedacted(
+                          e.key,
+                          target: DioLensRedactionTarget.console,
+                        )
                     ? RequestRedactor.mask
                     : e.value,
               ),
@@ -136,7 +151,11 @@ class DioLensConsoleLogger {
     if (_settings.responseHeader) {
       final responseHeaders = <String, String>{};
       response.headers.map.forEach((k, v) {
-        responseHeaders[k] = dioSettings.isHeaderRedacted(k, console: true)
+        responseHeaders[k] =
+            dioSettings.isHeaderRedacted(
+              k,
+              target: DioLensRedactionTarget.console,
+            )
             ? RequestRedactor.mask
             : v.toString();
       });
@@ -180,7 +199,11 @@ class DioLensConsoleLogger {
         if (_settings.responseHeader && response.headers.map.isNotEmpty) {
           final responseHeaders = <String, String>{};
           response.headers.map.forEach((k, v) {
-            responseHeaders[k] = dioSettings.isHeaderRedacted(k, console: true)
+            responseHeaders[k] =
+                dioSettings.isHeaderRedacted(
+                  k,
+                  target: DioLensRedactionTarget.console,
+                )
                 ? RequestRedactor.mask
                 : v.toString();
           });
@@ -217,7 +240,10 @@ class DioLensConsoleLogger {
     final pairs = uri.query.split('&').map((pair) {
       final i = pair.indexOf('=');
       final key = Uri.decodeQueryComponent(i < 0 ? pair : pair.substring(0, i));
-      return settings.isQueryParamRedacted(key, console: true)
+      return settings.isQueryParamRedacted(
+            key,
+            target: DioLensRedactionTarget.console,
+          )
           ? '${i < 0 ? pair : pair.substring(0, i)}=${RequestRedactor.mask}'
           : pair;
     });
@@ -236,8 +262,14 @@ class DioLensConsoleLogger {
         result[key.toString()] = _redactMap(value, settings);
       } else if (value is List) {
         result[key.toString()] = _redactList(value, settings);
-      } else if (settings.isHeaderRedacted(key.toString(), console: true) ||
-          settings.isQueryParamRedacted(key.toString(), console: true)) {
+      } else if (settings.isHeaderRedacted(
+            key.toString(),
+            target: DioLensRedactionTarget.console,
+          ) ||
+          settings.isQueryParamRedacted(
+            key.toString(),
+            target: DioLensRedactionTarget.console,
+          )) {
         result[key.toString()] = RequestRedactor.mask;
       } else {
         result[key.toString()] = value;

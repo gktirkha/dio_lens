@@ -4,12 +4,14 @@ import '../../../../core/enums/request_status_class.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/utils/request_redactor.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'key_value_box.dart';
 import 'overview_widgets.dart';
 
 /// Overview tab: URL parts, status, timing, sizes, query params and the cURL
-/// command.
+/// command. Values are masked for the cURL & Overview redaction target.
 class OverviewTab extends StatelessWidget {
   /// Creates the tab.
   const OverviewTab({
@@ -21,12 +23,25 @@ class OverviewTab extends StatelessWidget {
   /// The request shown.
   final RequestDetailEntity request;
 
-  /// Decides which query params are masked.
+  /// Decides which query values are masked.
   final DioLensSettings settings;
+
+  static String _readable(Uri uri) {
+    try {
+      return Uri.decodeFull('$uri');
+    } on ArgumentError {
+      return '$uri';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
+    final masked = RequestRedactor.redact(
+      request,
+      settings,
+      target: DioLensRedactionTarget.clipboard,
+    );
     final params = request.queryParameters;
     final statusClass = request.statusClass;
     final statusText = switch (statusClass) {
@@ -44,7 +59,7 @@ class OverviewTab extends StatelessWidget {
     };
 
     final fields = <Widget>[
-      OverviewField(label: 'Full URL', value: request.uri.toString()),
+      OverviewField(label: 'Full URL', value: _readable(masked.uri)),
       OverviewField(label: 'Host', value: request.host),
       OverviewField(label: 'Path', value: request.path),
       if (params.isNotEmpty)
@@ -60,7 +75,10 @@ class OverviewTab extends StatelessWidget {
                   KeyValueEntry(
                     p.key,
                     p.value,
-                    redacted: settings.isQueryParamRedacted(p.key),
+                    redacted: settings.isQueryParamRedacted(
+                      p.key,
+                      target: DioLensRedactionTarget.clipboard,
+                    ),
                   ),
               ],
               copyAllLabel: 'Query params',
@@ -93,7 +111,7 @@ class OverviewTab extends StatelessWidget {
       ),
       OverviewField(label: 'Request type', value: request.requestContentType),
       OverviewField(label: 'Response type', value: request.responseContentType),
-      CurlSection(command: request.curl),
+      CurlSection(command: masked.curl),
     ];
 
     return ListView.separated(

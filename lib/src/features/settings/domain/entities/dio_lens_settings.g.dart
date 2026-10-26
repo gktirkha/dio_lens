@@ -96,8 +96,13 @@ const _$DioLensBubblePositionEnumMap = {
 
 const _$DioLensRedactionModeEnumMap = {
   DioLensRedactionMode.redact: 'redact',
-  DioLensRedactionMode.console: 'console',
   DioLensRedactionMode.ui: 'ui',
+  DioLensRedactionMode.clipboard: 'clipboard',
+  DioLensRedactionMode.console: 'console',
+  DioLensRedactionMode.uiClipboard: 'ui_clipboard',
+  DioLensRedactionMode.uiConsole: 'ui_console',
+  DioLensRedactionMode.clipboardConsole: 'clipboard_console',
+  DioLensRedactionMode.uiClipboardConsole: 'ui_clipboard_console',
   DioLensRedactionMode.off: 'off',
 };
 

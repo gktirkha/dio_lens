@@ -4,6 +4,7 @@ import '../../../../core/enums/request_state.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 import '../entities/dio_lens_share_content.dart';
 
@@ -60,7 +61,13 @@ abstract final class ShareContentBuilder {
     }
 
     _section(out, 'cURL');
-    out.writeln(r.curl);
+    out.writeln(
+      RequestRedactor.redact(
+        request,
+        settings,
+        target: DioLensRedactionTarget.clipboard,
+      ).curl,
+    );
 
     return DioLensShareContent(
       subject: '${r.method} ${r.path} · $status',

@@ -85,7 +85,9 @@ class RequestDetailHeader extends StatelessWidget {
                       ),
                       const SizedBox(height: 3),
                       Text(
-                        query == null ? request.host : '${request.host}?$query',
+                        query == null
+                            ? request.host
+                            : '${request.host}?${_readable(query)}',
                         textDirection: LtrContent.direction,
                         textAlign: ltrAlign,
                         style: mono.copyWith(
@@ -221,5 +223,14 @@ class _ActionButton extends StatelessWidget {
             ?.copyWith(fontSize: 12.5, fontWeight: FontWeight.w600),
       ),
     );
+  }
+}
+
+/// [query] decoded for display; as is when it can't be decoded.
+String _readable(String query) {
+  try {
+    return Uri.decodeFull(query);
+  } on ArgumentError {
+    return query;
   }
 }

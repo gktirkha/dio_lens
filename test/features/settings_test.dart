@@ -80,22 +80,34 @@ void main() {
     }
   });
 
-  test('redaction mode splits UI and console masking', () {
-    for (final (mode, ui, console) in [
-      (DioLensRedactionMode.redact, true, true),
-      (DioLensRedactionMode.console, false, true),
-      (DioLensRedactionMode.ui, true, false),
-      (DioLensRedactionMode.off, false, false),
-    ]) {
+  test('redaction mode masks every combination of targets', () {
+    const ui = DioLensRedactionTarget.ui;
+    const curl = DioLensRedactionTarget.clipboard;
+    const console = DioLensRedactionTarget.console;
+    final expected = {
+      DioLensRedactionMode.redact: {ui, curl, console},
+      DioLensRedactionMode.uiClipboardConsole: {ui, curl, console},
+      DioLensRedactionMode.ui: {ui},
+      DioLensRedactionMode.clipboard: {curl},
+      DioLensRedactionMode.console: {console},
+      DioLensRedactionMode.uiClipboard: {ui, curl},
+      DioLensRedactionMode.uiConsole: {ui, console},
+      DioLensRedactionMode.clipboardConsole: {curl, console},
+      DioLensRedactionMode.off: <DioLensRedactionTarget>{},
+    };
+    expect(expected.keys, containsAll(DioLensRedactionMode.values));
+    for (final MapEntry(key: mode, value: targets) in expected.entries) {
       final s = DioLensSettings(redactionMode: mode);
-      expect(s.isHeaderRedacted('Authorization'), ui, reason: '$mode ui');
-      expect(
-        s.isHeaderRedacted('Authorization', console: true),
-        console,
-        reason: '$mode console',
-      );
-      expect(s.isQueryParamRedacted('token'), ui);
-      expect(s.isQueryParamRedacted('token', console: true), console);
+      for (final target in DioLensRedactionTarget.values) {
+        final masked = targets.contains(target);
+        expect(
+          s.isHeaderRedacted('Authorization', target: target),
+          masked,
+          reason: '$mode $target',
+        );
+        expect(s.isQueryParamRedacted('token', target: target), masked);
+      }
+      expect(s.isHeaderRedacted('Authorization'), targets.contains(ui));
     }
   });
 }
