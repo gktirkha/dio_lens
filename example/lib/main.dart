@@ -60,8 +60,8 @@ void main() {
     ),
     // Recording, the UI and console logs in debug and profile builds (for
     // testers). Never release builds.
-    uiMode: .none,
-    consoleMode: .all,
+    uiMode: .debugProfile,
+    consoleMode: .debugProfile,
     onExport: saveExport,
   );
 
