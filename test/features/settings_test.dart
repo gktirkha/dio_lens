@@ -15,8 +15,7 @@ void main() {
     expect(s.notificationDuration, const Duration(seconds: 4));
     expect(s.showBubble, isTrue);
     expect(s.bubblePosition, DioLensBubblePosition.bottomEnd);
-    expect(s.redactHeaders, isTrue);
-    expect(s.redactQuery, isTrue);
+    expect(s.redactionMode, DioLensRedactionMode.redact);
     expect(s.themeMode, ThemeMode.dark);
   });
 
@@ -58,11 +57,15 @@ void main() {
     expect(s.isHeaderRedacted('Accept'), isFalse);
     expect(s.isQueryParamRedacted('APIKEY'), isTrue);
     expect(
-      s.copyWith(redactHeaders: false).isHeaderRedacted('x-api-key'),
+      s
+          .copyWith(redactionMode: DioLensRedactionMode.off)
+          .isHeaderRedacted('x-api-key'),
       isFalse,
     );
     expect(
-      s.copyWith(redactQuery: false).isQueryParamRedacted('apikey'),
+      s
+          .copyWith(redactionMode: DioLensRedactionMode.off)
+          .isQueryParamRedacted('apikey'),
       isFalse,
     );
   });
@@ -74,6 +77,25 @@ void main() {
     }
     for (final q in ['token', 'apikey', 'password']) {
       expect(s.isQueryParamRedacted(q), isTrue, reason: q);
+    }
+  });
+
+  test('redaction mode splits UI and console masking', () {
+    for (final (mode, ui, console) in [
+      (DioLensRedactionMode.redact, true, true),
+      (DioLensRedactionMode.console, false, true),
+      (DioLensRedactionMode.ui, true, false),
+      (DioLensRedactionMode.off, false, false),
+    ]) {
+      final s = DioLensSettings(redactionMode: mode);
+      expect(s.isHeaderRedacted('Authorization'), ui, reason: '$mode ui');
+      expect(
+        s.isHeaderRedacted('Authorization', console: true),
+        console,
+        reason: '$mode console',
+      );
+      expect(s.isQueryParamRedacted('token'), ui);
+      expect(s.isQueryParamRedacted('token', console: true), console);
     }
   });
 }

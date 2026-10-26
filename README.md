@@ -32,7 +32,7 @@ sensitive values masked.
 - **Export** every request as HAR 1.2 or JSON, and **share** one as a
   readable text report.
 - **Redaction** of sensitive headers and query parameters in the UI,
-  exports and shares.
+  exports, shares and console logs, each switchable.
 - **Floating bubble** to open Dio Lens, and a **banner** when a request
   finishes.
 - **Console logging** of requests, responses and errors, in a readable
@@ -87,53 +87,58 @@ See the [example](example/lib/main.dart) for a complete app.
 ## Console logging
 
 `DioLensInterceptor` also prints each request, response and error to the
-console in a pretty, indented format. Logging is on by default, so adding the
-interceptor is enough to get it.
+console in a pretty, indented format, with `[REQUEST]`, `[RESPONSE]` or
+`[ERROR]` in each header. It's meant for developers, alongside `flutter logs`
+or your IDE's console, and is set up in code, never from the settings sheet.
 
-Turn it off, or choose what to print, with `consoleLoggerSettings`:
+Logs print in the build modes passed as `consoleMode` to `DioLens.init` (debug
+only by default; see [Build modes](#build-modes)). Choose what they show with
+`consoleSettings`:
 
 ```dart
 dio.interceptors.add(
   DioLensInterceptor(
     dio: dio,
-    consoleLoggerSettings: const ConsoleLoggerSettings(
-      enabled: false,
+    consoleSettings: const DioLensConsoleSettings(
+      responseBody: false,
+      maxWidth: 120,
     ),
   ),
 );
 ```
 
-| Setting             | Default | Description                                                |
-| ------------------- | ------- | ---------------------------------------------------------- |
-| `enabled`           | `true`  | Print any console logs.                                    |
-| `request`           | `true`  | Print the request method and URL.                          |
-| `requestHeader`     | `true`  | Print query parameters, request headers and extras.        |
-| `requestBody`       | `true`  | Print the request body.                                    |
-| `responseHeader`    | `true`  | Print response headers.                                    |
-| `responseBody`      | `true`  | Print the response body.                                   |
-| `error`             | `true`  | Print errors.                                              |
-| `compact`           | `true`  | Print short maps and lists on one line.                    |
-| `maxWidth`          | `90`    | Line width before wrapping.                                |
-| `showStateInHeader` | `true`  | Prefix headers with `[REQUEST]`, `[RESPONSE]` or `[ERROR]`. |
+| Setting             | Default | Description                                                    |
+| ------------------- | ------- | -------------------------------------------------------------- |
+| `request`           | `true`  | Print the request method and URL.                              |
+| `requestHeader`     | `true`  | Print query parameters, request headers, options and extras.   |
+| `requestBody`       | `true`  | Print the request body.                                        |
+| `responseHeader`    | `true`  | Print response headers.                                        |
+| `responseBody`      | `true`  | Print the response body.                                       |
+| `error`             | `true`  | Print errors.                                                  |
+| `compact`           | `true`  | Print short maps and lists on one line.                        |
+| `maxWidth`          | `90`    | Line width before wrapping.                                    |
+| `showStateInHeader` | `true`  | Prefix section headers with `[REQUEST]`, `[RESPONSE]` or `[ERROR]`. |
 
-Console logs mask the same headers and query parameters as the rest of Dio
-Lens. To send logs somewhere else, pass `logPrint`; it defaults to
-`dart:developer`'s `log` with the name `Dio Lens`.
-
-Console logging is independent of `DioLensMode`: it runs in every build unless
-you set `enabled` to `false`. Consider tying it to debug builds:
-
-```dart
-consoleLoggerSettings: ConsoleLoggerSettings(enabled: kDebugMode),
-```
+Console logs mask sensitive values as the `redactionMode` setting says (see
+[Settings](#settings)). To send logs somewhere else, pass `logPrint`; it
+defaults to `dart:developer`'s `log` with the name `dio_lens`.
 
 ## Build modes
 
 Dio Lens shows captured headers and bodies, tokens included, so by default it
-only runs in debug builds. Choose the build modes with `mode`:
+only runs in debug builds. Two modes, passed to `DioLens.init`, decide where it
+runs:
+
+- `uiMode`: recording requests and the UI (bubble, banner, pages, settings).
+  Turn it on for profile builds to let testers inspect traffic during UAT.
+- `consoleMode`: console logs, for developers.
 
 ```dart
-DioLens.init(navigatorKey: navigatorKey, mode: DioLensMode.debugProfile);
+DioLens.init(
+  navigatorKey: navigatorKey,
+  uiMode: DioLensMode.debugProfile,
+  consoleMode: DioLensMode.debug,
+);
 ```
 
 | Mode                          | Debug | Profile | Release |
@@ -147,7 +152,7 @@ DioLens.init(navigatorKey: navigatorKey, mode: DioLensMode.debugProfile);
 | `profileRelease`              |       |    ✓    |    ✓    |
 | `debugProfileRelease`, `show` |   ✓   |    ✓    |    ✓    |
 
-Outside the chosen modes the interceptor does nothing.
+Outside both modes the interceptor does nothing.
 
 ## Settings
 
@@ -176,9 +181,8 @@ DioLens.init(
 | `notificationDuration` | 4 s                                                  | How long the banner stays (2 to 15 seconds).                                          |
 | `showBubble`           | `true`                                               | Show the floating bubble.                                                             |
 | `bubblePosition`       | `bottomEnd`                                          | Corner the bubble starts in; follows the reading direction.                           |
-| `redactHeaders`        | `true`                                               | Mask the headers in `redactedHeaders`.                                                |
+| `redactionMode`        | `redact`                                             | Where to mask: `redact` (everywhere), `console` (console logs only), `ui` (UI, exports and shares only) or `off`. |
 | `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
-| `redactQuery`          | `true`                                               | Mask the query parameters in `redactedQueryParams`.                                   |
 | `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
 | `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
 
@@ -400,7 +404,8 @@ Future<void> main() async {
 | `DioLens.resetSettings()`                    | Goes back to the settings passed to `init`.                                 |
 | `DioLens.export(format)`                     | Builds an export of every request.                                          |
 | `DioLens.clear()`                            | Removes every captured request.                                             |
-| `DioLens.isInitialized`, `DioLens.isEnabled` | Whether `init` was called, and whether requests are recorded in this build. |
+| `DioLens.isInitialized` | Whether `init` was called. |
+| `DioLens.isUiEnabled`, `DioLens.isConsoleEnabled` | Whether recording and the UI, and console logs, are on in this build. |
 
 ## Platform support
 

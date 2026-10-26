@@ -31,7 +31,8 @@ class DioLensRuntime {
   /// Creates the runtime for one `DioLens.init` call.
   DioLensRuntime({
     required this.navigatorKey,
-    required this.enabled,
+    required this.uiEnabled,
+    required this.consoleEnabled,
     required this._initialSettings,
     required DioLensStorage Function() storage,
     this.onExport,
@@ -51,8 +52,12 @@ class DioLensRuntime {
   /// through it.
   final GlobalKey<NavigatorState> navigatorKey;
 
-  /// Whether requests are recorded (from the `DioLensMode`).
-  final bool enabled;
+  /// Whether requests are recorded and the UI is available (from the UI
+  /// mode).
+  final bool uiEnabled;
+
+  /// Whether requests are printed to the console (from the console mode).
+  final bool consoleEnabled;
 
   final DioLensSettings _initialSettings;
   final DioLensStorage Function() _storageFactory;

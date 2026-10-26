@@ -3,20 +3,20 @@ import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
-import '../core/models/console_logger_settings.dart';
-import '../features/settings/domain/entities/dio_lens_settings.dart';
-import '../features/settings/domain/utils/request_redactor.dart';
+import '../../settings/domain/entities/dio_lens_settings.dart';
+import '../../settings/domain/utils/request_redactor.dart';
+import '../domain/entities/dio_lens_console_settings.dart';
 
 /// Console logger for Dio requests similar to pretty_dio_logger.
 class DioLensConsoleLogger {
   /// Creates a console logger.
   DioLensConsoleLogger({
-    ConsoleLoggerSettings? settings,
+    DioLensConsoleSettings? settings,
     void Function(Object)? logPrint,
-  }) : _settings = settings ?? const ConsoleLoggerSettings(),
+  }) : _settings = settings ?? const DioLensConsoleSettings(),
        logPrint = logPrint ?? ((Object o) => debugPrint(o.toString()));
 
-  final ConsoleLoggerSettings _settings;
+  final DioLensConsoleSettings _settings;
 
   /// Log printer function used to output logs.
   final void Function(Object object) logPrint;
@@ -31,17 +31,17 @@ class DioLensConsoleLogger {
 
   /// Logs a request.
   void logRequest(RequestOptions options, DioLensSettings dioSettings) {
-    if (!_settings.enabled || !_settings.request) return;
+    if (!_settings.request) return;
 
     _printBoxed(
       header: _withState('REQUEST', '${options.method} '),
-      text: options.uri.toString(),
+      text: _maskUrl(options.uri, dioSettings),
     );
 
     if (_settings.requestHeader) {
       final queryParams = <String, dynamic>{};
       options.queryParameters.forEach((key, value) {
-        queryParams[key] = dioSettings.isQueryParamRedacted(key)
+        queryParams[key] = dioSettings.isQueryParamRedacted(key, console: true)
             ? RequestRedactor.mask
             : value;
       });
@@ -55,7 +55,7 @@ class DioLensConsoleLogger {
       final reqHeaders = <String, dynamic>{};
       options.headers.forEach((key, value) {
         if (value == null) return;
-        reqHeaders[key] = dioSettings.isHeaderRedacted(key)
+        reqHeaders[key] = dioSettings.isHeaderRedacted(key, console: true)
             ? RequestRedactor.mask
             : value;
       });
@@ -93,8 +93,8 @@ class DioLensConsoleLogger {
             data.fields.map(
               (e) => MapEntry(
                 e.key,
-                dioSettings.isHeaderRedacted(e.key) ||
-                        dioSettings.isQueryParamRedacted(e.key)
+                dioSettings.isHeaderRedacted(e.key, console: true) ||
+                        dioSettings.isQueryParamRedacted(e.key, console: true)
                     ? RequestRedactor.mask
                     : e.value,
               ),
@@ -123,7 +123,6 @@ class DioLensConsoleLogger {
 
   /// Logs a response.
   void logResponse(Response response, DioLensSettings dioSettings) {
-    if (!_settings.enabled) return;
     if (!_settings.responseBody && !_settings.responseHeader) return;
 
     _printBoxed(
@@ -131,13 +130,13 @@ class DioLensConsoleLogger {
         'RESPONSE',
         '${response.requestOptions.method} ║ Status: ${response.statusCode} ${response.statusMessage ?? ''}  ║ Time: ${_calculateTimeDifference(response.requestOptions.extra)} ms',
       ),
-      text: response.requestOptions.uri.toString(),
+      text: _maskUrl(response.requestOptions.uri, dioSettings),
     );
 
     if (_settings.responseHeader) {
       final responseHeaders = <String, String>{};
       response.headers.map.forEach((k, v) {
-        responseHeaders[k] = dioSettings.isHeaderRedacted(k)
+        responseHeaders[k] = dioSettings.isHeaderRedacted(k, console: true)
             ? RequestRedactor.mask
             : v.toString();
       });
@@ -160,7 +159,7 @@ class DioLensConsoleLogger {
 
   /// Logs an error.
   void logError(DioException err, DioLensSettings dioSettings) {
-    if (!_settings.enabled || !_settings.error) return;
+    if (!_settings.error) return;
 
     if (err.type == DioExceptionType.badResponse) {
       final response = err.response;
@@ -170,7 +169,7 @@ class DioLensConsoleLogger {
           'ERROR',
           'DioError ║ Status: ${response?.statusCode} ${response?.statusMessage ?? ''} ║ Time: ${_calculateTimeDifference(err.requestOptions.extra)} ms',
         ),
-        text: uri.toString(),
+        text: uri == null ? null : _maskUrl(uri, dioSettings),
       );
 
       if (response?.data != null && _settings.responseBody) {
@@ -181,7 +180,7 @@ class DioLensConsoleLogger {
         if (_settings.responseHeader && response.headers.map.isNotEmpty) {
           final responseHeaders = <String, String>{};
           response.headers.map.forEach((k, v) {
-            responseHeaders[k] = dioSettings.isHeaderRedacted(k)
+            responseHeaders[k] = dioSettings.isHeaderRedacted(k, console: true)
                 ? RequestRedactor.mask
                 : v.toString();
           });
@@ -212,6 +211,19 @@ class DioLensConsoleLogger {
     }
   }
 
+  /// [uri] with the values of redacted query parameters masked.
+  String _maskUrl(Uri uri, DioLensSettings settings) {
+    if (!uri.hasQuery || uri.query.isEmpty) return uri.toString();
+    final pairs = uri.query.split('&').map((pair) {
+      final i = pair.indexOf('=');
+      final key = Uri.decodeQueryComponent(i < 0 ? pair : pair.substring(0, i));
+      return settings.isQueryParamRedacted(key, console: true)
+          ? '${i < 0 ? pair : pair.substring(0, i)}=${RequestRedactor.mask}'
+          : pair;
+    });
+    return uri.replace(query: pairs.join('&')).toString();
+  }
+
   String _withState(String state, String label) {
     if (!_settings.showStateInHeader) return label;
     return '[$state] ║ $label';
@@ -224,8 +236,8 @@ class DioLensConsoleLogger {
         result[key.toString()] = _redactMap(value, settings);
       } else if (value is List) {
         result[key.toString()] = _redactList(value, settings);
-      } else if (settings.isHeaderRedacted(key.toString()) ||
-          settings.isQueryParamRedacted(key.toString())) {
+      } else if (settings.isHeaderRedacted(key.toString(), console: true) ||
+          settings.isQueryParamRedacted(key.toString(), console: true)) {
         result[key.toString()] = RequestRedactor.mask;
       } else {
         result[key.toString()] = value;
@@ -249,6 +261,7 @@ class DioLensConsoleLogger {
   }
 
   String _redactString(String text, DioLensSettings settings) {
+    if (!settings.redactionMode.inConsole) return text;
     var result = text;
     for (final key in settings.redactedHeaders) {
       final pattern = RegExp('"$key"\\s*:\\s*"([^"]+)"', caseSensitive: false);

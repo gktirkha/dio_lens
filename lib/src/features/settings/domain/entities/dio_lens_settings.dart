@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../enums/dio_lens_bubble_position.dart';
 import '../enums/dio_lens_notification_position.dart';
+import '../enums/dio_lens_redaction_mode.dart';
 import '../enums/dio_lens_retention.dart';
 
 part 'dio_lens_settings.freezed.dart';
@@ -75,19 +76,19 @@ abstract class DioLensSettings with _$DioLensSettings {
     @Default(DioLensBubblePosition.bottomEnd)
     DioLensBubblePosition bubblePosition,
 
-    /// Mask the values of [redactedHeaders] in the UI, exports and shares.
-    @JsonKey(name: 'redact_headers') @Default(true) bool redactHeaders,
+    /// Where the values of [redactedHeaders] and [redactedQueryParams] are
+    /// masked: everywhere, console logs only, the UI only, or nowhere.
+    @JsonKey(name: 'redaction_mode')
+    @Default(DioLensRedactionMode.redact)
+    DioLensRedactionMode redactionMode,
 
-    /// Header names masked while [redactHeaders] is on, in requests and
+    /// Header names masked as [redactionMode] says, in requests and
     /// responses; matched case-insensitively.
     @JsonKey(name: 'redacted_headers')
     @Default(DioLensSettings.defaultRedactedHeaders)
     List<String> redactedHeaders,
 
-    /// Mask the values of [redactedQueryParams] in the UI, exports and shares.
-    @JsonKey(name: 'redact_query') @Default(true) bool redactQuery,
-
-    /// Query parameter names masked while [redactQuery] is on; matched
+    /// Query parameter names masked as [redactionMode] says; matched
     /// case-insensitively.
     @JsonKey(name: 'redacted_query_params')
     @Default(DioLensSettings.defaultRedactedQueryParams)
@@ -116,13 +117,19 @@ abstract class DioLensSettings with _$DioLensSettings {
     'password',
   ];
 
-  /// Whether the header [name] is masked, case-insensitively.
-  bool isHeaderRedacted(String name) =>
-      redactHeaders && _matches(redactedHeaders, name);
+  /// Whether the header [name] is masked: in console logs when [console] is
+  /// true, otherwise in the UI, exports and shares. Case-insensitive.
+  bool isHeaderRedacted(String name, {bool console = false}) =>
+      _masks(console: console) && _matches(redactedHeaders, name);
 
-  /// Whether the query parameter [name] is masked, case-insensitively.
-  bool isQueryParamRedacted(String name) =>
-      redactQuery && _matches(redactedQueryParams, name);
+  /// Whether the query parameter [name] is masked: in console logs when
+  /// [console] is true, otherwise in the UI, exports and shares.
+  /// Case-insensitive.
+  bool isQueryParamRedacted(String name, {bool console = false}) =>
+      _masks(console: console) && _matches(redactedQueryParams, name);
+
+  bool _masks({required bool console}) =>
+      console ? redactionMode.inConsole : redactionMode.inUi;
 
   static bool _matches(List<String> keys, String name) {
     final lower = name.toLowerCase();

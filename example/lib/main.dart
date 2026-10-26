@@ -18,8 +18,10 @@ final dio = Dio(
 void main() {
   DioLens.init(
     navigatorKey: navigatorKey,
-    // Debug and profile builds; never release builds.
-    mode: DioLensMode.debugProfile,
+    // Recording and the UI in debug and profile builds (for testers);
+    // console logs in debug builds only. Never release builds.
+    uiMode: DioLensMode.debugProfile,
+    consoleMode: DioLensMode.debug,
     // Starting values; the user can change them in the settings sheet.
     settings: const DioLensSettings(
       maxRequests: 200,

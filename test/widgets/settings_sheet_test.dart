@@ -62,10 +62,14 @@ void main() {
     await h.settle(8);
     expect(s().redactedHeaders, ['x-trace', 'authorization']);
 
-    await tester.tap(find.bySemanticsLabel('Redact sensitive query params'));
+    FocusManager.instance.primaryFocus?.unfocus();
     await h.settle();
-    expect(s().redactQuery, isFalse);
-    expect(h.storage.settings!['redact_query'], isFalse);
+    await tester.tap(inSheet('Everywhere'));
+    await h.settle();
+    await tester.tap(find.text('UI only').last);
+    await h.settle();
+    expect(s().redactionMode, DioLensRedactionMode.ui);
+    expect(h.storage.settings!['redaction_mode'], 'ui');
   });
 
   testWidgets('reset asks first, then restores the starting values', (
@@ -111,7 +115,7 @@ void main() {
         showBubble: false,
         showNotification: false,
         redactedHeaders: ['x-trace'],
-        redactQuery: false,
+        redactedQueryParams: [],
       ),
     );
     await h.send(

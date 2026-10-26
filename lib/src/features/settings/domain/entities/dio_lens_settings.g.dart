@@ -34,13 +34,17 @@ _DioLensSettings _$DioLensSettingsFromJson(Map<String, dynamic> json) =>
             json['bubble_position'],
           ) ??
           DioLensBubblePosition.bottomEnd,
-      redactHeaders: json['redact_headers'] as bool? ?? true,
+      redactionMode:
+          $enumDecodeNullable(
+            _$DioLensRedactionModeEnumMap,
+            json['redaction_mode'],
+          ) ??
+          DioLensRedactionMode.redact,
       redactedHeaders:
           (json['redacted_headers'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           DioLensSettings.defaultRedactedHeaders,
-      redactQuery: json['redact_query'] as bool? ?? true,
       redactedQueryParams:
           (json['redacted_query_params'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -63,9 +67,8 @@ Map<String, dynamic> _$DioLensSettingsToJson(
   'notification_duration': instance.notificationDuration.inMicroseconds,
   'show_bubble': instance.showBubble,
   'bubble_position': _$DioLensBubblePositionEnumMap[instance.bubblePosition]!,
-  'redact_headers': instance.redactHeaders,
+  'redaction_mode': _$DioLensRedactionModeEnumMap[instance.redactionMode]!,
   'redacted_headers': instance.redactedHeaders,
-  'redact_query': instance.redactQuery,
   'redacted_query_params': instance.redactedQueryParams,
   'theme_mode': _$ThemeModeEnumMap[instance.themeMode]!,
 };
@@ -89,6 +92,13 @@ const _$DioLensBubblePositionEnumMap = {
   DioLensBubblePosition.topEnd: 'top_end',
   DioLensBubblePosition.bottomStart: 'bottom_start',
   DioLensBubblePosition.bottomEnd: 'bottom_end',
+};
+
+const _$DioLensRedactionModeEnumMap = {
+  DioLensRedactionMode.redact: 'redact',
+  DioLensRedactionMode.console: 'console',
+  DioLensRedactionMode.ui: 'ui',
+  DioLensRedactionMode.off: 'off',
 };
 
 const _$ThemeModeEnumMap = {

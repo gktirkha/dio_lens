@@ -7,6 +7,7 @@ import '../../../../theme/dio_lens_theme_scope.dart';
 import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/enums/dio_lens_bubble_position.dart';
 import '../../domain/enums/dio_lens_notification_position.dart';
+import '../../domain/enums/dio_lens_redaction_mode.dart';
 import '../../domain/enums/dio_lens_retention.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/capture_fields.dart';
@@ -182,6 +183,13 @@ class _SettingsBody extends StatelessWidget {
   )
   onChanged;
   final ValueChanged<DioLensExportFormat>? onExport;
+
+  static const Map<DioLensRedactionMode, String> _redactionLabels = {
+    DioLensRedactionMode.redact: 'Everywhere',
+    DioLensRedactionMode.console: 'Console only',
+    DioLensRedactionMode.ui: 'UI only',
+    DioLensRedactionMode.off: 'Off',
+  };
 
   static const Map<DioLensRetention, String> _retentionLabels = {
     DioLensRetention.session: 'This session',
@@ -391,16 +399,18 @@ class _SettingsBody extends StatelessWidget {
           title: 'Privacy',
           children: [
             SettingsRow(
-              title: 'Redact sensitive headers',
-              description: 'Mask sensitive header values in the UI',
-              control: DioLensSwitch(
-                value: s.redactHeaders,
-                semanticLabel: 'Redact sensitive headers',
-                onChanged: (v) =>
-                    onChanged((s) => s.copyWith(redactHeaders: v)),
+              title: 'Redact sensitive values',
+              description: 'Where listed headers and query params are masked',
+              control: SettingsSelect<DioLensRedactionMode>(
+                value: s.redactionMode,
+                options: DioLensRedactionMode.values,
+                labelOf: (mode) => _redactionLabels[mode]!,
+                onChanged: (mode) =>
+                    onChanged((s) => s.copyWith(redactionMode: mode)),
+                semanticLabel: 'Redaction mode',
               ),
             ),
-            if (s.redactHeaders)
+            if (s.redactionMode != DioLensRedactionMode.off) ...[
               SettingsKeyListField(
                 label: 'Header keys to redact',
                 keys: s.redactedHeaders,
@@ -408,16 +418,6 @@ class _SettingsBody extends StatelessWidget {
                 onChanged: (keys) =>
                     onChanged((s) => s.copyWith(redactedHeaders: keys)),
               ),
-            SettingsRow(
-              title: 'Redact sensitive query params',
-              description: 'Mask sensitive query parameter values',
-              control: DioLensSwitch(
-                value: s.redactQuery,
-                semanticLabel: 'Redact sensitive query params',
-                onChanged: (v) => onChanged((s) => s.copyWith(redactQuery: v)),
-              ),
-            ),
-            if (s.redactQuery)
               SettingsKeyListField(
                 label: 'Query keys to redact',
                 keys: s.redactedQueryParams,
@@ -425,6 +425,7 @@ class _SettingsBody extends StatelessWidget {
                 onChanged: (keys) =>
                     onChanged((s) => s.copyWith(redactedQueryParams: keys)),
               ),
+            ],
           ],
         ),
         SettingsSection(

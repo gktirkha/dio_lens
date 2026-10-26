@@ -57,7 +57,7 @@ void main() {
     test('leaves everything when redaction is off', () {
       final r = RequestRedactor.redact(
         post,
-        settings.copyWith(redactHeaders: false, redactQuery: false),
+        settings.copyWith(redactionMode: DioLensRedactionMode.off),
       );
       expect(r, post);
     });

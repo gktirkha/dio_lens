@@ -18,21 +18,25 @@ abstract final class DioLens {
   /// be the key given to the app's `MaterialApp`: Dio Lens shows its pages,
   /// banner and bubble through it. [settings] apply until the user changes them
   /// in the settings screen; from then on the stored ones win. [storage]
-  /// persists requests and settings (defaults to `shared_preferences`). [mode]
-  /// picks the build modes Dio Lens is enabled in (debug only by default).
+  /// persists requests and settings (defaults to `shared_preferences`).
+  /// [uiMode] picks the build modes in which requests are recorded and the UI
+  /// (bubble, banner, pages) is available; [consoleMode] the build modes in
+  /// which requests are printed to the console. Both default to debug only.
   /// [onExport] receives exported files and [onShare] shared requests; without
   /// them export is disabled and share copies to the clipboard.
   static void init({
     required GlobalKey<NavigatorState> navigatorKey,
     DioLensSettings settings = const DioLensSettings(),
     DioLensStorage? storage,
-    DioLensMode mode = DioLensMode.debug,
+    DioLensMode uiMode = DioLensMode.debug,
+    DioLensMode consoleMode = DioLensMode.debug,
     DioLensExportCallback? onExport,
     DioLensShareCallback? onShare,
   }) {
     final runtime = DioLensRuntime.current = DioLensRuntime(
       navigatorKey: navigatorKey,
-      enabled: mode.isEnabled,
+      uiEnabled: uiMode.isEnabled,
+      consoleEnabled: consoleMode.isEnabled,
       onExport: onExport,
       onShare: onShare,
       initialSettings: settings,
@@ -40,7 +44,7 @@ abstract final class DioLens {
           ? () => storage
           : SharedPreferencesDioLensStorage.new,
     );
-    if (runtime.enabled) {
+    if (runtime.uiEnabled) {
       runtime.store.ready;
       runtime.bubble.attach();
     }
@@ -49,8 +53,12 @@ abstract final class DioLens {
   /// Whether [init] was called.
   static bool get isInitialized => DioLensRuntime.current != null;
 
-  /// Whether requests are being recorded in this build mode.
-  static bool get isEnabled => DioLensRuntime.current?.enabled ?? false;
+  /// Whether requests are recorded and the UI is available in this build.
+  static bool get isUiEnabled => DioLensRuntime.current?.uiEnabled ?? false;
+
+  /// Whether requests are printed to the console in this build.
+  static bool get isConsoleEnabled =>
+      DioLensRuntime.current?.consoleEnabled ?? false;
 
   /// Opens the Dio Lens home over the app.
   static Future<void> open() => _runtime.open();

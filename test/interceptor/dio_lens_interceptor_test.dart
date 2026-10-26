@@ -33,12 +33,13 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: storage,
-      mode: DioLensMode.hide,
+      uiMode: DioLensMode.hide,
+      consoleMode: DioLensMode.hide,
       settings: _quiet,
     );
     await dioWith(FakeAdapter()).get<dynamic>('/v1/a');
     await drain();
-    expect(DioLens.isEnabled, isFalse);
+    expect(DioLens.isUiEnabled, isFalse);
     expect(storage.requests, isEmpty);
   });
 
@@ -47,7 +48,8 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: storage,
-      mode: DioLensMode.show,
+      uiMode: DioLensMode.show,
+      consoleMode: DioLensMode.hide,
       settings: _quiet,
     );
     final dio = dioWith(
@@ -98,10 +100,62 @@ void main() {
     DioLens.init(
       navigatorKey: GlobalKey(),
       storage: MemoryStorage(),
-      mode: DioLensMode.show,
+      uiMode: DioLensMode.show,
+      consoleMode: DioLensMode.hide,
       settings: _quiet,
     );
     final response = await dioWith(FakeAdapter()).get<dynamic>('/v1/a');
     expect(response.data, {'ok': true});
+  });
+
+  group('console', () {
+    Future<List<String>> logsFor({
+      required DioLensMode consoleMode,
+      DioLensMode uiMode = DioLensMode.hide,
+    }) async {
+      DioLens.init(
+        navigatorKey: GlobalKey(),
+        storage: MemoryStorage(),
+        uiMode: uiMode,
+        consoleMode: consoleMode,
+        settings: _quiet,
+      );
+      final lines = <String>[];
+      final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'))
+        ..httpClientAdapter = FakeAdapter((o) async {
+          if (o.path.endsWith('/missing')) {
+            return FakeAdapter.json({'e': 1}, 404);
+          }
+          return FakeAdapter.json({'ok': true});
+        });
+      dio.interceptors.add(
+        DioLensInterceptor(dio: dio, logPrint: (line) => lines.add('$line')),
+      );
+      await dio.get<dynamic>('/v1/a');
+      await dio
+          .get<dynamic>('/v1/missing')
+          .catchError(
+            (_) => Response<dynamic>(requestOptions: RequestOptions()),
+          );
+      return lines;
+    }
+
+    test('prints nothing when the console mode is off', () async {
+      expect(await logsFor(consoleMode: DioLensMode.hide), isEmpty);
+      expect(DioLens.isConsoleEnabled, isFalse);
+    });
+
+    test(
+      'prints requests, responses and errors when on, even with the UI off',
+      () async {
+        final logs = (await logsFor(consoleMode: DioLensMode.show)).join('\n');
+        expect(DioLens.isConsoleEnabled, isTrue);
+        expect(DioLens.isUiEnabled, isFalse);
+        expect(logs, contains('[REQUEST]'));
+        expect(logs, contains('[RESPONSE]'));
+        expect(logs, contains('[ERROR]'));
+        expect(logs, contains('https://api.example.com/v1/missing'));
+      },
+    );
   });
 }

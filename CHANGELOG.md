@@ -9,8 +9,15 @@ Initial release.
   the app.
 - Body processing (JSON, text, form data, images) runs in background
   isolates.
-- `DioLensMode` picks the build modes Dio Lens runs in (debug only by
-  default).
+- `uiMode` and `consoleMode` pick the build modes for recording and the UI,
+  and for console logs (both debug only by default).
+
+### Console logging
+- `DioLensInterceptor` prints every request, response and error to the
+  console, with `[REQUEST]`, `[RESPONSE]` or `[ERROR]` in each header.
+- `DioLensConsoleSettings` chooses what is printed; `logPrint` where.
+- `consoleMode` sets the build modes console logs print in, separately from
+  `uiMode`, which covers recording and the UI.
 
 ### Inspector
 - Request list with search, method and status filters, grouping by time,
@@ -39,8 +46,8 @@ Initial release.
   notification and bubble options, header and query redaction, export and
   reset.
 - Settings persist; values passed to `DioLens.init` are the starting point.
-- Sensitive headers and query parameters are masked in the UI, exports and
-  shares.
+- Sensitive headers and query parameters are masked as the redaction mode
+  says: everywhere, in console logs only, in the UI only, or nowhere.
 
 ### Storage
 - Requests and settings persist with `shared_preferences` by default, or

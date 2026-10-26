@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:dio_lens/dio_lens.dart';
-import 'package:dio_lens/src/interceptor/dio_lens_console_logger.dart';
+import 'package:dio_lens/src/features/console/data/dio_lens_console_logger.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -14,10 +14,13 @@ void main() {
     extra: {'app': 'test'},
   );
 
-  List<String> capture({required bool showState}) {
+  List<String> capture({
+    required bool showState,
+    DioLensSettings settings = const DioLensSettings(),
+  }) {
     final lines = <String>[];
     final logger = DioLensConsoleLogger(
-      settings: ConsoleLoggerSettings(showStateInHeader: showState),
+      settings: DioLensConsoleSettings(showStateInHeader: showState),
       logPrint: (Object line) => lines.add(line.toString()),
     );
     final options = request();
@@ -25,7 +28,7 @@ void main() {
       'content-type': ['application/json'],
     });
 
-    logger.logRequest(options, const DioLensSettings());
+    logger.logRequest(options, settings);
     logger.logResponse(
       Response<dynamic>(
         requestOptions: options,
@@ -33,7 +36,7 @@ void main() {
         headers: responseHeaders,
         data: {'ok': true},
       ),
-      const DioLensSettings(),
+      settings,
     );
     logger.logError(
       DioException(
@@ -47,7 +50,7 @@ void main() {
         type: DioExceptionType.badResponse,
         message: 'failed',
       ),
-      const DioLensSettings(),
+      settings,
     );
     return lines;
   }
@@ -76,5 +79,21 @@ void main() {
     expect(logs, contains('Query Parameters'));
     expect(logs, contains('Request Body'));
     expect(logs, contains('Response Headers'));
+  });
+
+  test('masks secrets as the redaction mode says', () {
+    for (final (mode, masked) in [
+      (DioLensRedactionMode.redact, true),
+      (DioLensRedactionMode.console, true),
+      (DioLensRedactionMode.ui, false),
+      (DioLensRedactionMode.off, false),
+    ]) {
+      final logs = capture(
+        showState: true,
+        settings: DioLensSettings(redactionMode: mode),
+      ).join('\n');
+      expect(logs.contains('secret'), !masked, reason: '$mode');
+      expect(logs.contains('[REDACTED]'), masked, reason: '$mode');
+    }
   });
 }
