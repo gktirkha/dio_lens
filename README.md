@@ -437,7 +437,3 @@ Future<void> main() async {
 
 Android, iOS, macOS, Windows, Linux and web. On the web, which has no
 isolates, body processing and JSON work run on the main thread instead.
-
-## License
-
-See [LICENSE](LICENSE).

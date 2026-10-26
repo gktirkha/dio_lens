@@ -1,3 +1,8 @@
+## 0.0.3
+
+- Removed the License section from the README; the license is shown on
+  pub.dev.
+
 ## 0.0.2
 
 - README images now load on pub.dev.
