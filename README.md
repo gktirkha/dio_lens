@@ -22,8 +22,8 @@ sensitive values masked.
 ## Features
 
 - **Request list** with search, method and status filters, grouping by time,
-  Share, cURL and Replay
-  buttons on each row, swipe to delete and pull to refresh.
+  Share (with `onShare`), cURL and Replay buttons on each row, swipe to
+  delete and pull to refresh.
 - **Request detail** with Overview, Request and Response tabs: collapsible
   JSON tree, raw view, form and text bodies, image previews, error details
   with stack trace, copyable fields and a cURL command.
@@ -34,8 +34,8 @@ sensitive values masked.
   refresh) apply.
 - **Export** every request as HAR 1.2 or JSON, and **share** one as a
   readable text report.
-- **Redaction** of sensitive headers and query parameters in the UI,
-  exports, shares and console logs, each switchable.
+- **Redaction** of sensitive headers and query parameters on screen, on the
+  clipboard, in console logs, and in exports and shares, each switchable.
 - **Floating bubble** to open Dio Lens, and a **banner** when a request
   finishes.
 - **Console logging** of requests, responses and errors, in a readable
