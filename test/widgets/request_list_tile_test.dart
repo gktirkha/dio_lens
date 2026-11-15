@@ -109,12 +109,38 @@ void main() {
       expect(find.byTooltip('Share request'), findsNothing);
     });
 
-    testWidgets('swipe still deletes', (tester) async {
+    testWidgets('Delete is the leftmost button and deletes without asking', (
+      tester,
+    ) async {
+      var deleted = 0, opened = 0;
+      await pumpTile(
+        tester,
+        onTap: () => opened++,
+        onDelete: () => deleted++,
+        onShare: () {},
+        onCopyCurl: () {},
+        onReplay: () {},
+      );
+      final x = [
+        'Delete request',
+        'Share request',
+        'Copy cURL',
+        'Replay request',
+      ].map((t) => tester.getCenter(find.byTooltip(t)).dx).toList();
+      expect(x, orderedEquals([...x]..sort()), reason: 'left to right');
+
+      await tester.tap(find.byTooltip('Delete request'));
+      await tester.pumpAndSettle();
+      expect((deleted, opened), (1, 0));
+      expect(find.byType(Dialog), findsNothing);
+    });
+
+    testWidgets('swiping no longer deletes', (tester) async {
       var deleted = 0;
       await pumpTile(tester, onDelete: () => deleted++);
       await tester.drag(find.byType(RequestListTile), const Offset(-500, 0));
       await tester.pumpAndSettle();
-      expect(deleted, 1);
+      expect(deleted, 0);
     });
   });
 

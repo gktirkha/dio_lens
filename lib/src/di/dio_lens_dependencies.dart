@@ -129,6 +129,7 @@ class DioLensDependencies {
         watchRequestDetail: watchRequestDetailUseCase,
         watchSettings: watchSettingsUseCase,
         buildShareContent: buildShareContentUseCase,
+        deleteRequest: deleteRequestUseCase,
       );
 
   /// Builds the shared text report of a request.

@@ -1,3 +1,10 @@
+## 1.4.0
+
+- Delete buttons replace swipe to delete, so deleting works the same with a
+  mouse, a trackpad or touch: the leftmost button on each list row, and a
+  button next to the theme button in the request detail page, which then
+  goes back to the list. Neither asks for confirmation.
+
 ## 1.3.0
 
 - Share works like export: without `onShare`, the Share buttons (on list

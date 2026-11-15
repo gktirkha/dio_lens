@@ -142,6 +142,37 @@ void main() {
     expect(shared.single.subject, 'GET /v1/orders · 200');
   });
 
+  testWidgets('Delete in the detail page deletes and goes back', (
+    tester,
+  ) async {
+    final h = await Harness.start(
+      tester,
+      settings: const DioLensSettings(
+        showBubble: false,
+        showNotification: false,
+      ),
+    );
+    await h.send((dio) => dio.get('/v1/orders'));
+    await h.send((dio) => dio.get('/v1/users'));
+    DioLens.open();
+    await h.settle();
+    await tester.tap(find.textContaining('/v1/orders', findRichText: true));
+    await h.settle();
+    expect(find.byType(RequestDetailPage), findsOneWidget);
+    // In the top bar, above the cURL and Replay actions.
+    expect(
+      tester.getCenter(find.byTooltip('Delete request')).dy,
+      lessThan(tester.getCenter(find.text('cURL')).dy),
+    );
+
+    await tester.tap(find.byTooltip('Delete request'));
+    await h.settle();
+    expect(find.byType(RequestDetailPage), findsNothing);
+    expect(find.byType(Dialog), findsNothing);
+    expect(h.runtime.store.requests.map((r) => r.path), ['/v1/users']);
+    expect(find.textContaining('/v1/orders', findRichText: true), findsNothing);
+  });
+
   testWidgets('Share is hidden without a callback', (tester) async {
     final h = await Harness.start(
       tester,

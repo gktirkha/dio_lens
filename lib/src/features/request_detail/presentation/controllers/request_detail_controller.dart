@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/domain/unit.dart';
+import '../../../request_home/domain/use_cases/delete_request_use_case.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/use_cases/watch_settings_use_case.dart';
 import '../../../share/domain/entities/dio_lens_share_content.dart';
@@ -19,6 +20,7 @@ class RequestDetailController extends ChangeNotifier {
     required this._watchRequestDetail,
     required this._watchSettings,
     required this._buildShareContent,
+    required this._deleteRequest,
   });
 
   /// Id of the request shown.
@@ -26,6 +28,7 @@ class RequestDetailController extends ChangeNotifier {
   final WatchRequestDetailUseCase _watchRequestDetail;
   final WatchSettingsUseCase _watchSettings;
   final BuildShareContentUseCase _buildShareContent;
+  final DeleteRequestUseCase _deleteRequest;
 
   StreamSubscription<RequestDetailEntity?>? _subscription;
   StreamSubscription<DioLensSettings>? _settingsSubscription;
@@ -63,6 +66,11 @@ class RequestDetailController extends ChangeNotifier {
   /// [request] as a shareable report, masked as the settings say.
   Future<DioLensShareContent> shareContent(RequestDetailEntity request) =>
       _buildShareContent((request: request, settings: _settings));
+
+  /// Deletes the request shown.
+  Future<void> deleteRequest() async {
+    await _deleteRequest(requestId);
+  }
 
   @override
   void dispose() {

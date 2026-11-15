@@ -14,6 +14,7 @@ class DioLensIconButton extends StatelessWidget {
     required this.onPressed,
     this.active = false,
     this.showDot = false,
+    this.danger = false,
   });
 
   /// The icon shown.
@@ -31,6 +32,9 @@ class DioLensIconButton extends StatelessWidget {
   /// Shows a small dot, e.g. when filters are applied.
   final bool showDot;
 
+  /// Tints the icon with the danger color, e.g. for Delete.
+  final bool danger;
+
   @override
   Widget build(BuildContext context) {
     final theme = DioLensTheme.of(context);
@@ -41,7 +45,11 @@ class DioLensIconButton extends StatelessWidget {
       constraints: const BoxConstraints.tightFor(width: 36, height: 36),
       padding: EdgeInsets.zero,
       style: IconButton.styleFrom(
-        foregroundColor: active ? theme.accent : theme.textMuted,
+        foregroundColor: danger
+            ? theme.danger
+            : active
+            ? theme.accent
+            : theme.textMuted,
         backgroundColor: active ? theme.surface3 : Colors.transparent,
       ),
       icon: Badge(

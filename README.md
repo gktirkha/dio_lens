@@ -22,9 +22,10 @@ sensitive values masked.
 ## Features
 
 - **Request list** with search, method and status filters, grouping by time,
-  Share (with `onShare`), cURL and Replay buttons on each row, swipe to
-  delete and pull to refresh.
-- **Request detail** with Overview, Request and Response tabs: collapsible
+  Delete, Share (with `onShare`), cURL and Replay buttons on each row, and
+  pull to refresh.
+- **Request detail** with Delete, Share, cURL and Replay buttons, and
+  Overview, Request and Response tabs: collapsible
   JSON tree, raw view, form and text bodies, image previews, error details
   with stack trace, copyable fields and a cURL command.
 - **Stats**: totals, success rate, average and p95 latency, status

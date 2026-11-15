@@ -64,6 +64,12 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     await onShare(content);
   }
 
+  /// Deletes the request at once, without asking, and goes back.
+  Future<void> _delete() async {
+    Navigator.of(context).maybePop();
+    await _controller.deleteRequest();
+  }
+
   void _replay(RequestDetailEntity request) {
     final onReplay = widget.onReplay;
     if (onReplay == null) return;
@@ -100,6 +106,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
               // Without onShare there is nothing to share with.
               onShare: widget.onShare == null ? null : _share,
               onReplay: widget.onReplay == null ? null : _replay,
+              onDelete: _delete,
               onOpenHome: widget.onOpenHome,
             );
           },
@@ -115,6 +122,7 @@ class _DetailBody extends StatelessWidget {
     required this.settings,
     this.onShare,
     this.onReplay,
+    this.onDelete,
     this.onOpenHome,
   });
 
@@ -123,6 +131,7 @@ class _DetailBody extends StatelessWidget {
   final VoidCallback? onOpenHome;
   final ValueChanged<RequestDetailEntity>? onShare;
   final ValueChanged<RequestDetailEntity>? onReplay;
+  final VoidCallback? onDelete;
 
   static const _tabs = ['Overview', 'Request', 'Response'];
 
@@ -159,6 +168,7 @@ class _DetailBody extends StatelessWidget {
                   ),
                   onShare: onShare == null ? null : () => onShare(request),
                   onReplay: onReplay == null ? null : () => onReplay(request),
+                  onDelete: onDelete,
                   onOpenHome: onOpenHome,
                 ),
                 TabBar(

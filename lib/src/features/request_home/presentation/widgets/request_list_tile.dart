@@ -11,8 +11,7 @@ import '../../../settings/domain/utils/request_redactor.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 
 /// One row of the request list: method, status, path, host and timing, with
-/// Share, cURL and Replay buttons (hidden without a callback). Swipe to
-/// delete.
+/// Delete, Share, cURL and Replay buttons (hidden without a callback).
 class RequestListTile extends StatelessWidget {
   /// Creates the row.
   const RequestListTile({
@@ -44,7 +43,7 @@ class RequestListTile extends StatelessWidget {
   /// Re-sends the request; null hides Replay (e.g. when it can't be replayed).
   final VoidCallback? onReplay;
 
-  /// Deletes the request; null disables swipe to delete.
+  /// Deletes the request, without asking; null hides Delete.
   final VoidCallback? onDelete;
 
   @override
@@ -54,7 +53,7 @@ class RequestListTile extends StatelessWidget {
     final query = _maskedQuery(item.query, settings);
     final ltrAlign = LtrContent.align(context);
 
-    final content = Material(
+    return Material(
       color: theme.background,
       child: InkWell(
         onTap: onTap,
@@ -119,12 +118,21 @@ class RequestListTile extends StatelessWidget {
               Row(
                 children: [
                   Expanded(child: _Meta(item: item)),
-                  if (onShare case final onShare?)
+                  if (onDelete case final onDelete?)
+                    _RowAction(
+                      icon: Icons.delete_outline_rounded,
+                      tooltip: 'Delete request',
+                      onTap: onDelete,
+                      danger: true,
+                    ),
+                  if (onShare case final onShare?) ...[
+                    if (onDelete != null) const SizedBox(width: 6),
                     _RowAction(
                       icon: Icons.ios_share_rounded,
                       tooltip: 'Share request',
                       onTap: onShare,
                     ),
+                  ],
                   if (onCopyCurl case final onCopyCurl?) ...[
                     const SizedBox(width: 6),
                     _RowAction(
@@ -148,35 +156,6 @@ class RequestListTile extends StatelessWidget {
         ),
       ),
     );
-
-    if (onDelete == null) return content;
-
-    return Dismissible(
-      key: ValueKey('request-${item.id}'),
-      direction: DismissDirection.endToStart,
-      onDismissed: (_) => onDelete!(),
-      background: Container(
-        color: theme.danger,
-        alignment: AlignmentDirectional.centerEnd,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: const Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.delete_outline_rounded, size: 18, color: Colors.white),
-            SizedBox(height: 4),
-            Text(
-              'Delete',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-      child: content,
-    );
   }
 }
 
@@ -186,11 +165,15 @@ class _RowAction extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onTap,
+    this.danger = false,
   });
 
   final IconData icon;
   final String tooltip;
   final VoidCallback onTap;
+
+  /// Tints the icon with the danger color, e.g. for Delete.
+  final bool danger;
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +191,11 @@ class _RowAction extends StatelessWidget {
           onTap: onTap,
           child: SizedBox.square(
             dimension: 30,
-            child: Icon(icon, size: 15, color: theme.textMuted),
+            child: Icon(
+              icon,
+              size: 15,
+              color: danger ? theme.danger : theme.textMuted,
+            ),
           ),
         ),
       ),

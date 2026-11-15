@@ -8,8 +8,8 @@ import '../../../../core/widgets/status_badge.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../domain/entities/request_detail_entity.dart';
 
-/// Top of the detail page: back, method and status, path, host, quick stats and
-/// the Share, cURL and Replay actions.
+/// Top of the detail page: back, method and status, path, host, Delete and the
+/// theme button, quick stats and the Share, cURL and Replay actions.
 class RequestDetailHeader extends StatelessWidget {
   /// Creates the header.
   const RequestDetailHeader({
@@ -18,6 +18,7 @@ class RequestDetailHeader extends StatelessWidget {
     required this.onCopyCurl,
     this.onShare,
     this.onReplay,
+    this.onDelete,
     this.onOpenHome,
   });
 
@@ -32,6 +33,9 @@ class RequestDetailHeader extends StatelessWidget {
 
   /// Re-sends the request.
   final VoidCallback? onReplay;
+
+  /// Deletes the request, without asking; null hides Delete.
+  final VoidCallback? onDelete;
 
   /// Shown as a home button when the page was opened on its own.
   final VoidCallback? onOpenHome;
@@ -106,6 +110,13 @@ class RequestDetailHeader extends StatelessWidget {
                   icon: Icons.home_outlined,
                   tooltip: 'Open Dio Lens home',
                   onPressed: onOpenHome,
+                ),
+              if (onDelete case final onDelete?)
+                DioLensIconButton(
+                  icon: Icons.delete_outline_rounded,
+                  tooltip: 'Delete request',
+                  onPressed: onDelete,
+                  danger: true,
                 ),
               const DioLensThemeToggleButton(),
             ],
