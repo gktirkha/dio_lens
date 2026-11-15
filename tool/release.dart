@@ -6,8 +6,8 @@
 //
 // Steps (each one stops the release on failure):
 //   1. On `master`, clean working tree, not behind origin/master.
-//   2. `toolVersion` matches pubspec, CHANGELOG has `## <version>`,
-//      `dart format` changes nothing, `dart analyze` is clean.
+//   2. `dioLensVersion` matches pubspec, CHANGELOG has `## <version>`,
+//      `dart format` changes nothing, `dart analyze` is clean, tests pass.
 //   3. Tag HEAD `<version>` (an existing tag must already point at HEAD).
 //   4. Push master if ahead of origin, and the tag if origin lacks it.
 //   5. `dart pub publish`, unless pub.dev already has this version.
@@ -48,13 +48,11 @@ Future<void> main(List<String> args) async {
   }
 
   // 2. Project checks.
-  final toolVersion = RegExp(r"toolVersion = '([^']+)'")
-      .firstMatch(
-        File('lib/src/functions/shared/tool_version.dart').readAsStringSync(),
-      )
+  final codeVersion = RegExp(r"dioLensVersion = '([^']+)'")
+      .firstMatch(File('lib/src/core/dio_lens_version.dart').readAsStringSync())
       ?.group(1);
-  if (toolVersion != version) {
-    _fail('toolVersion is $toolVersion but pubspec says $version.');
+  if (codeVersion != version) {
+    _fail('dioLensVersion is $codeVersion but pubspec says $version.');
   }
   if (!RegExp(
     '^## ${RegExp.escape(version)}\\s*\$',
@@ -67,10 +65,12 @@ Future<void> main(List<String> args) async {
     'format',
     '--set-exit-if-changed',
     'lib',
-    'bin',
+    'test',
     'tool',
+    'example/lib',
   ]);
   _run(_dart, [..._dartPrefix, 'analyze', '--fatal-infos']);
+  _run(_flutter, [..._flutterPrefix, 'test']);
 
   final published = await _publishedVersions();
   final alreadyOnPub = published.contains(version);
@@ -177,6 +177,9 @@ final bool _hasFvm = () {
 
 String get _dart => _hasFvm ? 'fvm' : 'dart';
 List<String> get _dartPrefix => _hasFvm ? ['dart'] : [];
+
+String get _flutter => _hasFvm ? 'fvm' : 'flutter';
+List<String> get _flutterPrefix => _hasFvm ? ['flutter'] : [];
 
 String _git(List<String> args) {
   final result = Process.runSync('git', args, runInShell: true);
