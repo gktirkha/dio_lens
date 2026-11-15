@@ -1150,7 +1150,7 @@
       bodyMode: {},                // key -> 'pretty' | 'raw'
       openJsonPaths: {},           // treeKey -> Set of expanded node paths
       settings: {
-        maxStored: 500, retention: '24h', notification: true, notificationPosition: 'top', notificationDuration: 4, bubble: true, bubblePosition: 'br', maxBodySize: 256, maxBodyUnit: 'unlimited', redactionMode: 'redact', redactHeadersList: ['authorization', 'cookie', 'x-api-key'], redactQueryList: ['token', 'apikey', 'password'], theme: 'dark'
+        maxStored: 500, retention: '24h', notification: true, notificationPosition: 'top', notificationDuration: 4, bubble: true, bubblePosition: 'br', maxBodySize: 256, maxBodyUnit: 'unlimited', redactionMode: 'all', redactHeadersList: ['authorization', 'cookie', 'x-api-key'], redactQueryList: ['token', 'apikey', 'password'], theme: 'dark'
       },
       maxStoredDraft: '500',
       lastListFocusId: null,
@@ -1339,8 +1339,8 @@
         } catch (e) { done(false); }
       }
     }
-    /* Redaction: where listed headers and query params are masked (any combination of ui, clipboard and console) */
-    var REDACTION_TARGETS = { redact:['ui','clipboard','console'], ui:['ui'], clipboard:['clipboard'], console:['console'], uiClipboard:['ui','clipboard'], uiConsole:['ui','console'], clipboardConsole:['clipboard','console'], off:[] };
+    /* Redaction: where listed headers and query params are masked (any combination of ui, clipboard, console and external: exports and reports handed to onShare) */
+    var REDACTION_TARGETS = { all:['ui','clipboard','console','external'], ui:['ui'], clipboard:['clipboard'], console:['console'], external:['external'], uiClipboard:['ui','clipboard'], uiConsole:['ui','console'], uiExternal:['ui','external'], clipboardConsole:['clipboard','console'], clipboardExternal:['clipboard','external'], consoleExternal:['console','external'], uiClipboardConsole:['ui','clipboard','console'], uiClipboardExternal:['ui','clipboard','external'], uiConsoleExternal:['ui','console','external'], clipboardConsoleExternal:['clipboard','console','external'], none:[] };
     function redactsIn(target) { return (REDACTION_TARGETS[state.settings.redactionMode] || []).indexOf(target) !== -1; }
     function isRedactedKey(list, k) { return (list || []).indexOf(String(k).toLowerCase()) !== -1; }
     function maskQuery(q, target) {
@@ -2065,9 +2065,9 @@
         '<div class="dl-set-section"><h3>Privacy</h3>' +
           '<div class="dl-set-row"><div class="set-label"><div class="set-title">Redact sensitive values</div><div class="set-desc">Where listed headers and query params are masked</div></div>' +
             '<select class="dl-select" data-action="set-redaction-mode" aria-label="Redaction mode">' +
-              [['redact','Everywhere'],['ui','UI'],['clipboard','Clipboard'],['console','Console'],['uiClipboard','UI, Clipboard'],['uiConsole','UI, Console'],['clipboardConsole','Clipboard, Console'],['off','Off']].map(function(v){ return '<option value="'+v[0]+'"'+(s.redactionMode===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
+              [['all','Everywhere'],['ui','UI'],['clipboard','Clipboard'],['console','Console'],['external','External'],['uiClipboard','UI, Clipboard'],['uiConsole','UI, Console'],['uiExternal','UI, External'],['clipboardConsole','Clipboard, Console'],['clipboardExternal','Clipboard, External'],['consoleExternal','Console, External'],['uiClipboardConsole','UI, Clipboard, Console'],['uiClipboardExternal','UI, Clipboard, External'],['uiConsoleExternal','UI, Console, External'],['clipboardConsoleExternal','Clipboard, Console, External'],['none','Off']].map(function(v){ return '<option value="'+v[0]+'"'+(s.redactionMode===v[0]?' selected':'')+'>'+v[1]+'</option>'; }).join('') +
             '</select></div>' +
-          (s.redactionMode !== 'off' ? '<div class="dl-set-field"><div class="dl-set-field-label">Header keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="headers" value="' + esc((s.redactHeadersList||[]).join(', ')) + '" placeholder="authorization, cookie, x-api-key"></div>' +
+          (s.redactionMode !== 'none' ? '<div class="dl-set-field"><div class="dl-set-field-label">Header keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="headers" value="' + esc((s.redactHeadersList||[]).join(', ')) + '" placeholder="authorization, cookie, x-api-key"></div>' +
             '<div class="dl-set-field"><div class="dl-set-field-label">Query keys to redact</div><input class="dl-set-input" type="text" data-action="set-redact-list" data-type="query" value="' + esc((s.redactQueryList||[]).join(', ')) + '" placeholder="token, apikey, password"></div>' : '') +
         '</div>' +
         '<div class="dl-set-section"><h3>Export</h3><div class="dl-export-row">' +

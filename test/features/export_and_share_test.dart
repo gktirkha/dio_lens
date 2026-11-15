@@ -64,6 +64,27 @@ void main() {
   });
 
   group('ExportBuilder', () {
+    test('masks for the external target only', () {
+      String exportWith(DioLensRedactionMode mode) => utf8.decode(
+        ExportBuilder.build(
+          DioLensExportFormat.json,
+          [post],
+          DioLensSettings(redactionMode: mode),
+          DateTime(2026),
+        ),
+      );
+
+      expect(
+        exportWith(DioLensRedactionMode.external),
+        isNot(contains('Bearer secret')),
+      );
+      expect(
+        exportWith(DioLensRedactionMode.uiClipboardConsole),
+        contains('Bearer secret'),
+        reason: 'the UI, clipboard and console targets do not cover exports',
+      );
+    });
+
     test('HAR 1.2', () {
       final har = jsonDecode(
         utf8.decode(
@@ -167,22 +188,22 @@ void main() {
   test('the report is masked for the target it goes to', () {
     String reportFor(
       DioLensRedactionMode mode, {
-      DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+      DioLensRedactionTarget target = DioLensRedactionTarget.external,
     }) => ShareContentBuilder.build(
       post,
       DioLensSettings(redactionMode: mode),
       target: target,
     ).text;
 
-    // Handed to the app: the UI target, cURL included.
-    final shared = reportFor(DioLensRedactionMode.clipboard);
+    // Handed to the app: the external target, cURL included.
+    final shared = reportFor(DioLensRedactionMode.uiClipboard);
     expect(shared, contains('Authorization: Bearer secret'));
     expect(
       shared.substring(shared.indexOf('curl -X')),
       contains('Bearer secret'),
     );
     expect(
-      reportFor(DioLensRedactionMode.ui),
+      reportFor(DioLensRedactionMode.external),
       isNot(contains('Bearer secret')),
     );
 

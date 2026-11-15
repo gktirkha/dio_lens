@@ -63,7 +63,7 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
       request,
       target: onShare == null
           ? DioLensRedactionTarget.clipboard
-          : DioLensRedactionTarget.ui,
+          : DioLensRedactionTarget.external,
     );
     if (!mounted) return;
     if (onShare != null) {

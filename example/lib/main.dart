@@ -2,9 +2,9 @@
 // https://httpbingo.org, which echoes back whatever it receives and accepts
 // any HTTP method. The demo requests and screen are in lib/src/.
 
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_lens/dio_lens.dart';
-import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'src/demo_page.dart';
@@ -50,7 +50,7 @@ void main() {
       themeMode: .system,
       redactionMode: .all,
       // In debug builds redaction is fixed to the values above.
-      lockRedaction: .debug,
+      lockRedaction: .none,
     ),
     // Recording, the UI and console logs in debug and profile builds (for
     // testers). Never release builds.

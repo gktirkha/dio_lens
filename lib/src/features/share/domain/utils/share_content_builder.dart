@@ -10,12 +10,12 @@ import '../entities/dio_lens_share_content.dart';
 
 /// Builds the shared report of one request. Pure, so it can run in an isolate.
 abstract final class ShareContentBuilder {
-  /// The report of the request, masked as the settings say for [target]: the
-  /// UI when handed to the app, the clipboard when copied.
+  /// The report of the request, masked as the settings say for [target]:
+  /// external when handed to the app, the clipboard when copied.
   static DioLensShareContent build(
     RequestDetailEntity request,
     DioLensSettings settings, {
-    DioLensRedactionTarget target = DioLensRedactionTarget.ui,
+    DioLensRedactionTarget target = DioLensRedactionTarget.external,
   }) {
     final r = RequestRedactor.redact(request, settings, target: target);
     final status = switch (r.state) {

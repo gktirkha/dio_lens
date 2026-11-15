@@ -1,3 +1,13 @@
+## 1.2.0
+
+- New `external` redaction target: exports and reports handed to `onShare`.
+  It was part of the UI target; `DioLensRedactionMode` now has every
+  combination of the UI, clipboard, console and external targets (16
+  modes), and `all` masks all four.
+- Modes without `external` (`ui`, `uiClipboard`, `uiConsole` and so on) no
+  longer mask exports and shared reports; add `External` (e.g. `uiExternal`)
+  to keep masking them.
+
 ## 1.1.1
 
 - Updated docs.

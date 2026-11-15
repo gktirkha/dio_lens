@@ -204,25 +204,34 @@ await DioLens.resetSettings(); // Back to the values passed to init.
 ## Redaction
 
 Values of the headers and query parameters in `redactedHeaders` and
-`redactedQueryParams` are masked in three places, chosen with
+`redactedQueryParams` are masked in four places, chosen with
 `redactionMode`:
 
-- **UI**: everything shown on screen (the request list and every detail tab),
-  exports, and reports handed to `onShare`.
+- **UI**: everything shown on screen (the request list and every detail tab).
 - **Clipboard**: everything copied: fields, "Copy all", cURL commands, and
   reports copied when there is no `onShare`.
 - **Console**: console logs.
+- **External**: what leaves the app: exports and reports handed to
+  `onShare`.
 
-| `redactionMode`    | UI  | Clipboard | Console |
-| ------------------ | :-: | :-------: | :-----: |
-| `all` (default)    |  ✓  |     ✓     |    ✓    |
-| `ui`               |  ✓  |           |         |
-| `clipboard`        |     |     ✓     |         |
-| `console`          |     |           |    ✓    |
-| `uiClipboard`      |  ✓  |     ✓     |         |
-| `uiConsole`        |  ✓  |           |    ✓    |
-| `clipboardConsole` |     |     ✓     |    ✓    |
-| `none`             |     |           |         |
+| `redactionMode`                      | UI  | Clipboard | Console | External |
+| ------------------------------------ | :-: | :-------: | :-----: | :------: |
+| `all` (default)                      |  ✓  |     ✓     |    ✓    |    ✓     |
+| `ui`                                 |  ✓  |           |         |          |
+| `clipboard`                          |     |     ✓     |         |          |
+| `console`                            |     |           |    ✓    |          |
+| `external`                           |     |           |         |    ✓     |
+| `uiClipboard`                        |  ✓  |     ✓     |         |          |
+| `uiConsole`                          |  ✓  |           |    ✓    |          |
+| `uiExternal`                         |  ✓  |           |         |    ✓     |
+| `clipboardConsole`                   |     |     ✓     |    ✓    |          |
+| `clipboardExternal`                  |     |     ✓     |         |    ✓     |
+| `consoleExternal`                    |     |           |    ✓    |    ✓     |
+| `uiClipboardConsole`                 |  ✓  |     ✓     |    ✓    |          |
+| `uiClipboardExternal`                |  ✓  |     ✓     |         |    ✓     |
+| `uiConsoleExternal`                  |  ✓  |           |    ✓    |    ✓     |
+| `clipboardConsoleExternal`           |     |     ✓     |    ✓    |    ✓     |
+| `none`                               |     |           |         |          |
 
 Testers can change it in the settings sheet's Privacy section.
 

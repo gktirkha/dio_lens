@@ -106,7 +106,7 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
       settings: settings,
       target: onShare == null
           ? DioLensRedactionTarget.clipboard
-          : DioLensRedactionTarget.ui,
+          : DioLensRedactionTarget.external,
     ));
     if (!mounted) return;
     if (onShare != null) {

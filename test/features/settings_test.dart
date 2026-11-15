@@ -84,17 +84,27 @@ void main() {
     const ui = DioLensRedactionTarget.ui;
     const curl = DioLensRedactionTarget.clipboard;
     const console = DioLensRedactionTarget.console;
+    const external = DioLensRedactionTarget.external;
     final expected = {
-      DioLensRedactionMode.all: {ui, curl, console},
+      DioLensRedactionMode.all: {ui, curl, console, external},
       DioLensRedactionMode.ui: {ui},
       DioLensRedactionMode.clipboard: {curl},
       DioLensRedactionMode.console: {console},
+      DioLensRedactionMode.external: {external},
       DioLensRedactionMode.uiClipboard: {ui, curl},
       DioLensRedactionMode.uiConsole: {ui, console},
+      DioLensRedactionMode.uiExternal: {ui, external},
       DioLensRedactionMode.clipboardConsole: {curl, console},
+      DioLensRedactionMode.clipboardExternal: {curl, external},
+      DioLensRedactionMode.consoleExternal: {console, external},
+      DioLensRedactionMode.uiClipboardConsole: {ui, curl, console},
+      DioLensRedactionMode.uiClipboardExternal: {ui, curl, external},
+      DioLensRedactionMode.uiConsoleExternal: {ui, console, external},
+      DioLensRedactionMode.clipboardConsoleExternal: {curl, console, external},
       DioLensRedactionMode.none: <DioLensRedactionTarget>{},
     };
     expect(expected.keys, containsAll(DioLensRedactionMode.values));
+    expect(expected, hasLength(16), reason: 'every combination of 4 targets');
     for (final MapEntry(key: mode, value: targets) in expected.entries) {
       final s = DioLensSettings(redactionMode: mode);
       for (final target in DioLensRedactionTarget.values) {

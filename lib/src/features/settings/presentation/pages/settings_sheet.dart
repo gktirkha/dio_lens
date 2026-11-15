@@ -249,9 +249,18 @@ class _SettingsBody extends StatelessWidget {
     DioLensRedactionMode.ui: 'UI',
     DioLensRedactionMode.clipboard: 'Clipboard',
     DioLensRedactionMode.console: 'Console',
+    DioLensRedactionMode.external: 'External',
     DioLensRedactionMode.uiClipboard: 'UI, Clipboard',
     DioLensRedactionMode.uiConsole: 'UI, Console',
+    DioLensRedactionMode.uiExternal: 'UI, External',
     DioLensRedactionMode.clipboardConsole: 'Clipboard, Console',
+    DioLensRedactionMode.clipboardExternal: 'Clipboard, External',
+    DioLensRedactionMode.consoleExternal: 'Console, External',
+    DioLensRedactionMode.uiClipboardConsole: 'UI, Clipboard, Console',
+    DioLensRedactionMode.uiClipboardExternal: 'UI, Clipboard, External',
+    DioLensRedactionMode.uiConsoleExternal: 'UI, Console, External',
+    DioLensRedactionMode.clipboardConsoleExternal:
+        'Clipboard, Console, External',
     DioLensRedactionMode.none: 'Off',
   };
 
