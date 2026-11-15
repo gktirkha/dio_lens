@@ -178,7 +178,9 @@ void main() {
     testWidgets('shows them when the UI is not masked', (tester) async {
       await pump(
         tester,
-        const DioLensSettings(redactionMode: DioLensRedactionMode.console),
+        const DioLensSettings(
+          redactionTargets: {DioLensRedactionTarget.console},
+        ),
       );
       expect(
         find.text('/v1/a?token=abc&page=2', findRichText: true),

@@ -6,7 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/enums/request_state.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
-import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'error_card.dart';

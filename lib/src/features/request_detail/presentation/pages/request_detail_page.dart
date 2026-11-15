@@ -3,7 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
-import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 import '../../../share/domain/entities/dio_lens_share_content.dart';
 import '../../domain/entities/request_detail_entity.dart';

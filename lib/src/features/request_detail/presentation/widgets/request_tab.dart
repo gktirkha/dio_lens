@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../settings/domain/entities/dio_lens_settings.dart';
-import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../domain/entities/request_detail_entity.dart';
 import 'body_view.dart';
 import 'key_value_box.dart';

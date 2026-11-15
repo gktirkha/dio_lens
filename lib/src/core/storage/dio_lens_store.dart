@@ -220,7 +220,7 @@ class DioLensStore {
     if (!initial.isRedactionLocked) return settings;
     return settings.copyWith(
       lockRedaction: initial.lockRedaction,
-      redactionMode: initial.redactionMode,
+      redactionTargets: initial.redactionTargets,
       redactedHeaders: initial.redactedHeaders,
       redactedQueryParams: initial.redactedQueryParams,
     );

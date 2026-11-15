@@ -15,7 +15,7 @@ void main() {
     expect(s.notificationDuration, const Duration(seconds: 4));
     expect(s.showBubble, isTrue);
     expect(s.bubblePosition, DioLensBubblePosition.bottomEnd);
-    expect(s.redactionMode, DioLensRedactionMode.all);
+    expect(s.redactionTargets, DioLensSettings.allRedactionTargets);
     expect(s.themeMode, ThemeMode.dark);
   });
 
@@ -57,15 +57,11 @@ void main() {
     expect(s.isHeaderRedacted('Accept'), isFalse);
     expect(s.isQueryParamRedacted('APIKEY'), isTrue);
     expect(
-      s
-          .copyWith(redactionMode: DioLensRedactionMode.none)
-          .isHeaderRedacted('x-api-key'),
+      s.copyWith(redactionTargets: const {}).isHeaderRedacted('x-api-key'),
       isFalse,
     );
     expect(
-      s
-          .copyWith(redactionMode: DioLensRedactionMode.none)
-          .isQueryParamRedacted('apikey'),
+      s.copyWith(redactionTargets: const {}).isQueryParamRedacted('apikey'),
       isFalse,
     );
   });
@@ -80,44 +76,63 @@ void main() {
     }
   });
 
-  test('redaction mode masks every combination of targets', () {
-    const ui = DioLensRedactionTarget.ui;
-    const curl = DioLensRedactionTarget.clipboard;
-    const console = DioLensRedactionTarget.console;
-    const external = DioLensRedactionTarget.external;
-    final expected = {
-      DioLensRedactionMode.all: {ui, curl, console, external},
-      DioLensRedactionMode.ui: {ui},
-      DioLensRedactionMode.clipboard: {curl},
-      DioLensRedactionMode.console: {console},
-      DioLensRedactionMode.external: {external},
-      DioLensRedactionMode.uiClipboard: {ui, curl},
-      DioLensRedactionMode.uiConsole: {ui, console},
-      DioLensRedactionMode.uiExternal: {ui, external},
-      DioLensRedactionMode.clipboardConsole: {curl, console},
-      DioLensRedactionMode.clipboardExternal: {curl, external},
-      DioLensRedactionMode.consoleExternal: {console, external},
-      DioLensRedactionMode.uiClipboardConsole: {ui, curl, console},
-      DioLensRedactionMode.uiClipboardExternal: {ui, curl, external},
-      DioLensRedactionMode.uiConsoleExternal: {ui, console, external},
-      DioLensRedactionMode.clipboardConsoleExternal: {curl, console, external},
-      DioLensRedactionMode.none: <DioLensRedactionTarget>{},
-    };
-    expect(expected.keys, containsAll(DioLensRedactionMode.values));
-    expect(expected, hasLength(16), reason: 'every combination of 4 targets');
-    for (final MapEntry(key: mode, value: targets) in expected.entries) {
-      final s = DioLensSettings(redactionMode: mode);
-      for (final target in DioLensRedactionTarget.values) {
-        final masked = targets.contains(target);
+  test('redaction masks exactly the chosen targets', () {
+    const targets = DioLensRedactionTarget.values;
+    // Every subset of the targets.
+    for (var mask = 0; mask < 1 << targets.length; mask++) {
+      final chosen = {
+        for (var i = 0; i < targets.length; i++)
+          if (mask & (1 << i) != 0) targets[i],
+      };
+      final s = DioLensSettings(redactionTargets: chosen);
+      for (final target in targets) {
+        final masked = chosen.contains(target);
         expect(
           s.isHeaderRedacted('Authorization', target: target),
           masked,
-          reason: '$mode $target',
+          reason: '$chosen $target',
         );
         expect(s.isQueryParamRedacted('token', target: target), masked);
       }
-      expect(s.isHeaderRedacted('Authorization'), targets.contains(ui));
+      expect(
+        s.isHeaderRedacted('Authorization'),
+        chosen.contains(DioLensRedactionTarget.ui),
+      );
     }
+  });
+
+  test('redaction targets round-trip through JSON', () {
+    const s = DioLensSettings(
+      redactionTargets: {
+        DioLensRedactionTarget.ui,
+        DioLensRedactionTarget.external,
+      },
+    );
+    expect(s.toJson()['redaction_targets'], ['ui', 'external']);
+    expect(DioLensSettings.fromJson(s.toJson()).redactionTargets, {
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.external,
+    });
+  });
+
+  test('settings stored before 2.0.0 keep their redaction', () {
+    Set<DioLensRedactionTarget> from(String mode) =>
+        DioLensSettings.fromJson({'redaction_mode': mode}).redactionTargets;
+    expect(from('all'), DioLensSettings.allRedactionTargets);
+    expect(from('none'), isEmpty);
+    expect(from('ui_clipboard'), {
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.clipboard,
+    });
+    expect(from('console_external'), {
+      DioLensRedactionTarget.console,
+      DioLensRedactionTarget.external,
+    });
+    expect(
+      DioLensSettings.fromJson(const {}).redactionTargets,
+      DioLensSettings.allRedactionTargets,
+      reason: 'nothing stored: the default',
+    );
   });
 
   test('the redaction lock is code only and never stored', () {

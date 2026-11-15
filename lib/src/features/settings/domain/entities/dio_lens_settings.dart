@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/enums/dio_lens_mode.dart';
 import '../enums/dio_lens_bubble_position.dart';
 import '../enums/dio_lens_notification_position.dart';
-import '../enums/dio_lens_redaction_mode.dart';
+import '../enums/dio_lens_redaction_target.dart';
 import '../enums/dio_lens_retention.dart';
 
 part 'dio_lens_settings.freezed.dart';
@@ -17,6 +17,23 @@ Object? _readMaxBodyBytes(Map<dynamic, dynamic> json, String key) =>
 
 int? _maxBodyBytesFromJson(Object? value) =>
     value == _unlimitedBodyBytes ? null : (value as num?)?.toInt();
+
+/// Stored targets, or those of a `redaction_mode` stored before 2.0.0, e.g.
+/// `ui_clipboard`, `all` or `none`.
+Object? _readRedactionTargets(Map<dynamic, dynamic> json, String key) {
+  if (json.containsKey(key)) return json[key];
+  final mode = json['redaction_mode'];
+  if (mode is! String) return null;
+  return switch (mode) {
+    'all' ||
+    'redact' => [for (final t in DioLensRedactionTarget.values) t.name],
+    'none' || 'off' => const <String>[],
+    _ => [
+      for (final t in DioLensRedactionTarget.values)
+        if (mode.split('_').contains(t.name)) t.name,
+    ],
+  };
+}
 
 /// User-adjustable Dio Lens settings, persisted through `DioLensStorage`.
 /// Values passed to `DioLens.init` are only the starting point: once the user
@@ -77,7 +94,7 @@ abstract class DioLensSettings with _$DioLensSettings {
     @Default(DioLensBubblePosition.bottomEnd)
     DioLensBubblePosition bubblePosition,
 
-    /// Code only: the build modes in which [redactionMode], [redactedHeaders]
+    /// Code only: the build modes in which [redactionTargets], [redactedHeaders]
     /// and [redactedQueryParams] stay as given to `DioLens.init`; stored
     /// settings, the settings sheet and `DioLens.updateSettings` can't change
     /// them there. Never locked by default. Never stored.
@@ -86,18 +103,19 @@ abstract class DioLensSettings with _$DioLensSettings {
     DioLensMode lockRedaction,
 
     /// Where the values of [redactedHeaders] and [redactedQueryParams] are
-    /// masked: any combination of the UI, cURL commands and console logs.
-    @JsonKey(name: 'redaction_mode')
-    @Default(DioLensRedactionMode.all)
-    DioLensRedactionMode redactionMode,
+    /// masked: any of the UI, the clipboard, console logs and external
+    /// (exports and shared reports). Empty turns redaction off.
+    @JsonKey(name: 'redaction_targets', readValue: _readRedactionTargets)
+    @Default(DioLensSettings.allRedactionTargets)
+    Set<DioLensRedactionTarget> redactionTargets,
 
-    /// Header names masked as [redactionMode] says, in requests and
+    /// Header names masked for [redactionTargets], in requests and
     /// responses; matched case-insensitively.
     @JsonKey(name: 'redacted_headers')
     @Default(DioLensSettings.defaultRedactedHeaders)
     List<String> redactedHeaders,
 
-    /// Query parameter names masked as [redactionMode] says; matched
+    /// Query parameter names masked for [redactionTargets]; matched
     /// case-insensitively.
     @JsonKey(name: 'redacted_query_params')
     @Default(DioLensSettings.defaultRedactedQueryParams)
@@ -110,6 +128,14 @@ abstract class DioLensSettings with _$DioLensSettings {
   /// Reads settings stored by `toJson`.
   factory DioLensSettings.fromJson(Map<String, dynamic> json) =>
       _$DioLensSettingsFromJson(json);
+
+  /// Every redaction target; the default.
+  static const Set<DioLensRedactionTarget> allRedactionTargets = {
+    DioLensRedactionTarget.ui,
+    DioLensRedactionTarget.clipboard,
+    DioLensRedactionTarget.console,
+    DioLensRedactionTarget.external,
+  };
 
   /// Header names masked by default.
   static const List<String> defaultRedactedHeaders = [
@@ -131,14 +157,15 @@ abstract class DioLensSettings with _$DioLensSettings {
   bool isHeaderRedacted(
     String name, {
     DioLensRedactionTarget target = DioLensRedactionTarget.ui,
-  }) => redactionMode.masks(target) && _matches(redactedHeaders, name);
+  }) => redactionTargets.contains(target) && _matches(redactedHeaders, name);
 
   /// Whether the query parameter [name] is masked for [target] (the UI by
   /// default). Case-insensitive.
   bool isQueryParamRedacted(
     String name, {
     DioLensRedactionTarget target = DioLensRedactionTarget.ui,
-  }) => redactionMode.masks(target) && _matches(redactedQueryParams, name);
+  }) =>
+      redactionTargets.contains(target) && _matches(redactedQueryParams, name);
 
   /// Whether redaction is locked by code in this build (see
   /// [lockRedaction]).

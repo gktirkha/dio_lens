@@ -65,12 +65,21 @@ void main() {
 
     FocusManager.instance.primaryFocus?.unfocus();
     await h.settle();
-    await tester.tap(inSheet('Everywhere'));
+    // Toggling a target removes it, and toggling it again adds it back.
+    await tester.tap(inSheet('Clipboard'));
     await h.settle();
-    await tester.tap(find.text('UI').last);
+    expect(s().redactionTargets, {
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.console,
+      DioLensRedactionTarget.external,
+    });
+    expect(
+      h.storage.settings!['redaction_targets'],
+      unorderedEquals(['ui', 'console', 'external']),
+    );
+    await tester.tap(inSheet('Clipboard'));
     await h.settle();
-    expect(s().redactionMode, DioLensRedactionMode.ui);
-    expect(h.storage.settings!['redaction_mode'], 'ui');
+    expect(s().redactionTargets, DioLensSettings.allRedactionTargets);
   });
 
   testWidgets('reset asks first, then restores the starting values', (
@@ -171,7 +180,7 @@ void main() {
       settings: const DioLensSettings(
         showBubble: false,
         showNotification: false,
-        redactionMode: DioLensRedactionMode.clipboard,
+        redactionTargets: {DioLensRedactionTarget.clipboard},
       ),
     );
     await h.send(
@@ -243,7 +252,7 @@ void main() {
     await tester.runAsync(
       () => DioLens.updateSettings(
         DioLens.settings.value.copyWith(
-          redactionMode: DioLensRedactionMode.none,
+          redactionTargets: <DioLensRedactionTarget>{},
         ),
       ),
     );
@@ -261,7 +270,10 @@ void main() {
       settings: const DioLensSettings(
         showBubble: false,
         lockRedaction: DioLensMode.all,
-        redactionMode: DioLensRedactionMode.uiClipboard,
+        redactionTargets: {
+          DioLensRedactionTarget.ui,
+          DioLensRedactionTarget.clipboard,
+        },
         redactedHeaders: ['x-secret'],
       ),
     );
@@ -271,7 +283,7 @@ void main() {
     expect(inSheet('Set by the app'), findsOneWidget);
     expect(inSheet('UI, Clipboard'), findsOneWidget);
     expect(inSheet('x-secret'), findsOneWidget);
-    expect(find.bySemanticsLabel('Redaction mode'), findsNothing);
+    expect(inSheet('External'), findsNothing, reason: 'no target toggles');
     expect(keyField('x-secret'), findsNothing, reason: 'no editable field');
   });
 }

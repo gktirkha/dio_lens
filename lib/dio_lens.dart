@@ -10,7 +10,7 @@ export 'src/features/export/domain/entities/dio_lens_export_file.dart';
 export 'src/features/settings/domain/entities/dio_lens_settings.dart';
 export 'src/features/settings/domain/enums/dio_lens_bubble_position.dart';
 export 'src/features/settings/domain/enums/dio_lens_notification_position.dart';
-export 'src/features/settings/domain/enums/dio_lens_redaction_mode.dart';
+export 'src/features/settings/domain/enums/dio_lens_redaction_target.dart';
 export 'src/features/settings/domain/enums/dio_lens_retention.dart';
 export 'src/features/settings/domain/enums/dio_lens_size_unit.dart';
 export 'src/features/share/domain/entities/dio_lens_share_content.dart';

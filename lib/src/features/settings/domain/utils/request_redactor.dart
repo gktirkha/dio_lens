@@ -1,6 +1,6 @@
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../entities/dio_lens_settings.dart';
-import '../enums/dio_lens_redaction_mode.dart';
+import '../enums/dio_lens_redaction_target.dart';
 
 /// Masks sensitive values in a captured request before it leaves Dio Lens
 /// (export, share), as the redaction settings say.

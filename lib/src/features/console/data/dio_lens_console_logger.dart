@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../settings/domain/entities/dio_lens_settings.dart';
-import '../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../settings/domain/utils/request_redactor.dart';
 import '../domain/entities/dio_lens_console_settings.dart';
 
@@ -289,7 +289,9 @@ class DioLensConsoleLogger {
   }
 
   String _redactString(String text, DioLensSettings settings) {
-    if (!settings.redactionMode.inConsole) return text;
+    if (!settings.redactionTargets.contains(DioLensRedactionTarget.console)) {
+      return text;
+    }
     var result = text;
     for (final key in settings.redactedHeaders) {
       final pattern = RegExp('"$key"\\s*:\\s*"([^"]+)"', caseSensitive: false);

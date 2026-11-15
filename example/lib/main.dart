@@ -48,9 +48,8 @@ void main() {
       retention: .sevenDays,
       maxBodyBytes: 10240,
       themeMode: .system,
-      redactionMode: .all,
-      // In debug builds redaction is fixed to the values above.
       lockRedaction: .none,
+      redactionTargets: {...DioLensRedactionTarget.values},
     ),
     // Recording, the UI and console logs in debug and profile builds (for
     // testers). Never release builds.

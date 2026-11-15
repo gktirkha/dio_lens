@@ -13,7 +13,7 @@ import '../../../request_detail/presentation/pages/request_detail_page.dart';
 import '../../../request_home/domain/entities/request_list_item_entity.dart';
 import '../../../request_home/presentation/controllers/request_home_controller.dart';
 import '../../../request_home/presentation/pages/request_home_page.dart';
-import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 import '../../../settings/presentation/pages/settings_sheet.dart';
 import '../../../share/domain/entities/dio_lens_share_content.dart';

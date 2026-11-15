@@ -220,7 +220,7 @@ void main() {
   test('locked redaction stays as given in code', () async {
     final storage = MemoryStorage()
       ..settings = const DioLensSettings(
-        redactionMode: DioLensRedactionMode.none,
+        redactionTargets: <DioLensRedactionTarget>{},
         redactedHeaders: [],
         maxRequests: 50,
       ).toJson();
@@ -228,22 +228,31 @@ void main() {
       storage,
       settings: const DioLensSettings(
         lockRedaction: DioLensMode.all,
-        redactionMode: DioLensRedactionMode.uiConsole,
+        redactionTargets: {
+          DioLensRedactionTarget.ui,
+          DioLensRedactionTarget.console,
+        },
         redactedHeaders: ['x-secret'],
       ),
     );
     await store.ready;
     var s = store.settings.value;
     expect(s.maxRequests, 50, reason: 'other stored settings still load');
-    expect(s.redactionMode, DioLensRedactionMode.uiConsole);
+    expect(s.redactionTargets, {
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.console,
+    });
     expect(s.redactedHeaders, ['x-secret']);
     expect(s.isRedactionLocked, isTrue);
 
     await store.updateSettings(
-      s.copyWith(redactionMode: DioLensRedactionMode.none, maxRequests: 20),
+      s.copyWith(redactionTargets: <DioLensRedactionTarget>{}, maxRequests: 20),
     );
     s = store.settings.value;
-    expect(s.redactionMode, DioLensRedactionMode.uiConsole);
+    expect(s.redactionTargets, {
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.console,
+    });
     expect(s.maxRequests, 20);
   });
 
@@ -251,9 +260,11 @@ void main() {
     final store = storeOver(MemoryStorage(), settings: const DioLensSettings());
     await store.ready;
     await store.updateSettings(
-      store.settings.value.copyWith(redactionMode: DioLensRedactionMode.none),
+      store.settings.value.copyWith(
+        redactionTargets: <DioLensRedactionTarget>{},
+      ),
     );
-    expect(store.settings.value.redactionMode, DioLensRedactionMode.none);
+    expect(store.settings.value.redactionTargets, isEmpty);
     expect(store.settings.value.isRedactionLocked, isFalse);
   });
 }

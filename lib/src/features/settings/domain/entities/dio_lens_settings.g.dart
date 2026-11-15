@@ -34,12 +34,11 @@ _DioLensSettings _$DioLensSettingsFromJson(Map<String, dynamic> json) =>
             json['bubble_position'],
           ) ??
           DioLensBubblePosition.bottomEnd,
-      redactionMode:
-          $enumDecodeNullable(
-            _$DioLensRedactionModeEnumMap,
-            json['redaction_mode'],
-          ) ??
-          DioLensRedactionMode.all,
+      redactionTargets:
+          (_readRedactionTargets(json, 'redaction_targets') as List<dynamic>?)
+              ?.map((e) => $enumDecode(_$DioLensRedactionTargetEnumMap, e))
+              .toSet() ??
+          DioLensSettings.allRedactionTargets,
       redactedHeaders:
           (json['redacted_headers'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -67,7 +66,9 @@ Map<String, dynamic> _$DioLensSettingsToJson(
   'notification_duration': instance.notificationDuration.inMicroseconds,
   'show_bubble': instance.showBubble,
   'bubble_position': _$DioLensBubblePositionEnumMap[instance.bubblePosition]!,
-  'redaction_mode': _$DioLensRedactionModeEnumMap[instance.redactionMode]!,
+  'redaction_targets': instance.redactionTargets
+      .map((e) => _$DioLensRedactionTargetEnumMap[e]!)
+      .toList(),
   'redacted_headers': instance.redactedHeaders,
   'redacted_query_params': instance.redactedQueryParams,
   'theme_mode': _$ThemeModeEnumMap[instance.themeMode]!,
@@ -94,15 +95,11 @@ const _$DioLensBubblePositionEnumMap = {
   DioLensBubblePosition.bottomEnd: 'bottom_end',
 };
 
-const _$DioLensRedactionModeEnumMap = {
-  DioLensRedactionMode.all: 'all',
-  DioLensRedactionMode.ui: 'ui',
-  DioLensRedactionMode.clipboard: 'clipboard',
-  DioLensRedactionMode.console: 'console',
-  DioLensRedactionMode.uiClipboard: 'ui_clipboard',
-  DioLensRedactionMode.uiConsole: 'ui_console',
-  DioLensRedactionMode.clipboardConsole: 'clipboard_console',
-  DioLensRedactionMode.none: 'none',
+const _$DioLensRedactionTargetEnumMap = {
+  DioLensRedactionTarget.ui: 'ui',
+  DioLensRedactionTarget.clipboard: 'clipboard',
+  DioLensRedactionTarget.console: 'console',
+  DioLensRedactionTarget.external: 'external',
 };
 
 const _$ThemeModeEnumMap = {

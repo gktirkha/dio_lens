@@ -6,7 +6,7 @@ import '../../../../core/enums/export_format.dart';
 import '../../../../core/enums/request_state.dart';
 import '../../../request_detail/domain/entities/request_detail_entity.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
-import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';
+import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
 import '../../../settings/domain/utils/request_redactor.dart';
 
 /// Builds export files from captured requests. Pure, so it can run in an

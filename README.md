@@ -127,8 +127,8 @@ dio.interceptors.add(
 | `maxWidth`          | `90`    | Line width before wrapping.                                    |
 | `showStateInHeader` | `true`  | Prefix section headers with `[REQUEST]`, `[RESPONSE]` or `[ERROR]`. |
 
-Console logs mask sensitive values as the `redactionMode` setting says (see
-[Settings](#settings)). To send logs somewhere else, pass `logPrint`; it
+Console logs mask sensitive values when `redactionTargets` includes
+`console` (see [Redaction](#redaction)). To send logs somewhere else, pass `logPrint`; it
 defaults to `dart:developer`'s `log` with the name `dio_lens`.
 
 ## Build modes
@@ -189,7 +189,7 @@ DioLens.init(
 | `notificationDuration` | 4 s                                                  | How long the banner stays (2 to 15 seconds).                                          |
 | `showBubble`           | `true`                                               | Show the floating bubble.                                                             |
 | `bubblePosition`       | `bottomEnd`                                          | Corner the bubble starts in; follows the reading direction.                           |
-| `redactionMode`        | `all`                                                | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
+| `redactionTargets`     | all four                                             | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
 | `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
 | `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
 | `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
@@ -205,35 +205,33 @@ await DioLens.resetSettings(); // Back to the values passed to init.
 ## Redaction
 
 Values of the headers and query parameters in `redactedHeaders` and
-`redactedQueryParams` are masked in four places, chosen with
-`redactionMode`:
+`redactedQueryParams` are masked in the places listed in `redactionTargets`,
+any combination of:
 
-- **UI**: everything shown on screen (the request list and every detail tab).
-- **Clipboard**: everything copied: fields, "Copy all" and cURL commands.
-- **Console**: console logs.
-- **External**: what leaves the app: exports and reports handed to
+- **`ui`**: everything shown on screen (the request list and every detail
+  tab).
+- **`clipboard`**: everything copied: fields, "Copy all" and cURL commands.
+- **`console`**: console logs.
+- **`external`**: what leaves the app: exports and reports handed to
   `onShare`.
 
-| `redactionMode`                      | UI  | Clipboard | Console | External |
-| ------------------------------------ | :-: | :-------: | :-----: | :------: |
-| `all` (default)                      |  ✓  |     ✓     |    ✓    |    ✓     |
-| `ui`                                 |  ✓  |           |         |          |
-| `clipboard`                          |     |     ✓     |         |          |
-| `console`                            |     |           |    ✓    |          |
-| `external`                           |     |           |         |    ✓     |
-| `uiClipboard`                        |  ✓  |     ✓     |         |          |
-| `uiConsole`                          |  ✓  |           |    ✓    |          |
-| `uiExternal`                         |  ✓  |           |         |    ✓     |
-| `clipboardConsole`                   |     |     ✓     |    ✓    |          |
-| `clipboardExternal`                  |     |     ✓     |         |    ✓     |
-| `consoleExternal`                    |     |           |    ✓    |    ✓     |
-| `uiClipboardConsole`                 |  ✓  |     ✓     |    ✓    |          |
-| `uiClipboardExternal`                |  ✓  |     ✓     |         |    ✓     |
-| `uiConsoleExternal`                  |  ✓  |           |    ✓    |    ✓     |
-| `clipboardConsoleExternal`           |     |     ✓     |    ✓    |    ✓     |
-| `none`                               |     |           |         |          |
+All four are on by default; an empty set turns redaction off.
 
-Testers can change it in the settings sheet's Privacy section.
+```dart
+DioLens.init(
+  navigatorKey: navigatorKey,
+  settings: const DioLensSettings(
+    // Show real values on screen; mask them everywhere else.
+    redactionTargets: {
+      DioLensRedactionTarget.clipboard,
+      DioLensRedactionTarget.console,
+      DioLensRedactionTarget.external,
+    },
+  ),
+);
+```
+
+Testers can toggle each target in the settings sheet's Privacy section.
 
 ## Export and share
 

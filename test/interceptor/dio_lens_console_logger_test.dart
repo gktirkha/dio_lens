@@ -81,15 +81,20 @@ void main() {
     expect(logs, contains('Response Headers'));
   });
 
-  test('masks secrets as the redaction mode says', () {
-    for (final mode in DioLensRedactionMode.values) {
-      final masked = mode.inConsole;
+  test('masks secrets when console is a redaction target', () {
+    for (final targets in [
+      <DioLensRedactionTarget>{},
+      {DioLensRedactionTarget.console},
+      {DioLensRedactionTarget.ui, DioLensRedactionTarget.external},
+      DioLensSettings.allRedactionTargets,
+    ]) {
+      final masked = targets.contains(DioLensRedactionTarget.console);
       final logs = capture(
         showState: true,
-        settings: DioLensSettings(redactionMode: mode),
+        settings: DioLensSettings(redactionTargets: targets),
       ).join('\n');
-      expect(logs.contains('secret'), !masked, reason: '$mode');
-      expect(logs.contains('[REDACTED]'), masked, reason: '$mode');
+      expect(logs.contains('secret'), !masked, reason: '$targets');
+      expect(logs.contains('[REDACTED]'), masked, reason: '$targets');
     }
   });
 }

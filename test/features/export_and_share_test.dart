@@ -57,7 +57,7 @@ void main() {
     test('leaves everything when redaction is off', () {
       final r = RequestRedactor.redact(
         post,
-        settings.copyWith(redactionMode: DioLensRedactionMode.none),
+        settings.copyWith(redactionTargets: <DioLensRedactionTarget>{}),
       );
       expect(r, post);
     });
@@ -65,21 +65,25 @@ void main() {
 
   group('ExportBuilder', () {
     test('masks for the external target only', () {
-      String exportWith(DioLensRedactionMode mode) => utf8.decode(
+      String exportWith(Set<DioLensRedactionTarget> targets) => utf8.decode(
         ExportBuilder.build(
           DioLensExportFormat.json,
           [post],
-          DioLensSettings(redactionMode: mode),
+          DioLensSettings(redactionTargets: targets),
           DateTime(2026),
         ),
       );
 
       expect(
-        exportWith(DioLensRedactionMode.external),
+        exportWith({DioLensRedactionTarget.external}),
         isNot(contains('Bearer secret')),
       );
       expect(
-        exportWith(DioLensRedactionMode.uiClipboardConsole),
+        exportWith({
+          DioLensRedactionTarget.ui,
+          DioLensRedactionTarget.clipboard,
+          DioLensRedactionTarget.console,
+        }),
         contains('Bearer secret'),
         reason: 'the UI, clipboard and console targets do not cover exports',
       );
@@ -186,19 +190,24 @@ void main() {
   });
 
   test('the report is masked for the external target', () {
-    String reportFor(DioLensRedactionMode mode) => ShareContentBuilder.build(
-      post,
-      DioLensSettings(redactionMode: mode),
-    ).text;
+    String reportFor(Set<DioLensRedactionTarget> targets) =>
+        ShareContentBuilder.build(
+          post,
+          DioLensSettings(redactionTargets: targets),
+        ).text;
 
     // Only the external target applies, cURL section included.
-    final shared = reportFor(DioLensRedactionMode.uiClipboardConsole);
+    final shared = reportFor({
+      DioLensRedactionTarget.ui,
+      DioLensRedactionTarget.clipboard,
+      DioLensRedactionTarget.console,
+    });
     expect(shared, contains('Authorization: Bearer secret'));
     expect(
       shared.substring(shared.indexOf('curl -X')),
       contains('Bearer secret'),
     );
-    final masked = reportFor(DioLensRedactionMode.external);
+    final masked = reportFor({DioLensRedactionTarget.external});
     expect(masked, contains('Authorization: [REDACTED]'));
     expect(masked, isNot(contains('Bearer secret')));
   });

@@ -8,7 +8,7 @@ import '../../../../theme/dio_lens_theme_scope.dart';
 import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/enums/dio_lens_bubble_position.dart';
 import '../../domain/enums/dio_lens_notification_position.dart';
-import '../../domain/enums/dio_lens_redaction_mode.dart';
+import '../../domain/enums/dio_lens_redaction_target.dart';
 import '../../domain/enums/dio_lens_retention.dart';
 import '../controllers/settings_controller.dart';
 import '../widgets/capture_fields.dart';
@@ -223,13 +223,13 @@ class _SettingsBody extends StatelessWidget {
             Icon(Icons.lock_outline_rounded, size: 14, color: theme.textFaint),
             const SizedBox(width: 6),
             Text(
-              _redactionLabels[s.redactionMode]!,
+              _targetsLabel(s.redactionTargets),
               style: TextStyle(fontSize: 12.5, color: theme.textMuted),
             ),
           ],
         ),
       ),
-      if (s.redactionMode != DioLensRedactionMode.none) ...[
+      if (s.redactionTargets.isNotEmpty) ...[
         SettingsRow(
           title: 'Header keys to redact',
           description: keys(s.redactedHeaders),
@@ -244,25 +244,23 @@ class _SettingsBody extends StatelessWidget {
     ];
   }
 
-  static const Map<DioLensRedactionMode, String> _redactionLabels = {
-    DioLensRedactionMode.all: 'Everywhere',
-    DioLensRedactionMode.ui: 'UI',
-    DioLensRedactionMode.clipboard: 'Clipboard',
-    DioLensRedactionMode.console: 'Console',
-    DioLensRedactionMode.external: 'External',
-    DioLensRedactionMode.uiClipboard: 'UI, Clipboard',
-    DioLensRedactionMode.uiConsole: 'UI, Console',
-    DioLensRedactionMode.uiExternal: 'UI, External',
-    DioLensRedactionMode.clipboardConsole: 'Clipboard, Console',
-    DioLensRedactionMode.clipboardExternal: 'Clipboard, External',
-    DioLensRedactionMode.consoleExternal: 'Console, External',
-    DioLensRedactionMode.uiClipboardConsole: 'UI, Clipboard, Console',
-    DioLensRedactionMode.uiClipboardExternal: 'UI, Clipboard, External',
-    DioLensRedactionMode.uiConsoleExternal: 'UI, Console, External',
-    DioLensRedactionMode.clipboardConsoleExternal:
-        'Clipboard, Console, External',
-    DioLensRedactionMode.none: 'Off',
-  };
+  /// The redaction targets, label and icon, in display order.
+  static const List<(DioLensRedactionTarget, String, IconData)> _targets = [
+    (DioLensRedactionTarget.ui, 'UI', Icons.visibility_outlined),
+    (DioLensRedactionTarget.clipboard, 'Clipboard', Icons.content_copy_rounded),
+    (DioLensRedactionTarget.console, 'Console', Icons.terminal_rounded),
+    (DioLensRedactionTarget.external, 'External', Icons.ios_share_rounded),
+  ];
+
+  /// [targets] as a short label, e.g. "UI, Console"; "Everywhere" or "Off".
+  static String _targetsLabel(Set<DioLensRedactionTarget> targets) {
+    if (targets.isEmpty) return 'Off';
+    if (targets.length == _targets.length) return 'Everywhere';
+    return [
+      for (final (target, label, _) in _targets)
+        if (targets.contains(target)) label,
+    ].join(', ');
+  }
 
   static const Map<DioLensRetention, String> _retentionLabels = {
     DioLensRetention.session: 'This session',
@@ -476,17 +474,45 @@ class _SettingsBody extends StatelessWidget {
             else ...[
               SettingsRow(
                 title: 'Redact sensitive values',
-                description: 'Where listed headers and query params are masked',
-                control: SettingsSelect<DioLensRedactionMode>(
-                  value: s.redactionMode,
-                  options: DioLensRedactionMode.values,
-                  labelOf: (mode) => _redactionLabels[mode]!,
-                  onChanged: (mode) =>
-                      onChanged((s) => s.copyWith(redactionMode: mode)),
-                  semanticLabel: 'Redaction mode',
+                description:
+                    'Where listed headers and query params are masked; '
+                    'External is exports and shared reports',
+                stacked: true,
+                control: Column(
+                  children: [
+                    for (var row = 0; row < _targets.length; row += 2) ...[
+                      if (row > 0) const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          for (final (target, label, icon)
+                              in _targets.skip(row).take(2)) ...[
+                            if (target != _targets[row].$1)
+                              const SizedBox(width: 8),
+                            Expanded(
+                              child: SettingsOption(
+                                label: label,
+                                icon: icon,
+                                compact: true,
+                                selected: s.redactionTargets.contains(target),
+                                onTap: () => onChanged(
+                                  (s) => s.copyWith(
+                                    redactionTargets:
+                                        s.redactionTargets.contains(target)
+                                        ? (Set.of(s.redactionTargets)
+                                            ..remove(target))
+                                        : {...s.redactionTargets, target},
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              if (s.redactionMode != DioLensRedactionMode.none) ...[
+              if (s.redactionTargets.isNotEmpty) ...[
                 SettingsKeyListField(
                   label: 'Header keys to redact',
                   keys: s.redactedHeaders,

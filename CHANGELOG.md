@@ -1,3 +1,21 @@
+## 2.0.0
+
+- **Breaking:** `DioLensSettings.redactionMode` and the `DioLensRedactionMode`
+  enum are replaced by `redactionTargets`, a `Set<DioLensRedactionTarget>`
+  (`ui`, `clipboard`, `console`, `external`). It defaults to all four; an
+  empty set turns redaction off. Migrate:
+
+  | Before                                   | After                                                  |
+  | ---------------------------------------- | ------------------------------------------------------ |
+  | `redactionMode: DioLensRedactionMode.all`  | `redactionTargets: DioLensSettings.allRedactionTargets` (the default) |
+  | `redactionMode: DioLensRedactionMode.none` | `redactionTargets: {}`                                 |
+  | `redactionMode: DioLensRedactionMode.uiConsole` | `redactionTargets: {DioLensRedactionTarget.ui, DioLensRedactionTarget.console}` |
+
+- The settings sheet's redaction dropdown is now four toggles, one per
+  target.
+- Settings saved by earlier versions keep their redaction: a stored
+  `redaction_mode` is read as the matching targets.
+
 ## 1.4.0
 
 - Delete buttons replace swipe to delete, so deleting works the same with a
