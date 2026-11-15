@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart' show DioExceptionType;
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/utils/clipboard_utils.dart';
 import '../../../../core/utils/ltr_content.dart';

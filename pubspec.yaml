@@ -1,6 +1,7 @@
 name: dio_lens
 description: >-
-  In-app network inspector for Dio: browse captured requests, stats and details, replay requests, export HAR or JSON, and redact sensitive data.
+  In-app network inspector for Dio: browse captured requests, stats and details,
+  replay requests, export HAR or JSON, and redact sensitive data.
 version: 1.0.2
 homepage: https://github.com/gktirkha/dio_lens
 repository: https://github.com/gktirkha/dio_lens
@@ -47,11 +48,13 @@ environment:
   flutter: ">=3.47.0"
 
 dependencies:
+  cupertino_ui: any
   dio: ^5.11.1
   flutter:
     sdk: flutter
   freezed_annotation: ^3.1.0
   json_annotation: ^4.12.0
+  material_ui: any
   shared_preferences: ^2.5.6
 
 dev_dependencies:

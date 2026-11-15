@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/enums/dio_lens_redaction_mode.dart';

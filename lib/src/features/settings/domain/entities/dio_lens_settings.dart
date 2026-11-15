@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show ThemeMode;
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/enums/dio_lens_mode.dart';

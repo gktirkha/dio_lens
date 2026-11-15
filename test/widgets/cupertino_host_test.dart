@@ -3,8 +3,8 @@ import 'package:dio_lens/src/core/utils/host_app.dart';
 import 'package:dio_lens/src/features/home/presentation/pages/dio_lens_home_page.dart';
 import 'package:dio_lens/src/features/request_detail/presentation/pages/request_detail_page.dart';
 import 'package:dio_lens/src/features/settings/presentation/pages/settings_sheet.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

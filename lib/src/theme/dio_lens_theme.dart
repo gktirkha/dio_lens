@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Colors, radii and type of the Dio Lens UI, as a theme extension.
 @immutable

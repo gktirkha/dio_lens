@@ -3,7 +3,7 @@ import 'package:dio_lens/dio_lens.dart';
 import 'package:dio_lens/src/features/request_detail/presentation/pages/request_detail_page.dart';
 import 'package:dio_lens/src/features/request_detail/presentation/widgets/key_value_box.dart';
 import 'package:dio_lens/src/features/settings/presentation/pages/settings_sheet.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

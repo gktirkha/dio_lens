@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// The Dio Lens theme mode (light, dark or system), shared by every Dio Lens
 /// page.

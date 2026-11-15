@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../theme/dio_lens_theme.dart';
 import 'dio_lens_tag.dart';

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/enums/request_state.dart';
 import '../../../../core/utils/format_utils.dart';

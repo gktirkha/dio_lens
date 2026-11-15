@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio_lens/dio_lens.dart';
-import 'package:flutter/material.dart' show ThemeMode;
+import 'package:material_ui/material_ui.dart' show ThemeMode;
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

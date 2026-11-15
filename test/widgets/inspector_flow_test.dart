@@ -7,7 +7,7 @@ import 'package:dio_lens/src/features/request_detail/presentation/pages/request_
 import 'package:dio_lens/src/features/request_detail/presentation/widgets/json_tree_view.dart';
 import 'package:dio_lens/src/features/request_home/presentation/widgets/request_list_tile.dart';
 import 'package:dio_lens/src/features/stats/presentation/pages/stats_page.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -3,7 +3,7 @@ import 'package:dio_lens/src/core/enums/request_state.dart';
 import 'package:dio_lens/src/features/request_home/domain/entities/request_list_item_entity.dart';
 import 'package:dio_lens/src/features/request_home/presentation/widgets/request_list_tile.dart';
 import 'package:dio_lens/src/theme/dio_lens_theme_scope.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 RequestListItemEntity item(RequestState state, String? req, String? res) =>

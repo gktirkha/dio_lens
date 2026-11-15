@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:dio_lens/dio_lens.dart';
 import 'package:dio_lens/src/core/runtime/dio_lens_runtime.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'fake_adapter.dart';
