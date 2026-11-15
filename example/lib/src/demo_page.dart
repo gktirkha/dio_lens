@@ -4,6 +4,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'demo_requests.dart';
 
+/// The example's Material theme for [brightness].
+ThemeData demoTheme(Brightness brightness) =>
+    ThemeData(colorSchemeSeed: Colors.indigo, brightness: brightness);
+
 /// Buttons that make requests, grouped by kind.
 class DemoPage extends StatelessWidget {
   /// Creates the page for the app's Dios.
@@ -118,9 +122,9 @@ class DemoPage extends StatelessWidget {
   }
 }
 
-/// Gives this Material page a [ScaffoldMessenger] and Material localizations
-/// when the app has none, as in a `CupertinoApp`. Dio Lens pages fill these in
-/// themselves.
+/// Gives this Material page a theme that follows the system's light or dark
+/// mode, a [ScaffoldMessenger] and Material localizations when the app has
+/// none, as in a `CupertinoApp`. Dio Lens pages fill these in themselves.
 class _MaterialHost extends StatelessWidget {
   const _MaterialHost({required this.child});
 
@@ -129,6 +133,14 @@ class _MaterialHost extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var page = child;
+    // Outside a MaterialApp, Material widgets fall back to a light theme;
+    // follow the system's light or dark mode instead.
+    if (context.findAncestorWidgetOfExactType<MaterialApp>() == null) {
+      page = Theme(
+        data: demoTheme(MediaQuery.platformBrightnessOf(context)),
+        child: page,
+      );
+    }
     if (ScaffoldMessenger.maybeOf(context) == null) {
       page = ScaffoldMessenger(child: page);
     }

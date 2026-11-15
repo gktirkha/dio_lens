@@ -91,11 +91,10 @@ class ExampleMaterialApp extends StatelessWidget {
       navigatorKey: navigatorKey,
       title: 'Dio Lens Example',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(colorSchemeSeed: Colors.indigo),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.indigo,
-        brightness: Brightness.dark,
-      ),
+      // Light or dark, following the system.
+      themeMode: ThemeMode.system,
+      theme: demoTheme(Brightness.light),
+      darkTheme: demoTheme(Brightness.dark),
       home: DemoPage(dio: dio, pinnedDio: pinnedDio),
     );
   }
