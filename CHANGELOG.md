@@ -1,3 +1,14 @@
+## 1.1.0
+
+- Uses the `material_ui` and `cupertino_ui` packages instead of Flutter's
+  `material` and `cupertino` libraries, which Flutter 3.50 deprecates. Adds
+  `material_ui` (^1.11.0) and `cupertino_ui` (^1.1.6) as dependencies; still
+  supports Flutter 3.47 and later.
+- The floating bubble starts in its configured corner (bottom end by
+  default). On Android it could start at the top start instead, when the
+  first frame was laid out before the screen size was known.
+- README screenshots in both the dark and light themes.
+
 ## 1.0.2
 
 - Success and failure in Stats (Success rate, Error count and Top failing
