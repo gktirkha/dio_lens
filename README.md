@@ -11,11 +11,13 @@ sensitive values masked.
 
 ## Screenshots
 
-|                               Requests                                |                                                        Request detail                                                         |                                            Stats                                             |
-| :-------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------: |
-|  <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests.png" width="240" alt="Request list">  | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/detail_request.png" width="240" alt="Request tab with a redacted Authorization header and a JSON body"> |                  <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/stats.png" width="240" alt="Stats">                   |
-|                             **Settings**                              |                                                  **Request-finished banner**                                                  |                                       **Light theme**                                        |
-| <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/settings.png" width="240" alt="Settings sheet"> |                         <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/banner.png" width="240" alt="Banner over the host app">                         | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests_light.png" width="240" alt="Request list in the light theme"> |
+|  | Dark | Light |
+| :-- | :--: | :--: |
+| **Requests** | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests.png" width="220" alt="Request list, dark theme"> | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/requests_light.png" width="220" alt="Request list, light theme"> |
+| **Request detail** | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/detail_request.png" width="220" alt="Request tab with a redacted Authorization header and a JSON body, dark theme"> | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/detail_request_light.png" width="220" alt="Request tab with a redacted Authorization header and a JSON body, light theme"> |
+| **Stats** | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/stats.png" width="220" alt="Stats with totals, status distribution and slowest endpoints, dark theme"> | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/stats_light.png" width="220" alt="Stats with totals, status distribution and slowest endpoints, light theme"> |
+| **Settings** | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/settings.png" width="220" alt="Settings sheet, dark theme"> | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/settings_light.png" width="220" alt="Settings sheet, light theme"> |
+| **Request-finished banner** | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/banner.png" width="220" alt="Request-finished banner over the host app, dark theme"> | <img src="https://raw.githubusercontent.com/gktirkha/dio_lens/master/screenshots/banner_light.png" width="220" alt="Request-finished banner over the host app, light theme"> |
 
 ## Features
 

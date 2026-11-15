@@ -21,18 +21,26 @@ platforms:
   windows:
 
 screenshots:
-  - description: Request list with status and method filters.
+  - description: Request list, dark theme.
     path: screenshots/requests.png
-  - description: Request detail with a redacted header and a JSON body.
-    path: screenshots/detail_request.png
-  - description: Stats with latency, status distribution and rankings.
-    path: screenshots/stats.png
-  - description: Settings sheet.
-    path: screenshots/settings.png
-  - description: Request-finished banner over the host app.
-    path: screenshots/banner.png
-  - description: Request list in the light theme.
+  - description: Request list, light theme.
     path: screenshots/requests_light.png
+  - description: Request detail with a redacted header and a JSON body, dark theme.
+    path: screenshots/detail_request.png
+  - description: Request detail with a redacted header and a JSON body, light theme.
+    path: screenshots/detail_request_light.png
+  - description: Stats with latency, status distribution and rankings, dark theme.
+    path: screenshots/stats.png
+  - description: Stats with latency, status distribution and rankings, light theme.
+    path: screenshots/stats_light.png
+  - description: Settings sheet, dark theme.
+    path: screenshots/settings.png
+  - description: Settings sheet, light theme.
+    path: screenshots/settings_light.png
+  - description: Request-finished banner over the host app, dark theme.
+    path: screenshots/banner.png
+  - description: Request-finished banner over the host app, light theme.
+    path: screenshots/banner_light.png
 
 environment:
   sdk: ^3.13.7

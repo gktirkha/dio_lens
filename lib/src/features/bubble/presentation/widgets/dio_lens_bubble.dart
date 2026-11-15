@@ -152,7 +152,7 @@ class _FloatingDioLensBubbleState extends State<FloatingDioLensBubble> {
         final size = constraints.biggest;
         final bounds = _bounds(size, padding);
         final position = _clamp(
-          _position ??= _corner(bounds, size, padding),
+          _position ?? _corner(bounds, size, padding),
           bounds,
         );
 

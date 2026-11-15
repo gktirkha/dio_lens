@@ -251,6 +251,40 @@ void main() {
     expect(action('/v1/upload', 'Replay request'), findsNothing);
   });
 
+  testWidgets('bubble starts bottom end even after a 0×0 first layout', (
+    tester,
+  ) async {
+    Widget host(double width, double height) => Directionality(
+      textDirection: TextDirection.ltr,
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: const FloatingDioLensBubble(
+            initialPosition: DioLensBubblePosition.bottomEnd,
+          ),
+        ),
+      ),
+    );
+    tester.view
+      ..physicalSize = const Size(400, 800)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    // Android can lay out the first frame before the screen size is known.
+    await tester.pumpWidget(host(0, 0));
+    await tester.pumpWidget(host(400, 800));
+    await tester.pumpAndSettle();
+
+    final topLeft = tester.getTopLeft(find.byType(DioLensBubble));
+    expect(topLeft.dx, 400 - FloatingDioLensBubble.margin - DioLensBubble.size);
+    expect(
+      topLeft.dy,
+      800 - FloatingDioLensBubble.bottomInset - DioLensBubble.size,
+    );
+  });
+
   testWidgets('empty Stats is centered horizontally', (tester) async {
     await Harness.start(tester, size: const Size(1200, 900));
     DioLens.open();
