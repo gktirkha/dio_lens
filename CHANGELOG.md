@@ -1,3 +1,7 @@
+## 1.1.1
+
+- Updated docs.
+
 ## 1.1.0
 
 - Uses the `material_ui` and `cupertino_ui` packages instead of Flutter's
