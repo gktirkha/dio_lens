@@ -1,7 +1,7 @@
 import 'dart:async';
 
 /// Receives a request to share; the app decides how. Without it, Dio Lens
-/// copies the report to the clipboard.
+/// shows no Share buttons.
 typedef DioLensShareCallback = FutureOr<void> Function(
   DioLensShareContent content,
 );

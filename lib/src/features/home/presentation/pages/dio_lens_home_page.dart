@@ -96,24 +96,17 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
     );
 
   Future<void> _shareItem(RequestListItemEntity item) async {
+    final onShare = widget.onShare;
+    if (onShare == null) return;
     final request = await _load(item);
     if (request == null || !mounted) return;
     final settings = await widget.dependencies.watchSettingsUseCase(unit).first;
-    final onShare = widget.onShare;
-    // Without onShare the report goes to the clipboard.
     final content = await widget.dependencies.buildShareContentUseCase((
       request: request,
       settings: settings,
-      target: onShare == null
-          ? DioLensRedactionTarget.clipboard
-          : DioLensRedactionTarget.external,
     ));
     if (!mounted) return;
-    if (onShare != null) {
-      await onShare(content);
-    } else {
-      await copyToClipboard(context, content.text, label: 'Request');
-    }
+    await onShare(content);
   }
 
   Future<void> _copyCurlItem(RequestListItemEntity item) async {
@@ -130,13 +123,15 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
   }
 
   Future<void> _replayItem(RequestListItemEntity item) async {
+    final onReplay = widget.onReplay;
+    if (onReplay == null) return;
     final request = await _load(item);
     if (request == null || !mounted) return;
     if (widget.replayUnavailableReason?.call(request) case final reason?) {
       _snack("Can't replay: $reason");
       return;
     }
-    widget.onReplay?.call(request);
+    onReplay(request);
     _snack('Request replayed');
   }
 
@@ -187,7 +182,8 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
                 onShare: widget.onShare,
               ),
             ),
-            onRequestShare: _shareItem,
+            // Without onShare there is nothing to share with.
+            onRequestShare: widget.onShare == null ? null : _shareItem,
             onRequestCopyCurl: _copyCurlItem,
             onRequestReplay: widget.onReplay == null ? null : _replayItem,
             canReplay: widget.canReplayItem,

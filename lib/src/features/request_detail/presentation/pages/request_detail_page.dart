@@ -58,24 +58,17 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
 
   Future<void> _share(RequestDetailEntity request) async {
     final onShare = widget.onShare;
-    // Without onShare the report goes to the clipboard.
-    final content = await _controller.shareContent(
-      request,
-      target: onShare == null
-          ? DioLensRedactionTarget.clipboard
-          : DioLensRedactionTarget.external,
-    );
+    if (onShare == null) return;
+    final content = await _controller.shareContent(request);
     if (!mounted) return;
-    if (onShare != null) {
-      await onShare(content);
-    } else {
-      await copyToClipboard(context, content.text, label: 'Request');
-    }
+    await onShare(content);
   }
 
   void _replay(RequestDetailEntity request) {
+    final onReplay = widget.onReplay;
+    if (onReplay == null) return;
     final reason = widget.replayUnavailableReason?.call(request);
-    if (reason == null) widget.onReplay?.call(request);
+    if (reason == null) onReplay(request);
     ScaffoldMessenger.maybeOf(context)
       ?..hideCurrentSnackBar()
       ..showSnackBar(
@@ -104,7 +97,8 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
             return _DetailBody(
               request: request,
               settings: _controller.settings,
-              onShare: _share,
+              // Without onShare there is nothing to share with.
+              onShare: widget.onShare == null ? null : _share,
               onReplay: widget.onReplay == null ? null : _replay,
               onOpenHome: widget.onOpenHome,
             );

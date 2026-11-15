@@ -208,8 +208,7 @@ Values of the headers and query parameters in `redactedHeaders` and
 `redactionMode`:
 
 - **UI**: everything shown on screen (the request list and every detail tab).
-- **Clipboard**: everything copied: fields, "Copy all", cURL commands, and
-  reports copied when there is no `onShare`.
+- **Clipboard**: everything copied: fields, "Copy all" and cURL commands.
 - **Console**: console logs.
 - **External**: what leaves the app: exports and reports handed to
   `onShare`.
@@ -255,7 +254,7 @@ DioLens.init(
 
 - Without `onExport`, the export buttons are disabled. You can also build an
   export from code with `DioLens.export(DioLensExportFormat.har)`.
-- Without `onShare`, sharing copies the report to the clipboard.
+- Without `onShare`, the Share buttons are hidden.
 
 Exports and shares mask values as the redaction settings say.
 

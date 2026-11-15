@@ -23,7 +23,7 @@ abstract final class DioLens {
   /// (bubble, banner, pages) is available; [consoleMode] the build modes in
   /// which requests are printed to the console. Both default to debug only.
   /// [onExport] receives exported files and [onShare] shared requests; without
-  /// them export is disabled and share copies to the clipboard.
+  /// them the export and Share buttons are disabled or hidden.
   static void init({
     required GlobalKey<NavigatorState> navigatorKey,
     DioLensSettings settings = const DioLensSettings(),

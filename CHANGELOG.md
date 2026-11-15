@@ -1,3 +1,10 @@
+## 1.3.0
+
+- Share works like export: without `onShare`, the Share buttons (on list
+  rows and in the request detail header) are hidden. Dio Lens no longer
+  copies the report to the clipboard instead.
+- Shared reports always follow the `external` redaction target.
+
 ## 1.2.0
 
 - New `external` redaction target: exports and reports handed to `onShare`.

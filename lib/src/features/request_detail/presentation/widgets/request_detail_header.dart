@@ -134,14 +134,17 @@ class RequestDetailHeader extends StatelessWidget {
             padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 0, 12),
             child: Row(
               children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.ios_share_rounded,
-                    label: 'Share',
-                    onPressed: onShare,
+                // Shown only when the app handles sharing.
+                if (onShare case final onShare?) ...[
+                  Expanded(
+                    child: _ActionButton(
+                      icon: Icons.ios_share_rounded,
+                      label: 'Share',
+                      onPressed: onShare,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
+                ],
                 Expanded(
                   child: _ActionButton(
                     icon: Icons.content_copy_rounded,

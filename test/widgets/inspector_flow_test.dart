@@ -142,19 +142,7 @@ void main() {
     expect(shared.single.subject, 'GET /v1/orders · 200');
   });
 
-  testWidgets('share copies to the clipboard without a callback', (
-    tester,
-  ) async {
-    String? clipboard;
-    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-      SystemChannels.platform,
-      (call) async {
-        if (call.method == 'Clipboard.setData') {
-          clipboard = (call.arguments as Map)['text'] as String;
-        }
-        return null;
-      },
-    );
+  testWidgets('Share is hidden without a callback', (tester) async {
     final h = await Harness.start(
       tester,
       settings: const DioLensSettings(
@@ -163,12 +151,15 @@ void main() {
       ),
     );
     await h.send((dio) => dio.get('/v1/orders'));
+    DioLens.open();
+    await h.settle();
+    expect(find.byTooltip('Share request'), findsNothing, reason: 'list row');
+    expect(find.byTooltip('Copy cURL'), findsOneWidget);
+
     DioLens.openRequest(h.runtime.store.requests.single.id);
     await h.settle();
-    await tester.tap(find.text('Share'));
-    await h.settle();
-    expect(find.text('Request copied'), findsOneWidget);
-    expect(clipboard, contains('=============== Overview ==============='));
+    expect(find.text('Share'), findsNothing, reason: 'detail header');
+    expect(find.text('cURL'), findsOneWidget);
   });
 
   testWidgets('export is disabled without a callback', (tester) async {

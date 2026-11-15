@@ -5,8 +5,7 @@ enum DioLensRedactionTarget {
   /// On screen: the request list and every detail tab.
   ui,
 
-  /// What is copied: fields, "Copy all", cURL commands, and reports copied
-  /// when the app has no `onShare`.
+  /// What is copied: fields, "Copy all" and cURL commands.
   clipboard,
 
   /// Console logs.
