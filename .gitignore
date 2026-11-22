@@ -32,3 +32,6 @@ migrate_working_dir/
 
 # Local UI playground app (never committed)
 /playground/
+
+# FVM Version Cache
+.fvm/
