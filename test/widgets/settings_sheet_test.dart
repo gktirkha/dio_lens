@@ -80,6 +80,14 @@ void main() {
     await tester.tap(inSheet('Clipboard'));
     await h.settle();
     expect(s().redactionTargets, DioLensSettings.allRedactionTargets);
+
+    await tester.tap(inSheet('One request'));
+    await h.settle();
+    expect(s().deleteConfirmation, DioLensDeleteConfirmation.values.toSet());
+    await tester.tap(inSheet('Clear all'));
+    await h.settle();
+    expect(s().deleteConfirmation, {DioLensDeleteConfirmation.single});
+    expect(h.storage.settings!['delete_confirmation'], ['single']);
   });
 
   testWidgets('reset asks first, then restores the starting values', (
@@ -269,7 +277,7 @@ void main() {
       size: const Size(420, 2800),
       settings: const DioLensSettings(
         showBubble: false,
-        lockRedaction: DioLensMode.all,
+        lockRedaction: DioLensMode.enabled,
         redactionTargets: {
           DioLensRedactionTarget.ui,
           DioLensRedactionTarget.clipboard,

@@ -34,6 +34,11 @@ _DioLensSettings _$DioLensSettingsFromJson(Map<String, dynamic> json) =>
             json['bubble_position'],
           ) ??
           DioLensBubblePosition.bottomEnd,
+      deleteConfirmation:
+          (json['delete_confirmation'] as List<dynamic>?)
+              ?.map((e) => $enumDecode(_$DioLensDeleteConfirmationEnumMap, e))
+              .toSet() ??
+          DioLensSettings.defaultDeleteConfirmation,
       redactionTargets:
           (_readRedactionTargets(json, 'redaction_targets') as List<dynamic>?)
               ?.map((e) => $enumDecode(_$DioLensRedactionTargetEnumMap, e))
@@ -66,6 +71,9 @@ Map<String, dynamic> _$DioLensSettingsToJson(
   'notification_duration': instance.notificationDuration.inMicroseconds,
   'show_bubble': instance.showBubble,
   'bubble_position': _$DioLensBubblePositionEnumMap[instance.bubblePosition]!,
+  'delete_confirmation': instance.deleteConfirmation
+      .map((e) => _$DioLensDeleteConfirmationEnumMap[e]!)
+      .toList(),
   'redaction_targets': instance.redactionTargets
       .map((e) => _$DioLensRedactionTargetEnumMap[e]!)
       .toList(),
@@ -93,6 +101,11 @@ const _$DioLensBubblePositionEnumMap = {
   DioLensBubblePosition.topEnd: 'top_end',
   DioLensBubblePosition.bottomStart: 'bottom_start',
   DioLensBubblePosition.bottomEnd: 'bottom_end',
+};
+
+const _$DioLensDeleteConfirmationEnumMap = {
+  DioLensDeleteConfirmation.single: 'single',
+  DioLensDeleteConfirmation.all: 'all',
 };
 
 const _$DioLensRedactionTargetEnumMap = {

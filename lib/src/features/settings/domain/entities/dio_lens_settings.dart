@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../core/enums/dio_lens_mode.dart';
 import '../enums/dio_lens_bubble_position.dart';
+import '../enums/dio_lens_delete_confirmation.dart';
 import '../enums/dio_lens_notification_position.dart';
 import '../enums/dio_lens_redaction_target.dart';
 import '../enums/dio_lens_retention.dart';
@@ -99,8 +100,23 @@ abstract class DioLensSettings with _$DioLensSettings {
     /// settings, the settings sheet and `DioLens.updateSettings` can't change
     /// them there. Never locked by default. Never stored.
     @JsonKey(includeFromJson: false, includeToJson: false)
-    @Default(DioLensMode.none)
+    @Default(DioLensMode.disabled)
     DioLensMode lockRedaction,
+
+    /// Code only: the build modes in which captured requests can be deleted
+    /// from the UI, one by one or all at once. Elsewhere the Delete and Clear
+    /// all buttons are hidden; `DioLens.clear` and retention still remove
+    /// requests. Always allowed by default. Never stored, and stored settings,
+    /// the settings sheet and `DioLens.updateSettings` can't change it.
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    @Default(DioLensMode.enabled)
+    DioLensMode allowDelete,
+
+    /// The kinds of delete that ask first: deleting one request, clearing
+    /// all of them, both or neither. Clearing all asks by default.
+    @JsonKey(name: 'delete_confirmation')
+    @Default(DioLensSettings.defaultDeleteConfirmation)
+    Set<DioLensDeleteConfirmation> deleteConfirmation,
 
     /// Where the values of [redactedHeaders] and [redactedQueryParams] are
     /// masked: any of the UI, the clipboard, console logs and external
@@ -170,6 +186,19 @@ abstract class DioLensSettings with _$DioLensSettings {
   /// Whether redaction is locked by code in this build (see
   /// [lockRedaction]).
   bool get isRedactionLocked => lockRedaction.isEnabled;
+
+  /// Whether requests can be deleted from the UI in this build (see
+  /// [allowDelete]).
+  bool get isDeleteAllowed => allowDelete.isEnabled;
+
+  /// Whether a delete of [kind] asks for confirmation first.
+  bool confirmsDelete(DioLensDeleteConfirmation kind) =>
+      deleteConfirmation.contains(kind);
+
+  /// Deletes that ask first by default: clearing all.
+  static const Set<DioLensDeleteConfirmation> defaultDeleteConfirmation = {
+    DioLensDeleteConfirmation.all,
+  };
 
   static bool _matches(List<String> keys, String name) {
     final lower = name.toLowerCase();

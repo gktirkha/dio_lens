@@ -17,6 +17,8 @@ void main() {
     expect(s.bubblePosition, DioLensBubblePosition.bottomEnd);
     expect(s.redactionTargets, DioLensSettings.allRedactionTargets);
     expect(s.themeMode, ThemeMode.dark);
+    expect(s.deleteConfirmation, {DioLensDeleteConfirmation.all});
+    expect(s.isDeleteAllowed, isTrue);
   });
 
   test('JSON round trip keeps every value', () {
@@ -136,12 +138,37 @@ void main() {
   });
 
   test('the redaction lock is code only and never stored', () {
-    const s = DioLensSettings(lockRedaction: DioLensMode.all);
+    const s = DioLensSettings(lockRedaction: DioLensMode.enabled);
     expect(s.toJson().keys.any((k) => k.contains('lock')), isFalse);
     expect(
       DioLensSettings.fromJson(s.toJson()).lockRedaction,
-      DioLensMode.none,
+      DioLensMode.disabled,
     );
     expect(const DioLensSettings().isRedactionLocked, isFalse);
+  });
+
+  test('delete confirmation round-trips through JSON', () {
+    const s = DioLensSettings(
+      deleteConfirmation: {DioLensDeleteConfirmation.single},
+    );
+    expect(s.toJson()['delete_confirmation'], ['single']);
+    final back = DioLensSettings.fromJson(s.toJson());
+    expect(back.confirmsDelete(DioLensDeleteConfirmation.single), isTrue);
+    expect(back.confirmsDelete(DioLensDeleteConfirmation.all), isFalse);
+    expect(
+      DioLensSettings.fromJson(const {}).deleteConfirmation,
+      DioLensSettings.defaultDeleteConfirmation,
+      reason: 'nothing stored: the default',
+    );
+  });
+
+  test('allowDelete is code only and never stored', () {
+    const s = DioLensSettings(allowDelete: DioLensMode.disabled);
+    expect(s.isDeleteAllowed, isFalse);
+    expect(s.toJson().keys.any((k) => k.contains('allow')), isFalse);
+    expect(
+      DioLensSettings.fromJson(s.toJson()).allowDelete,
+      DioLensMode.enabled,
+    );
   });
 }

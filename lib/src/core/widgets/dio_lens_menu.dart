@@ -61,6 +61,7 @@ class DioLensOverflowMenu extends StatelessWidget {
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
+    this.showClearAll = true,
     this.onMinimize,
   });
 
@@ -72,6 +73,9 @@ class DioLensOverflowMenu extends StatelessWidget {
 
   /// Removes every captured request; null disables the item.
   final VoidCallback? onClearAll;
+
+  /// Whether the menu offers Clear all; false when deleting isn't allowed.
+  final bool showClearAll;
 
   /// Closes Dio Lens; null disables the item.
   final VoidCallback? onMinimize;
@@ -108,13 +112,15 @@ class DioLensOverflowMenu extends StatelessWidget {
               : () => onExport(DioLensExportFormat.json),
           child: const Text('Export as JSON'),
         ),
-        const DioLensMenuDivider(),
-        MenuItemButton(
-          style: dioLensMenuItemStyle(context, foreground: theme.danger),
-          leadingIcon: const Icon(Icons.delete_outline_rounded),
-          onPressed: onClearAll,
-          child: const Text('Clear all requests'),
-        ),
+        if (showClearAll) ...[
+          const DioLensMenuDivider(),
+          MenuItemButton(
+            style: dioLensMenuItemStyle(context, foreground: theme.danger),
+            leadingIcon: const Icon(Icons.delete_outline_rounded),
+            onPressed: onClearAll,
+            child: const Text('Clear all requests'),
+          ),
+        ],
         const DioLensMenuDivider(),
         MenuItemButton(
           style: itemStyle,

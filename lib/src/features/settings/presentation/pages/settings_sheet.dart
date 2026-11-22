@@ -7,6 +7,7 @@ import '../../../../theme/dio_lens_theme.dart';
 import '../../../../theme/dio_lens_theme_scope.dart';
 import '../../domain/entities/dio_lens_settings.dart';
 import '../../domain/enums/dio_lens_bubble_position.dart';
+import '../../domain/enums/dio_lens_delete_confirmation.dart';
 import '../../domain/enums/dio_lens_notification_position.dart';
 import '../../domain/enums/dio_lens_redaction_target.dart';
 import '../../domain/enums/dio_lens_retention.dart';
@@ -252,6 +253,18 @@ class _SettingsBody extends StatelessWidget {
     (DioLensRedactionTarget.external, 'External', Icons.ios_share_rounded),
   ];
 
+  /// The kinds of delete that can ask first, label and icon, in display
+  /// order.
+  static const List<(DioLensDeleteConfirmation, String, IconData)>
+  _deleteKinds = [
+    (
+      DioLensDeleteConfirmation.single,
+      'One request',
+      Icons.delete_outline_rounded,
+    ),
+    (DioLensDeleteConfirmation.all, 'Clear all', Icons.delete_sweep_outlined),
+  ];
+
   /// [targets] as a short label, e.g. "UI, Console"; "Everywhere" or "Off".
   static String _targetsLabel(Set<DioLensRedactionTarget> targets) {
     if (targets.isEmpty) return 'Off';
@@ -341,6 +354,35 @@ class _SettingsBody extends StatelessWidget {
               onChanged: (bytes) =>
                   onChanged((s) => s.copyWith(maxBodyBytes: bytes)),
             ),
+            if (s.isDeleteAllowed)
+              SettingsRow(
+                title: 'Ask before deleting',
+                description: 'Confirm before a request or all of them go',
+                stacked: true,
+                control: Row(
+                  children: [
+                    for (final (kind, label, icon) in _deleteKinds) ...[
+                      if (kind != _deleteKinds.first.$1)
+                        const SizedBox(width: 8),
+                      Expanded(
+                        child: SettingsOption(
+                          label: label,
+                          icon: icon,
+                          compact: true,
+                          selected: s.confirmsDelete(kind),
+                          onTap: () => onChanged(
+                            (s) => s.copyWith(
+                              deleteConfirmation: s.confirmsDelete(kind)
+                                  ? (Set.of(s.deleteConfirmation)..remove(kind))
+                                  : {...s.deleteConfirmation, kind},
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
           ],
         ),
         SettingsSection(

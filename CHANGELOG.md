@@ -1,3 +1,25 @@
+## 3.0.0
+
+- **Breaking:** `DioLensMode.none` is now `DioLensMode.disabled`, and
+  `DioLensMode.all` is now `DioLensMode.enabled`. The other modes are
+  unchanged.
+
+  | Before             | After                  |
+  | ------------------ | ---------------------- |
+  | `DioLensMode.none` | `DioLensMode.disabled` |
+  | `DioLensMode.all`  | `DioLensMode.enabled`  |
+
+- New `deleteConfirmation` setting, a `Set<DioLensDeleteConfirmation>`:
+  `single` asks before deleting one request (from its row or detail page),
+  `all` asks before Clear all. It defaults to `{all}`, so nothing changes
+  until it is set. The settings sheet's Capture section has a toggle for
+  each.
+- Clear all from the Stats tab now asks first too, like the Requests tab.
+- New `allowDelete`, a code-only `DioLensMode` (default `enabled`): outside
+  its build modes the Delete and Clear all buttons are hidden, and the
+  settings sheet hides the confirmation toggles. It is never stored, and
+  `DioLens.updateSettings` can't change it.
+
 ## 2.0.0
 
 - **Breaking:** `DioLensSettings.redactionMode` and the `DioLensRedactionMode`

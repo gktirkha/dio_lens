@@ -1,7 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../theme/dio_lens_theme.dart';
-import '../../../../theme/dio_lens_theme_scope.dart';
+import '../../../../core/widgets/dio_lens_confirm_dialog.dart';
+import '../../../settings/domain/enums/dio_lens_delete_confirmation.dart';
 import '../../domain/entities/request_list_item_entity.dart';
 import '../../../../core/enums/export_format.dart';
 import '../../../../core/widgets/dio_lens_refresh_indicator.dart';
@@ -11,6 +12,25 @@ import '../widgets/request_group_header.dart';
 import '../widgets/request_home_header.dart';
 import '../widgets/request_list_tile.dart';
 import '../widgets/status_filter_bar.dart';
+
+/// Clears every request through [controller], asking first when the settings
+/// say so.
+Future<void> clearAllRequests(
+  BuildContext context,
+  RequestHomeController controller,
+) async {
+  final ask = controller.settings.confirmsDelete(DioLensDeleteConfirmation.all);
+  if (ask &&
+      !await showDioLensConfirmDialog(
+        context,
+        title: 'Clear all requests?',
+        message: 'Clear all captured requests? This cannot be undone.',
+        action: 'Clear all',
+      )) {
+    return;
+  }
+  await controller.clearAll();
+}
 
 /// Request list of the Dio Lens home: header with search and filters, status
 /// chips and requests grouped by time.
@@ -85,40 +105,22 @@ class _RequestHomePageState extends State<RequestHomePage> {
     setState(() => _searchOpen = false);
   }
 
-  Future<void> _confirmClearAll() async {
-    final theme = DioLensTheme.of(context);
-    final themeController = DioLensThemeScope.controllerOf(context);
-    final mode = DioLensThemeScope.modeOf(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => DioLensThemeScope(
-        controller: themeController,
-        mode: mode,
-        child: AlertDialog(
-          title: const Text('Clear all requests?'),
-          content: Text(
-            'Clear all captured requests? This cannot be undone.',
-            style: TextStyle(color: theme.textMuted, fontSize: 13.5),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              style: TextButton.styleFrom(foregroundColor: theme.textMuted),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: theme.danger,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Clear all'),
-            ),
-          ],
-        ),
-      ),
+  Future<void> _confirmClearAll() => clearAllRequests(context, _controller);
+
+  Future<void> _delete(RequestListItemEntity item) async {
+    final ask = _controller.settings.confirmsDelete(
+      DioLensDeleteConfirmation.single,
     );
-    if (confirmed ?? false) await _controller.clearAll();
+    if (ask &&
+        !await showDioLensConfirmDialog(
+          context,
+          title: 'Delete request?',
+          message: 'Delete ${item.method} ${item.path}? This cannot be undone.',
+          action: 'Delete',
+        )) {
+      return;
+    }
+    await _controller.deleteRequest(item.id);
   }
 
   @override
@@ -133,6 +135,7 @@ class _RequestHomePageState extends State<RequestHomePage> {
     final theme = DioLensTheme.of(context);
     final params = _controller.params;
     final visible = _controller.requests;
+    final canDelete = _controller.settings.isDeleteAllowed;
 
     final now = DateTime.now();
     final recent = <RequestListItemEntity>[];
@@ -161,6 +164,7 @@ class _RequestHomePageState extends State<RequestHomePage> {
               onMethodsCleared: _controller.clearMethods,
               onOpenSettings: widget.onOpenSettings,
               onExport: widget.onExport,
+              showClearAll: canDelete,
               onClearAll: visible.isEmpty && params.isEmpty
                   ? null
                   : _confirmClearAll,
@@ -234,7 +238,9 @@ class _RequestHomePageState extends State<RequestHomePage> {
                       !(widget.canReplay?.call(item) ?? true)
                   ? null
                   : () => widget.onRequestReplay!(item),
-              onDelete: () => _controller.deleteRequest(item.id),
+              onDelete: _controller.settings.isDeleteAllowed
+                  ? () => _delete(item)
+                  : null,
             );
           },
         ),

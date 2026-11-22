@@ -227,7 +227,7 @@ void main() {
     final store = storeOver(
       storage,
       settings: const DioLensSettings(
-        lockRedaction: DioLensMode.all,
+        lockRedaction: DioLensMode.enabled,
         redactionTargets: {
           DioLensRedactionTarget.ui,
           DioLensRedactionTarget.console,

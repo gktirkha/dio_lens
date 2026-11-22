@@ -48,7 +48,7 @@ void main() {
       retention: .sevenDays,
       maxBodyBytes: 10240,
       themeMode: .system,
-      lockRedaction: .none,
+      lockRedaction: .disabled,
       redactionTargets: {...DioLensRedactionTarget.values},
     ),
     // Recording, the UI and console logs in debug and profile builds (for

@@ -13,6 +13,7 @@ class StatsHeader extends StatelessWidget {
     this.onOpenSettings,
     this.onExport,
     this.onClearAll,
+    this.showClearAll = true,
     this.onMinimize,
   });
 
@@ -24,6 +25,9 @@ class StatsHeader extends StatelessWidget {
 
   /// Removes every request.
   final VoidCallback? onClearAll;
+
+  /// Whether the menu offers Clear all; false when deleting isn't allowed.
+  final bool showClearAll;
 
   /// Closes Dio Lens.
   final VoidCallback? onMinimize;
@@ -59,6 +63,7 @@ class StatsHeader extends StatelessWidget {
               onOpenSettings: onOpenSettings,
               onExport: onExport,
               onClearAll: onClearAll,
+              showClearAll: showClearAll,
               onMinimize: onMinimize,
             ),
           ],

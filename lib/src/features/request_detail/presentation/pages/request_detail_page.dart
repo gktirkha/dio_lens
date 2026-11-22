@@ -1,6 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/utils/clipboard_utils.dart';
+import '../../../../core/widgets/dio_lens_confirm_dialog.dart';
+import '../../../settings/domain/enums/dio_lens_delete_confirmation.dart';
 import '../../../../theme/dio_lens_theme.dart';
 import '../../../settings/domain/entities/dio_lens_settings.dart';
 import '../../../settings/domain/enums/dio_lens_redaction_target.dart';
@@ -33,8 +35,7 @@ class RequestDetailPage extends StatefulWidget {
   /// offers a way to the Dio Lens home.
   final VoidCallback? onOpenHome;
 
-  /// Receives the request to share; without it, the report is copied to the
-  /// clipboard.
+  /// Receives the request to share; without it, Share is hidden.
   final DioLensShareCallback? onShare;
 
   /// Re-sends the request.
@@ -64,8 +65,21 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
     await onShare(content);
   }
 
-  /// Deletes the request at once, without asking, and goes back.
-  Future<void> _delete() async {
+  /// Deletes the request, asking first when the settings say so, and goes
+  /// back.
+  Future<void> _delete(RequestDetailEntity request) async {
+    if (_controller.settings.confirmsDelete(DioLensDeleteConfirmation.single) &&
+        !await showDioLensConfirmDialog(
+          context,
+          title: 'Delete request?',
+          message:
+              'Delete ${request.method} ${request.path}? This cannot be '
+              'undone.',
+          action: 'Delete',
+        )) {
+      return;
+    }
+    if (!mounted) return;
     Navigator.of(context).maybePop();
     await _controller.deleteRequest();
   }
@@ -106,7 +120,9 @@ class _RequestDetailPageState extends State<RequestDetailPage> {
               // Without onShare there is nothing to share with.
               onShare: widget.onShare == null ? null : _share,
               onReplay: widget.onReplay == null ? null : _replay,
-              onDelete: _delete,
+              onDelete: _controller.settings.isDeleteAllowed
+                  ? () => _delete(request)
+                  : null,
               onOpenHome: widget.onOpenHome,
             );
           },

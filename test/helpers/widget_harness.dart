@@ -39,8 +39,8 @@ class Harness {
     DioLens.init(
       navigatorKey: key,
       storage: storage,
-      uiMode: DioLensMode.all,
-      consoleMode: DioLensMode.none,
+      uiMode: DioLensMode.enabled,
+      consoleMode: DioLensMode.disabled,
       settings: settings,
       onExport: onExport,
       onShare: onShare,

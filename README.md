@@ -151,14 +151,14 @@ DioLens.init(
 
 | Mode              | Debug | Profile | Release |
 | ----------------- | :---: | :-----: | :-----: |
-| `none`            |       |         |         |
+| `disabled`        |       |         |         |
 | `debug` (default) |   ✓   |         |         |
 | `profile`         |       |    ✓    |         |
 | `release`         |       |         |    ✓    |
 | `debugProfile`    |   ✓   |    ✓    |         |
 | `debugRelease`    |   ✓   |         |    ✓    |
 | `profileRelease`  |       |    ✓    |    ✓    |
-| `all`             |   ✓   |    ✓    |    ✓    |
+| `enabled`         |   ✓   |    ✓    |    ✓    |
 
 Outside both modes the interceptor does nothing.
 
@@ -192,6 +192,7 @@ DioLens.init(
 | `redactionTargets`     | all four                                             | Where listed headers and query parameters are masked; see [Redaction](#redaction). |
 | `redactedHeaders`      | `authorization`, `cookie`, `set-cookie`, `x-api-key` | Header names to mask, case-insensitive.                                               |
 | `redactedQueryParams`  | `token`, `apikey`, `password`                        | Query parameter names to mask, case-insensitive.                                      |
+| `deleteConfirmation`   | `{all}`                                              | Deletes that ask first: `single` (one request), `all` (Clear all), both or neither.   |
 | `themeMode`            | `dark`                                               | Dio Lens theme: light, dark or system.                                                |
 
 Read and change settings from code:
@@ -232,6 +233,37 @@ DioLens.init(
 ```
 
 Testers can toggle each target in the settings sheet's Privacy section.
+
+## Deleting requests
+
+Each row and detail page has a Delete button, and the menu has Clear all.
+`deleteConfirmation` picks which of them ask first:
+
+- **`single`**: deleting one request, from its row or detail page.
+- **`all`**: clearing every request.
+
+Only Clear all asks by default. Testers can toggle both in the settings
+sheet's Capture section.
+
+To keep testers from deleting anything, set `allowDelete`, a code-only
+`DioLensMode`: outside its build modes the Delete and Clear all buttons are
+hidden. It is never stored, and the settings sheet and
+`DioLens.updateSettings` can't change it. `DioLens.clear()` and retention
+still remove requests.
+
+```dart
+DioLens.init(
+  navigatorKey: navigatorKey,
+  settings: const DioLensSettings(
+    // Testers on profile builds can't delete; developers can.
+    allowDelete: DioLensMode.debug,
+    deleteConfirmation: {
+      DioLensDeleteConfirmation.single,
+      DioLensDeleteConfirmation.all,
+    },
+  ),
+);
+```
 
 ## Export and share
 

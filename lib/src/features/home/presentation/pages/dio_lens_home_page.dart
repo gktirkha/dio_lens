@@ -192,12 +192,16 @@ class _DioLensHomePageState extends State<DioLensHomePage> {
             onMinimize: _minimize,
           ),
           if (_tab == 1 || _statsController != null)
-            StatsPage(
-              controller: _stats,
-              onClearAll: _homeController.clearAll,
-              onOpenSettings: _openSettings,
-              onExport: widget.onExport == null ? null : _export,
-              onMinimize: _minimize,
+            ListenableBuilder(
+              listenable: _homeController,
+              builder: (context, _) => StatsPage(
+                controller: _stats,
+                showClearAll: _homeController.settings.isDeleteAllowed,
+                onClearAll: () => clearAllRequests(context, _homeController),
+                onOpenSettings: _openSettings,
+                onExport: widget.onExport == null ? null : _export,
+                onMinimize: _minimize,
+              ),
             )
           else
             const SizedBox.shrink(),

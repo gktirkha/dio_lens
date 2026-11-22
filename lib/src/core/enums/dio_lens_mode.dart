@@ -5,10 +5,10 @@ import 'package:flutter/foundation.dart';
 /// never reach real users.
 enum DioLensMode {
   /// Never enabled.
-  none(inDebug: false, inProfile: false, inRelease: false),
+  disabled(inDebug: false, inProfile: false, inRelease: false),
 
   /// Enabled in every build mode.
-  all(inDebug: true, inProfile: true, inRelease: true),
+  enabled(inDebug: true, inProfile: true, inRelease: true),
 
   /// Debug builds only.
   debug(inDebug: true, inProfile: false, inRelease: false),

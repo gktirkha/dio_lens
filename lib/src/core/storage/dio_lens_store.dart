@@ -213,10 +213,11 @@ class DioLensStore {
     if (_trim()) _emit();
   }
 
-  /// [settings] with the redaction fields from the initial settings when
-  /// those lock redaction in this build.
+  /// [settings] with the code-only fields from the initial settings, and their
+  /// redaction fields too when those lock redaction in this build.
   DioLensSettings _enforce(DioLensSettings settings) {
     final initial = _initialSettings;
+    settings = settings.copyWith(allowDelete: initial.allowDelete);
     if (!initial.isRedactionLocked) return settings;
     return settings.copyWith(
       lockRedaction: initial.lockRedaction,
