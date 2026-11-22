@@ -38,3 +38,7 @@ migrate_working_dir/
 /.vscode/
 /devtools_options.yaml
 /screenshots/demo.gif
+
+# FVM (local Flutter version pin and SDK cache)
+/.fvm/
+/.fvmrc
