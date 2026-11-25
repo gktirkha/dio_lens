@@ -206,15 +206,23 @@ response or an HTTP error.
 - **Field row** (`DioLensFormField`):
   - `enabled`, `key`, `type` (text or file);
   - `value` for text;
-  - for files: `fileName`, `contentType`, `bytes`;
+  - for files: `files`, a list of `DioLensFormFile` (`fileName`,
+    `contentType`, `bytes`). **One key can hold several files**
+    (`photos[]` with three images); each is sent as its own part under the
+    same name, in list order, the way Dio's `FormData.files` and browsers
+    send `<input multiple>`;
   - an optional `description`, shown only in the editor.
   
-  Keys can repeat (`tags[]` twice), and order is kept. Disabled rows stay in
-  the rule but aren't sent.
+  Keys can repeat (`tags[]` twice), and order is kept. A key with several
+  files and a repeated key with one file each produce the same parts; the
+  first is just easier to edit. Disabled rows stay in the rule but aren't
+  sent.
 - **Bulk edit:** a toggle switches the list to raw `key: value` lines, as in
-  Postman. Text fields only; file rows are kept and shown as locked lines.
+  Postman. Text fields only; file rows are kept and shown as locked lines,
+  one line per file.
 - **"Start from captured response"** turns a captured form body back into
-  rows. Captured files come back as file rows when their bytes were kept
+  rows. Parts sharing a key come back as one row with several files.
+  Captured files come back as file rows when their bytes were kept
   (within `maxBodyBytes`), and as an empty file row with their name
   otherwise.
 
@@ -227,16 +235,17 @@ asset in tests):
 
 ```dart
 typedef DioLensFilePicker =
-    Future<DioLensPickedFile?> Function(DioLensFilePickRequest request);
+    Future<List<DioLensPickedFile>> Function(DioLensFilePickRequest request);
 
 /// What Dio Lens asks for: hints only, the host decides.
 class DioLensFilePickRequest {
-  final String? fieldKey;            // e.g. "avatar"
+  final String? fieldKey;            // e.g. "photos[]"
   final List<String> contentTypes;   // e.g. ["image/*"]; empty = anything
-  final int? maxBytes;               // the rule's file size limit
+  final int? maxBytes;               // the per-file size limit
+  final bool allowMultiple;          // true on multipart file rows
 }
 
-/// What the host returns; null means the user cancelled.
+/// One file the host returns. An empty list means the user cancelled.
 class DioLensPickedFile {
   const DioLensPickedFile({
     required this.name,
@@ -251,10 +260,14 @@ class DioLensPickedFile {
 DioLens.init(
   navigatorKey: navigatorKey,
   onPickFile: (request) async {
-    final result = await FilePicker.platform.pickFiles(withData: true);
-    final file = result?.files.single;
-    if (file == null) return null;
-    return DioLensPickedFile(name: file.name, bytes: file.bytes!);
+    final result = await FilePicker.platform.pickFiles(
+      withData: true,
+      allowMultiple: request.allowMultiple,
+    );
+    return [
+      for (final file in result?.files ?? const <PlatformFile>[])
+        DioLensPickedFile(name: file.name, bytes: file.bytes!),
+    ];
   },
 );
 ```
@@ -265,11 +278,17 @@ DioLens.init(
   - file rows that already exist (from `init` seeds or a captured response)
     still work, but can't be replaced.
 - **Picker failures:** if the callback throws, the editor shows "Couldn't
-  add the file" and keeps the row; it never crashes the sheet. A returned
-  file larger than the limit is refused with its size and the limit.
+  add the file" and keeps the row; it never crashes the sheet.
+- **Size limits:**
+  - A returned file larger than the limit is refused, with its size and the
+    limit.
+  - When several are returned, the valid ones are added and the refused
+    ones listed ("2 added · 1 too large: video.mp4, 48 MB").
+  - The host may ignore `allowMultiple`; Dio Lens accepts whatever comes
+    back. Where only one file fits (a raw File body), it keeps the first.
 - **Code seeds:** rules passed to `init` can carry file fields built from
   bytes, e.g. `DioLensFormField.file('avatar', bytes, fileName:
-  'a.png')`. Tests and demos then need no picker.
+  'a.png')` or `DioLensFormField.files('photos[]', [file1, file2])`. Tests and demos then need no picker.
 - **Storage:**
   - file bytes are stored with the rule (base64 in JSON storage);
   - a per-file limit, `maxSimulationFileBytes` (default 5 MB), keeps
@@ -679,10 +698,19 @@ editor (S2b).
     File when `onPickFile` exists;
   - **Value:**
     - *Text:* a mono field.
-    - *File:* a file pill showing the file icon by type (image, PDF,
-      generic), the name, the size and the Content-Type, with Replace and
-      Remove. When the row has no file yet, the pill is a dashed "Choose
-      file" slot.
+    - *File:* one **file pill per file**, stacked under the key, each
+      showing:
+      - the file icon by type (image thumbnail, PDF, generic);
+      - the name, the size and the Content-Type;
+      - Replace and Remove.
+      
+      Under the last pill, a small **"+ Add files"** text button calls the
+      host picker with `allowMultiple: true`. New files are appended.
+      - A row with no file yet shows a single dashed "Choose files" slot.
+      - A row with several files shows a summary in the row's value column
+        when collapsed: "3 files · 1.2 MB". Tap to expand the pills.
+      - Pills can be reordered by dragging within the row (part order is
+        send order). They can't be dragged to another row.
   - a drag handle to reorder;
   - Delete, leftmost and red, as on request rows.
   - An optional description shows under the row in muted text when set,
@@ -690,18 +718,23 @@ editor (S2b).
 - **Add field:** a ghost row at the end, with "Key" and "Value"
   placeholders. Typing in it creates a new row, as in Postman.
 - **Duplicate keys:** allowed. Show a subtle "×2" marker on repeated keys,
-  not an error.
+  not an error. When two file rows share a key, offer a quiet "Merge into
+  one row" link.
 - **Bulk edit mode:** a mono text area with one `key: value` per line and
   `//` to disable a line. File rows appear as locked, non-editable lines,
-  e.g. `avatar: 📎 a.png (182 KB)`.
+  one per file, e.g. `photos[]: 📎 beach.jpg (640 KB)`.
 - **Picking states for a file row:**
   - *idle:* "Choose file";
-  - *waiting:* the host picker is open; show a spinner on the pill and
-    "Waiting for file…";
-  - *picked:* the pill;
+  - *waiting:* the host picker is open; show a spinner on the slot or the
+    "+ Add files" button, and "Waiting for files…";
+  - *picked:* the pills;
+  - *partly refused:* the added pills, plus an inline warn line: "2 added ·
+    1 too large: video.mp4 (48 MB, limit 5 MB)";
   - *cancelled:* back to idle with no message;
   - *error:* the pill turns danger, "Couldn't add the file", with a Retry;
-  - *too large:* danger, "4.2 MB · limit is 5 MB".
+  - *too large:* danger, "4.2 MB · limit is 5 MB";
+  - *removing the last file:* the row goes back to the dashed "Choose
+    files" slot; it isn't deleted.
 - **No picker** (`onPickFile` missing): no Type toggle; existing file rows
   show their pill without Replace, with the muted caption "Files are added
   by the app".
@@ -752,7 +785,7 @@ The one place to see every rule, turn rules on and off, and delete them.
   - **Line 2:** the mono match preview, with a method color dot, e.g.
     `GET api.example.com/v1/users/*`.
   - **Line 3, muted:** "Fired 12× · last 2 min ago · next 3 only", or
-    "Never fired". A rule holding files adds "· 182 KB".
+    "Never fired". A rule holding files adds its total, e.g. "· 1.3 MB".
   - **Row buttons** (`dl-row-qbtn`, same order rules as request rows):
     - **Delete**: leftmost, red. It asks first only when single-delete
       confirmation is on (same `deleteConfirmation` setting as requests);
@@ -853,6 +886,7 @@ Multipart fields for *Avatar upload echo*:
 | ✓ | `tags[]` | Text | `profile` |
 | ✓ | `tags[]` | Text | `public` |
 | ✓ | `avatar` | File | `avatar.png` · 182 KB · image/png |
+| ✓ | `photos[]` | File (3) | `beach.jpg` · 640 KB, `team.png` · 410 KB, `menu.pdf` · 96 KB |
 |   | `debug` | Text | `true` (disabled) |
 
 ## 4. Copy rules
@@ -865,8 +899,10 @@ Multipart fields for *Avatar upload echo*:
 
 ## 5. States checklist (draw each)
 
-1. S2c form editor with five rows (text, file, a disabled row, a repeated
-   key, the ghost "add" row), bulk edit mode, and every file picking state;
+1. S2c form editor with six rows (text, a one-file row, a three-file
+   `photos[]` row expanded and collapsed, a disabled row, a repeated key,
+   the ghost "add" row), bulk edit mode, and every file picking state,
+   including partly refused;
    S2d file body, empty and picked (with an image preview);
    S2c with no picker.
 2. S2f Change the request: collapsed summary, expanded with a redirect
