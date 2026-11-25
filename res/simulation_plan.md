@@ -294,8 +294,8 @@ DioLens.init(
   - a per-file limit, `maxSimulationFileBytes` (default 5 MB), keeps
     storage sane;
   - the Simulations tab shows each rule's total size when it holds files;
-  - exports of rules (phase 4) include files only when the user ticks
-    "Include files".
+  - exports of rules include files only when "Include files" is on (see
+    "Import and export").
 
 ### Storage
 
@@ -345,6 +345,113 @@ DioLens.init(..., onPickFile: (request) async => /* host UI */ null);
 Rules passed to `init` are seeds: added once (by id), then managed like any
 other rule.
 
+### Import and export
+
+Rules are worth sharing: QA attaches a repro to a bug, a developer keeps a
+set of scenarios in the repo, a team uses the same "Server outage" rules.
+
+#### Format
+
+A versioned JSON document, readable and diff-friendly (sorted keys, 2-space
+indent):
+
+```json
+{
+  "type": "dio_lens_simulations",
+  "version": 1,
+  "exportedAt": "2026-11-26T10:42:00Z",
+  "dioLensVersion": "3.1.0",
+  "rules": [
+    {
+      "id": "r_7f3a",
+      "name": "Users down",
+      "enabled": true,
+      "match": { "method": "GET", "host": "api.example.com", "path": "/v1/users/*" },
+      "behavior": { "type": "httpError", "status": 503 },
+      "response": { "headers": [{ "op": "set", "name": "Retry-After", "value": "30" }] },
+      "delay": null,
+      "limit": { "type": "always" }
+    }
+  ]
+}
+```
+
+- **Version:**
+  - `version` is the format's own version, not the package's.
+  - Newer readers migrate older documents.
+  - A document from a newer format is refused with "Made by a newer Dio
+    Lens (format 2); update to import it".
+- **What's left out:** fields Dio Lens fills in itself (`hits`, the last
+  fired time, `sourceRequestId`).
+- **Files:** stored inline as base64 when "Include files" is on.
+  Otherwise each file is kept as a placeholder (`name`, `contentType`,
+  `size`, `missing: true`). On import, that row shows "File not included,
+  choose it again".
+- **Redaction:** export follows the `external` redaction target, like
+  request exports.
+  - Values of redacted headers and query parameters inside rules (an
+    `Authorization` set in a request rewrite, a `Set-Cookie` in a mock) are
+    written as `[REDACTED]`.
+  - On import, rows with `[REDACTED]` values are flagged "Value was
+    redacted, fill it in"; they stay off until edited.
+  - The export sheet says when values will be masked.
+
+#### Export
+
+- **What:** one rule (from its row or the editor), the selected rules
+  (multi-select in the Simulations tab), or all rules.
+- **Where:**
+  - **Save file:** through the existing `onExport` callback. The file is
+    `dio_lens_simulations_20261126_104200.json`, and `DioLensExportFile`
+    gains a non-breaking `kind` field (`requests` or `simulations`) and a
+    `ruleCount`. Without `onExport`, Save file is hidden.
+  - **Copy JSON:** to the clipboard, always available. This is the easy
+    path for pasting into a bug report or chat.
+  - **Share:** through `onShare` when the host has one, as a text
+    attachment.
+- **Code:** `DioLens.exportSimulations({ids, includeFiles}) →
+  DioLensExportFile`.
+
+#### Import
+
+- **Sources:**
+  - **Paste JSON:** a text area, always available.
+  - **Choose file:** through the existing `onPickFile` callback, asking
+    for `application/json`. Hidden without it.
+  - **Code:** `DioLens.importSimulations(String json, {onConflict,
+    enable})`. It returns a result: added, replaced, skipped and invalid,
+    with reasons.
+  - **Assets as seeds:** `DioLens.init(simulations:
+    DioLensSimulationRule.listFromJson(await rootBundle.loadString(...)))`,
+    so a team keeps its scenarios in the repo.
+- **Preview before anything changes:** every rule is listed with a status.
+  - *New*;
+  - *Replaces "Users down"*: same `id`;
+  - *Same as "Users down"*: identical content; skipped by default;
+  - *Needs attention*: redacted values or missing files;
+  - *Invalid*: a reason, e.g. "Unknown behavior `slowDown`" or "Status
+    700 is out of range". It can't be imported; the others still can.
+- **Conflicts** (same `id`), one choice for all:
+  - **Replace**;
+  - **Keep both**: the import gets a new id and " (imported)" is added to
+    its name;
+  - **Skip**.
+- **Safety:**
+  - Imported rules arrive **off** by default. A "Turn on imported rules"
+    switch in the preview changes that.
+  - Rules that need attention always arrive off.
+  - Import can't change gating: with simulation not allowed in this build,
+    the import entry points are hidden. `DioLens.importSimulations` throws
+    a `StateError` that says why.
+- **Limits:**
+  - Documents over 20 MB are refused.
+  - Files inside are checked against `maxSimulationFileBytes`; files over
+    it are dropped and listed.
+- **Matching other environments:** the preview offers **"Replace host"**,
+  one field per distinct host in the document. A teammate's
+  `api.staging.example.com` rules can then run against
+  `api.dev.example.com` without editing each rule.
+
 ## 2. Phases
 
 1. **Engine:** model, matcher, adapter, gating, storage, capture tag. Unit
@@ -355,8 +462,8 @@ other rule.
 3. **Manager and indicators:** the Simulations list, the master switch,
    tags, the filter chip, the bubble and banner indicators, the Stats
    toggle.
-4. **Extras:** limits (N times, percentage), conflict warnings, export and
-   import of rules as JSON, and `init` seeds.
+4. **Extras:** limits (N times, percentage), conflict warnings, `init`
+   seeds, and import and export of rules (see "Import and export").
 5. **Request rewriting:** redirect, path, query, request headers, body and
    method rewrites; `sentAs` capture; the Original/Sent views.
 
@@ -763,6 +870,9 @@ The one place to see every rule, turn rules on and off, and delete them.
   holds:
   - **New simulation**: opens the S2 editor with an empty match, for rules
     not started from a captured request;
+  - **Import…**: opens S6b;
+  - **Export all…**: opens S6a;
+  - **Select**: enters selection mode (see below);
   - **Turn all off**;
   - **Delete all**: red, with a confirmation dialog when Clear all
     confirmation is on;
@@ -791,11 +901,18 @@ The one place to see every rule, turn rules on and off, and delete them.
       confirmation is on (same `deleteConfirmation` setting as requests);
     - **Edit**: opens S2;
     - **Duplicate**;
+    - **Export**: opens S6a with only this rule;
     - **Show requests**: opens the Requests tab filtered to this rule's
       simulated calls.
   - **Tap on a row:** opens S2 for editing.
 - **Grouping:** "Active" first, then "Off", each with a count in the group
   header (`dl-group-label`).
+- **Selection mode:** entered by long-pressing a row or with "Select" in the
+  menu.
+  - Each row gets a checkbox, and the row buttons hide.
+  - The top bar becomes "3 selected", with Select all and Cancel.
+  - A bottom action bar offers **Export**, **Turn on**, **Turn off** and
+    **Delete** (red; asks first when Clear all confirmation is on).
 - **Empty state** (`dl-empty`):
   - icon and title "No simulations yet";
   - body: "Open a request and tap *Simulate* to fake an error, a delay, a
@@ -844,6 +961,72 @@ The one place to see every rule, turn rules on and off, and delete them.
   - a button: "Turn off this rule".
 - **Stats:** an "Include simulated" switch at the top (default off), and a
   note in the empty or filtered state: "12 simulated requests hidden".
+
+### S6. Import and export
+
+#### S6a. Export sheet (bottom sheet)
+
+- **Head:** "Export simulations", and close.
+- **Scope**, a `dl-segmented`: **All (7)** · **Active (5)** · **Selected
+  (3)**. "Selected" shows only when coming from selection mode; one rule
+  from its row shows its name instead of the control.
+- **Include files:** a switch with the total size: "Include files ·
+  1.3 MB". Off shows the caption "Files are listed by name; choose them
+  again after importing".
+- **Redaction note** (muted, with a lock icon), shown only when it
+  applies: "2 header values will be exported as [REDACTED]". The values
+  follow the External redaction target.
+- **Summary line:** `dio_lens_simulations_20261126_104200.json · 7 rules ·
+  24 KB`.
+- **Actions**, stacked full-width:
+  - **Save file**: primary, through the app; hidden without `onExport`;
+  - **Copy JSON**: always;
+  - **Share**: hidden without `onShare`.
+  
+  Each closes the sheet and shows a snackbar ("Copied 7 rules", "Exported
+  7 rules").
+
+#### S6b. Import sheet (tall bottom sheet, two steps)
+
+**Step 1, Source:**
+- two big option cards: **Paste JSON** (clipboard icon) and **Choose
+  file** (folder icon; hidden without `onPickFile`);
+- Paste opens a mono text area with "Paste the exported JSON" and a
+  **Paste from clipboard** button;
+- parse errors show inline: "Not a Dio Lens simulations file", "Invalid
+  JSON at line 12, column 4", "Made by a newer Dio Lens (format 2)";
+- while the host picker is open: "Waiting for file…".
+
+**Step 2, Preview:**
+- **Header:** the source and its counts: "7 rules · 5 new · 1 replaces ·
+  1 needs attention".
+- **Rule list:** compact rule rows, each with a checkbox (on by default
+  except Invalid and identical ones), the name, behavior chips, the match
+  preview, and a **status chip**:
+
+  | Status | Chip colour |
+  | --- | --- |
+  | New | accent |
+  | Replaces "Users down" | warn |
+  | Same as existing | muted; unchecked |
+  | Needs attention: redacted value / file missing | warn, with an icon |
+  | Invalid: … | danger; disabled, with the reason as a second line |
+
+- **When some ids conflict:** "If a rule already exists", a segmented
+  control: Replace · Keep both · Skip.
+- **Replace host:** one row per host in the file, with "Use as is" or a
+  field and suggestion chips (hosts seen in captured requests), e.g.
+  `api.staging.example.com` → `api.dev.example.com`.
+- **"Turn on imported rules"** switch, off by default, with the caption
+  "Rules that need attention stay off".
+- **Footer:** **Import 6 rules** (primary; the count follows the
+  checkboxes) and Back.
+- **Result:** the sheet closes, the Simulations tab scrolls to the
+  imported rules and highlights them briefly, and a snackbar reads
+  "Imported 6 · 1 skipped".
+- **Needs attention after import:** the rule row shows a warn dot and
+  "Fill in 1 redacted value" or "Choose 2 missing files". Tapping it opens
+  S2 scrolled to that field.
 
 ## 3. Sample data (use it so the screens look real)
 
@@ -931,9 +1114,15 @@ Multipart fields for *Avatar upload echo*:
     tab Original/Sent toggle on the *Use staging* rule.
 15. S5 Overview box.
 16. S5 Stats toggle.
-17. Light theme for 1, 2, 3, 4, 9, 12 and 14.
-18. RTL for 1, 2, 3, 4 and 9.
-19. 320 px for 1, 2, 3, 4 and 9.
+17. S6a export sheet: All / Active / Selected scope, include files on and
+    off, the redaction note, and no `onExport` (Save file hidden).
+18. S6b import: paste step with a parse error; preview with every status
+    chip, the conflict choice and Replace host; the result highlight; a
+    "needs attention" rule row afterwards.
+19. S3 selection mode with three rules selected and the action bar.
+20. Light theme for 1, 2, 3, 4, 9, 12, 14 and 18.
+21. RTL for 1, 2, 3, 4 and 9.
+22. 320 px for 1, 2, 3, 4 and 9.
 
 ## 6. Deliverables
 
